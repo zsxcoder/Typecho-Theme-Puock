@@ -14,15 +14,13 @@
         ], '', ' - '); ?><?php $this->options->title(); ?></title>
     <link rel="canonical" href="<?php $this->options->siteUrl(); ?>">
     <meta name='robots' content='max-image-preview:large' />
+    <?php $this->options->addhead(); ?>
     <style id='puock-inline-css' type='text/css'>
         body {
-            --pk-c-primary: #A7E6F4
+            --pk-c-primary: <?php if ($this->options->primaryColor): ?><?php $this->options->primaryColor() ?><?php else: ?>#A7E6F4<?php endif; ?>;
         }
         :root {
-            --puock-block-not-tran: 100%
-        }
-        * {
-            font-family: "LXGW WenKai", sans-serif;
+            --puock-block-not-tran: <?php if ($this->options->blockNotTransparent): ?><?php $this->options->blockNotTransparent() ?><?php else: ?>100<?php endif; ?>%;
         }
     </style> 
     <?php if ($this->options->icoUrl): ?>
