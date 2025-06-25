@@ -1,0 +1,192 @@
+<?php if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
+<?php $this->need('header.php'); ?>
+<div id="breadcrumb" class="animated fadeInUp">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a class="a-link" href="<?php $this->options->siteUrl(); ?>">首页</a></li>
+            <li class="breadcrumb-item"><?php $this->category(','); ?></li>
+            <li class="breadcrumb-item active " aria-current="page">正文</li>
+        </ol>
+    </nav>        
+</div>
+<!--内页上方-->
+<div id="post" class="container mt20">
+<?php if ($this->options->articletop): ?>
+<div class="puock-text p-block t-md ad-page-top"><?php $this->options->articletop(); ?></div>
+<?php endif; ?>
+<div class="row row-cols-1 post-row">
+    <div id="post-main" class="col-lg-8 col-md-12 animated fadeInLeft ">
+        <div class="p-block"><div>
+        <h1 id="post-title" class="mb-0 puock-text t-xxl"><?php $this->title() ?></h1>
+    </div>
+    <div class="options p-flex-sbc mt20"><div>
+    <div class="option puock-bg ta3 t-sm mr-1">
+        <i class="fa-regular fa-eye mr-1"></i>
+        <span id="post-views">
+            <span class="view">浏览：<?php get_post_view($this) ?></span>
+        </span>
+        <span>次阅读</span>
+    </div> 
+    <a href="#comments">
+        <div class="option puock-bg ta3 t-sm mr-1">
+            <i class="fa-regular fa-comment mr-1"></i><?php $this->commentsNum('0 评论', '1 评论', '%d 评论'); ?>
+        </div>
+    </a>
+    <?php if($this->user->hasLogin() && $this->user->pass('editor', true)): ?>    
+    <a target="_blank" href="<?php $this->options->adminUrl('write-post.php?cid=' . $this->cid); ?>"> 
+        <div class="option puock-bg ta3 t-sm mr-1">
+            <i class="fa-regular fa-pen-to-square mr-1"></i>编辑 
+        </div> 
+    </a>                 
+    <?php endif; ?>
+</div>
+<div class="option puock-bg ta3 t-sm mr-1 d-none d-lg-inline-block post-main-size">
+    <i class="fa fa-up-right-and-down-left-from-center"></i>
+</div>
+</div>
+<?php
+// 获取当前文章内容（去除 HTML 标签）
+$content = strip_tags($this->content);
+// 计算字数（适用于中英文混合）
+$wordCount = mb_strlen($content, 'UTF-8');
+?>
+<div class="mt20 entry-content-box">
+<div class="entry-content show-link-icon content-main puock-text ">
+<p class="fs12 c-sub no-indent"> <i class="fa-regular fa-clock"></i> 共计<?php echo $wordCount; ?>个字符，预计需要花费 <?php echo ceil($wordCount / 100); ?>分钟才能阅读完成。 </p>
+<p class="fs12 c-sub">
+<?php
+$modified = $this->modified;
+$now = time();
+$days = ($now - $modified) / 86400;
+ 
+if($days > 180){
+    echo '<i class="fa fa-circle-exclamation me-1"></i> 本文最后更新于 ' . date('Y-m-d H:i', $modified) . '，文中所关联的信息可能已发生改变，请知悉！';
+}
+?>
+</p>
+
+<p><?php $this->content(); ?></p>
+</div>
+<div class="t-separator c-sub t-sm mt30">正文完</div>
+<div class="footer-info puock-text mt20">
+<div class="mt20 tags">
+<?php if ($this->tags): ?>
+<?php foreach ($this->tags as $tag): ?>
+<a href="<?php echo $tag['permalink']; ?>" class="pk-badge pk-badge-sm mr5 mb10"><i class="fa-solid fa-tag"></i> <?php echo $tag['name']; ?></a> 
+<?php endforeach; ?>
+<?php else: ?>
+<?php endif; ?>
+</div>
+<div class="p-flex-sbc mt20 t-sm">
+<div> 
+<span>发表至：</span>
+<?php foreach($this->categories as $category): ?>
+<a class=" mr5" href="<?php echo $category['permalink']; ?>">
+<i class="fa-regular fa-folder-open"></i> <?php echo $category['name']; ?>
+</a> 
+<?php endforeach; ?>
+</div>
+<div> 
+    <span class="c-sub"><i class="fa-regular fa-clock"></i> <?php $this->date(); ?></span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt15 post-action-panel">
+    <div class="post-action-content">
+        <div class="d-flex justify-content-center w-100 c-sub">
+            <div class="circle-button puock-bg text-center " id="post-like" data-id="<?php echo $this->cid; ?>"> 
+                <i class="fa-regular fa-thumbs-up t-md"></i>&nbsp;<span class="t-sm"><?php get_post_like($this) ?></span>
+            </div>
+            <?php if ($this->options->social): ?>
+            <div class="circle-button puock-bg text-center pk-modal-toggle" title="海报"
+                data-no-title data-no-padding data-once-load="true"
+                data-url="<?php echo get_correct_url('/poster/' . $this->cid); ?>">
+                <i class="fa-regular fa-images"></i>
+            </div>
+            <div class="circle-button puock-bg text-center pk-modal-toggle" title="赞赏"
+                data-once-load="true"
+                data-url="<?php echo get_correct_url('/reward/'); ?>">
+                <i class="fa fa-sack-dollar"></i>
+            </div>
+            <div class="circle-button puock-bg text-center pk-modal-toggle" title="分享"
+                data-once-load="true"
+                data-url="<?php echo get_correct_url('/share/' . $this->cid); ?>">
+                <i class="fa fa-share-from-square t-md"></i>
+            </div>
+            <?php endif; ?>
+            <div class="ls">
+                <div class="circle-button puock-bg text-center post-menu-toggle post-menus-box">
+                    <i class="fa fa-bars t-md"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> <!--内页中-->
+</div>
+                    <?php if ($this->options->articlemid): ?>
+                    <div class="puock-text p-block t-md ad-page-content-bottom"><?php $this->options->articlemid(); ?></div>
+                    <?php endif; ?>
+                    <?php $this->related(4)->to($relatedPosts); if ($relatedPosts->have()):?>
+                    <div class="p-block pb-0">
+                        <div class="row puock-text post-relevant"> 
+                            <?php while ($relatedPosts->next()): ?> 
+                            <a href="<?php $relatedPosts->permalink(); ?>"
+                                class="col-6 col-md-3 post-relevant-item ww"> 
+                                <div
+                                    style="background:url('<?php echo getPostCover($relatedPosts->content, $relatedPosts->cid); ?>')">
+                                    <div class="title"> <?php $relatedPosts->title(); ?></div>
+                                </div>
+                            </a> 
+                            <?php endwhile; ?>	
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    <div class="p-block p-lf-15">
+                        <div class="row text-center pd-links single-next-or-pre t-md ">
+                            <?php $prevPost = get_previous_post($this); ?>
+                            <div class="col-6 p-border-r-1 p-0"> 
+                                <?php if ($prevPost) { ?>
+                                <a href="<?php echo $prevPost->permalink; ?>"
+                                    rel="prev">
+                                    <div class='abhl puock-text'>
+                                        <p class='t-line-1'><?php echo $prevPost->title; ?></p>
+                                        <span>上一篇</span>
+                                    </div>
+                                </a>
+                                <?php } else { ?> 
+                                    <a href="javascript:void(0);" rel="prev">
+                                        <div class='abhl puock-text'>
+                                            <p class='t-line-1'>没有上一篇</p>
+                                            <span>上一篇</span>
+                                        </div>
+                                    </a>
+                                <?php } ?>
+                            </div>
+                            <?php $nextPost = get_next_post($this); ?>
+                            <div class="col-6 p-0"> 
+                                <?php if ($nextPost) { ?>
+                                <a href="<?php echo $nextPost->permalink; ?>" rel="next">
+                                    <div class="abhl">
+                                        <p class="t-line-1"><?php echo $nextPost->title; ?></p> 
+                                        <span>下一篇</span>
+                                    </div>
+                                </a> 
+                                <?php } else { ?> 
+                                    <a href="javascript:void(0);" rel="next">
+                                        <div class='abhl puock-text'>
+                                            <p class='t-line-1'>已是最新的文章</p>
+                                            <span>下一篇</span>
+                                        </div>
+                                    </a>
+                                <?php } ?>
+                            </div>
+                        </div>
+                    </div> <!--评论上方--> 
+<?php $this->need('comments.php'); ?>
+</div>     
+<?php if ($this->options->articlefoot): ?>
+<div class="puock-text p-block t-md ad-comment-top"><?php $this->options->articlefoot(); ?></div> 
+<?php endif; ?>
+<?php $this->need('sidebar.php'); ?>
+<?php $this->need('footer.php'); ?>

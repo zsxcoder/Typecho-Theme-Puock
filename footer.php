@@ -1,0 +1,106 @@
+<?php if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
+<?php if ($this->is('index')): ?>
+<?php if ($this->options->cmsmodel): ?>
+<?php $this->need('cms.php'); ?>
+<?php endif; ?>
+<?php if ($this->options->friendlink): ?>
+<div class="p-block index-links">
+<div> 
+<span class="t-lg puock-text pb-2 d-inline-block border-bottom border-primary"> 
+<i class="fa fa-link"></i>友情链接 
+</span> 
+</div>
+<div class="mt20 t-md index-links-box"> 
+<?php Links_Plugin::output('
+<a class="badge links-item" href="{url}" target="_blank" title="{title}" rel="nofollow">{name}</a>
+'); ?>
+</div>
+</div>
+<?php endif; ?>
+<?php endif; ?>
+ <!--全局下方-->
+<?php if($this->options->adlistfoot): ?>
+<div class="puock-text p-block t-md ad-global-bottom"><?php $this->options->adlistfoot(); ?></div>
+<?php endif; ?>
+</div>
+<div id="post-menus" class="post-menus-box"> 
+    <div id="post-menu-state" class="post-menu-toggle" title="打开或关闭文章目录"> 
+        <i class="puock-text ta3 fa fa-bars"></i> 
+    </div> 
+    <div id="post-menu-content" class="animated slideInRight mini-scroll"> 
+        <div id="post-menu-head"> </div> 
+        <div id="post-menu-content-items">
+        </div> 
+    </div>
+</div>
+<div id="rb-float-actions"> 
+    <?php if ($this->is('post')): ?>
+    <div data-to-area="#comments" class="p-block"><i class="fa-regular fa-comments puock-text"></i></div> 
+    <?php endif; ?>
+    <div data-to="top" class="p-block"><i class="fa fa-arrow-up puock-text"></i></div> 
+    <div data-to="bottom" class="p-block"><i class="fa fa-arrow-down puock-text"></i></div>
+</div>
+        <footer id="footer">
+            <div class="container">
+                <div class="row row-cols-md-1">
+                    <div class="col-md-6">
+                        <?php if($this->options->footerinfo): ?>
+                        <div><span class="t-md pb-2 d-inline-block border-bottom border-primary"><i class="fa-regular fa-bell"></i> 联系我们</span> </div>
+                        <p class="mt20 t-md"> 
+                            <?php $this->options->footerinfo(); ?>
+                        </p>
+                    </div>
+                    <?php endif; ?>
+                    <div class="col-md-6">
+                        <?php if($this->options->footercopyright): ?>
+                        <div><span class="t-md pb-2 d-inline-block border-bottom border-primary"><i class="fa-regular fa-copyright"></i> 版权说明</span> </div>
+                        <p class="mt20 t-md">
+                            <?php $this->options->footercopyright(); ?>
+                        </p>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="mt20 text-center t-md">
+                <div class="info"> 
+                    <p><?php $this->options->tongji(); ?></p>
+                    <a href="https://beian.miit.gov.cn/" target="_blank" rel="nofollow"><?php $this->options->ICP(); ?></a>
+                &copy; <?php echo date('Y'); ?> <a href="<?php $this->options->siteUrl(); ?>"><?php $this->options->title(); ?></a>
+                    <div class="fs12 mt10 c-sub"> 
+                        <span>  &nbsp;Theme by 
+                            <a target="_blank" class="c-sub" title="Puock v2.8.14" href="https://github.com/jkjoy/typecho-theme-puock">Puock</a> 
+                        </span> 
+                        <span>  &nbsp;Powered by 
+                            <a target="_blank" class="c-sub" title="Typecho" href="https://typecho.org">Typecho</a> <p><a target="_blank" class="c-sub" title="老孙博客" href="https://imsun.org">老孙博客</a>制作</p>
+                        </span>
+                    </div>
+                </div>
+            </div>
+    </div>
+    </footer>
+    </div>
+    <div id="gt-validate-box"></div>
+    <script data-instant>
+        var puock_metas = {
+            "home": "<?php $this->options->siteUrl(); ?>",
+            "use_post_menu": true,
+            "is_single": false,
+            "is_pjax": false,
+            "main_lazy_img": true,
+            "link_blank_open": true,
+            //"async_view_id": null,
+            "mode_switch": true,
+            "off_img_viewer": false,
+            "off_code_highlighting": false
+        };
+    </script>
+    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/libs.min.js'); ?>?ver=2.8.14" id="puock-libs-js"></script>
+    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/layer/layer.js'); ?>?ver=2.8.14" id="puock-layer-js"></script>
+    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/spark-md5.min.js'); ?>?ver=2.8.14" id="puock-spark-md5-js"></script>
+    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/html2canvas.min.js'); ?>?ver=2.8.14" id="puock-html2canvas-js"></script>
+    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/gt4.js'); ?>?ver=2.8.14" id="puock-gt4-js"></script>
+    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/puock.js'); ?>" id="puock-js"></script>
+    <?php $this->footer(); ?>
+</body>
+
+</html>
