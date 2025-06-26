@@ -183,10 +183,10 @@ if($days > 180){
                             </div>
                         </div>
                     </div> <!--评论上方--> 
-<?php $this->need('comments.php'); ?>
-</div>     
+<?php $this->need('comments.php'); ?>   
 <?php if ($this->options->articlefoot): ?>
 <div class="puock-text p-block t-md ad-comment-top"><?php $this->options->articlefoot(); ?></div> 
 <?php endif; ?>
+</div>
 <?php $this->need('sidebar.php'); ?>
 <?php $this->need('footer.php'); ?>

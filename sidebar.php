@@ -167,7 +167,6 @@ if ($totalViews === null) $totalViews = 0;
     </div>
     <?php endif; ?>
 <?php endif; ?>
-
         <!-- 最近评论 -->
         <?php if (!empty($this->options->sidebarBlock) && in_array('ShowRecentComments', $this->options->sidebarBlock)): ?>
                     <?php 
@@ -201,10 +200,10 @@ if ($totalViews === null) $totalViews = 0;
 <!-- 热门标签 -->
 <?php if (!empty($this->options->sidebarBlock) && in_array('ShowTags', $this->options->sidebarBlock)): ?>
 <?php
-$tags = \Widget\Metas\Tag\Cloud::alloc('sort=count&desc=1&limit=20');
+$tags = \Widget\Metas\Tag\Cloud::alloc('sort=count&desc=1');
 if ($tags->have()):
     // 定义可用的颜色类数组
-    $colors = ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-warning', 'bg-info'];
+$colors = ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-warning', 'bg-info', 'bg-transparent', 'bg-gradient'];
 ?>
 <div class="pk-widget p-block ">
     <div> 
@@ -226,6 +225,5 @@ if ($tags->have()):
 </div>
 <?php endif; ?>
 <?php endif; ?>
-    
     </div>
 </div>

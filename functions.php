@@ -297,7 +297,7 @@ function get_permalink($cid) {
         $post['type'] = 'post'; // 确保类型为文章
         $post = Typecho_Widget::widget('Widget_Abstract_Contents')->filter($post);   
         // 使用文章对象的 permalink 方法生成链接
-        return $post['permalink'];
+        return $post['permalink'] ?? '';
     } catch (Exception $e) {
         // 出现异常时使用最简单的方式
         $options = Helper::options();
@@ -678,7 +678,10 @@ function getBrowsersInfo ($userAgent) {
  * @return mixed|void
  */
 function pregMatch($reg, $sourceData) {
-    if (preg_match($reg, $sourceData, $mat)) return $mat[1];
+    if (preg_match($reg, $sourceData, $mat)) {
+        return $mat[1] ?? '';
+    }
+return '';
 }
 
 /**

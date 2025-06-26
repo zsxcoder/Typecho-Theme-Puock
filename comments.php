@@ -225,3 +225,72 @@
     <?php endif; ?>
 </li>
 <?php } ?>
+<script>
+var TypechoComment = {
+    dom : function (id) {
+        return document.getElementById(id);
+    },
+    
+    create : function (tag, attr) {
+        var el = document.createElement(tag);
+        
+        for (var key in attr) {
+            el.setAttribute(key, attr[key]);
+        }
+        
+        return el;
+    },
+
+    reply : function (cid, coid) {
+        var comment = this.dom(cid), parent = comment.parentNode,
+            response = this.dom('comment-form-box'), holder = response.parentNode,
+            form = this.dom('comment-form'), textarea = this.dom('comment'),
+            submit = this.dom('comment-submit'),
+            cancel = this.dom('comment-cancel');
+
+        if (null != this.dom('comment-form-place-holder')) {
+            var holder = this.dom('comment-form-place-holder');
+        }
+
+        // 移动评论表单
+        if (null == this.dom('comment-form-place-holder')) {
+            var holder = this.create('div', {
+                'id': 'comment-form-place-holder'
+            });
+
+            response.parentNode.insertBefore(holder, response);
+        }
+
+        // 修改表单中的内容
+        comment.appendChild(response);
+        
+        // 显示取消回复按钮
+        cancel.style.display = '';
+
+        // 记录回复的评论ID
+        this.dom('comment-parent').value = coid;
+        
+        // 移动光标到评论框
+        textarea.focus();
+
+        return false;
+    },
+
+    cancelReply : function () {
+        var response = this.dom('comment-form-box'), holder = this.dom('comment-form-place-holder'),
+            comment = this.dom('comment-parent');
+
+        if (null != holder) {
+            holder.parentNode.insertBefore(response, holder);
+            holder.parentNode.removeChild(holder);
+        }
+
+        // 隐藏取消回复按钮
+        this.dom('comment-cancel').style.display = 'none';
+        // 清除回复评论ID
+        comment.value = '';
+
+        return false;
+    }
+};
+</script>

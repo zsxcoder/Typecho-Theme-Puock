@@ -4,7 +4,7 @@
  *
  * @package Typecho Pouck Theme
  * @author 老孙博客
- * @version 1.0
+ * @version 1.0.1
  * @link http://www.imsun.org
  */
 
@@ -17,6 +17,7 @@ $this->need('sticky.php');
 <div class="animated fadeInLeft ">
 <div> <!--文章列表-->
 <div id="posts">
+<?php if ($this->options->listmodel): ?>
 <div class=" mr-0 ml-0">  
 <?php while ($this->next()): ?>
 <?php 
@@ -87,6 +88,9 @@ if ($pageprev == '1' && $this->have()):
 </div>
 <?php endif; ?>
 </div>
+<?php else: ?>
+<?php $this->need('card.php'); ?>
+<?php endif; ?>
 </div>
 </div>
 </div>
