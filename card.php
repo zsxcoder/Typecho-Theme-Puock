@@ -3,7 +3,7 @@
 <?php while ($this->next()): ?>
 <?php 
 $coverImage = getPostCover($this->content, $this->cid);
-$colors = ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-warning', 'bg-info', 'bg-transparent', 'bg-gradient'];
+$colors = ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-warning', 'bg-info'];
 ?>
 <article class="block card-plain post-item col-md-6 col-12 post-item-card">
     <div class="p-block post-item-block">

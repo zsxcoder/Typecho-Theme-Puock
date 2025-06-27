@@ -4,7 +4,7 @@
  *
  * @package Typecho Pouck Theme
  * @author 老孙博客
- * @version 1.0.1
+ * @version 1.0.3
  * @link http://www.imsun.org
  */
 
@@ -22,6 +22,7 @@ $this->need('sticky.php');
 <?php while ($this->next()): ?>
 <?php 
 $coverImage = getPostCover($this->content, $this->cid);
+$colors = ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-warning', 'bg-info'];
 ?>
 <article class="block card-plain post-item p-block post-item-list">
 <div class="thumbnail"> 
@@ -34,7 +35,7 @@ $coverImage = getPostCover($this->content, $this->cid);
 <h2 class="info-title"> 
 <?php if (isset($this->isSticky) && $this->isSticky): ?><?php echo $this->stickyHtml; ?><?php endif; ?>
 <?php foreach($this->categories as $category): ?>
-<a class="badge d-none d-md-inline-block bg-primary ahfff" href="<?php echo $category['permalink']; ?>">
+<a class="badge d-none d-md-inline-block <?php echo $colors[array_rand($colors)]; ?> ahfff" href="<?php echo $category['permalink']; ?>">
 <i class="fa-regular fa-folder-open"></i> <?php echo $category['name']; ?>
 </a> 
 <?php endforeach; ?>

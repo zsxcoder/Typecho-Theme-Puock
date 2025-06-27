@@ -110,7 +110,9 @@ if ($totalViews === null) $totalViews = 0;
         'table.contents.authorId',
         'table.contents.type',
         'table.contents.status',
-        'table.contents.commentsNum'
+        'table.contents.commentsNum',
+        'table.contents.order',
+        'table.contents.template'
     )
     ->from('table.contents')
     ->where('table.contents.type = ?', 'post')
@@ -136,17 +138,23 @@ if ($totalViews === null) $totalViews = 0;
         <div class="mt20">
             <?php foreach ($hotPosts as $post): ?>
                 <?php
-                // 完整处理文章数据
-                $widget = Typecho_Widget::widget('Widget_Abstract_Contents');
+                // Typecho 1.3.0 兼容处理
+                $widget = $this->widget('Widget_Archive@post_' . $post['cid'], 'type=post');
                 try {
-                    $post = $widget->filter($post);
-                    if (empty($post['title'])  || empty($post['slug'])) {
-                        continue; // 跳过无效数据
-                    }
-                    $post['title'] = htmlspecialchars($post['title']);
-                    $post['slug'] = htmlspecialchars($post['slug']);
-                    if (empty($post['permalink'])) {
-                        $post['permalink'] = Typecho_Common::url($post['slug'], $this->options->index);
+                    $widget->setArchiveProperty('cid', $post['cid']);
+                    $widget->setArchiveProperty('title', $post['title']);
+                    $widget->setArchiveProperty('slug', $post['slug']);
+                    $widget->setArchiveProperty('created', $post['created']);
+                    $widget->setArchiveProperty('authorId', $post['authorId']);
+                    $widget->setArchiveProperty('type', $post['type']);
+                    $widget->setArchiveProperty('status', $post['status']);
+                    $widget->setArchiveProperty('commentsNum', $post['commentsNum']);
+                    
+                    // 生成正确链接
+                    $permalink = $widget->archiveUrl;
+                    
+                    if (empty($post['title']) || empty($permalink)) {
+                        continue;
                     }
                 } catch (Exception $e) {
                     continue;
@@ -157,7 +165,7 @@ if ($totalViews === null) $totalViews = 0;
                         <i class="fa fa-angle-right t-sm c-sub mr-1"></i> 
                         <a class="a-link t-w-400 t-md" 
                            title="<?php echo htmlspecialchars($post['title']); ?>" 
-                           href="<?php echo htmlspecialchars($post['permalink']); ?>">
+                           href="<?php echo htmlspecialchars($permalink); ?>">
                             <?php echo htmlspecialchars($post['title']); ?>
                         </a> 
                     </h2>
@@ -202,8 +210,8 @@ if ($totalViews === null) $totalViews = 0;
 <?php
 $tags = \Widget\Metas\Tag\Cloud::alloc('sort=count&desc=1');
 if ($tags->have()):
-    // 定义可用的颜色类数组
-$colors = ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-warning', 'bg-info', 'bg-transparent', 'bg-gradient'];
+// 定义可用的颜色类数组
+$colors = ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-warning', 'bg-info'];
 ?>
 <div class="pk-widget p-block ">
     <div> 
