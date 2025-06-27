@@ -3,6 +3,7 @@
 <?php while ($this->next()): ?>
 <?php 
 $coverImage = getPostCover($this->content, $this->cid);
+$colors = ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-warning', 'bg-info', 'bg-transparent', 'bg-gradient'];
 ?>
 <article class="block card-plain post-item col-md-6 col-12 post-item-card">
     <div class="p-block post-item-block">
@@ -19,7 +20,7 @@ $coverImage = getPostCover($this->content, $this->cid);
         <div class="post-info">
             <h2 class="info-title"> 
                 <?php foreach($this->categories as $category): ?>
-                <a class="badge d-none d-md-inline-block bg-primary ahfff"
+                <a class="badge d-none d-md-inline-block <?php echo $colors[array_rand($colors)]; ?> ahfff"
                    href="<?php echo $category['permalink']; ?>">
                    <i class="fa-regular fa-folder-open"></i> <?php echo $category['name']; ?>
                 </a> 
@@ -37,7 +38,7 @@ $coverImage = getPostCover($this->content, $this->cid);
                         <span class="mr-2"> 
                             <i class="fa-regular fa-eye mr-1"></i>
                             <span class="view">浏览：<?php get_post_view($this) ?></span>
-                            <span class="t-sm d-none d-sm-inline-block">次阅读</span>
+                            <span class="t-sm d-none d-sm-inline-block">次</span>
                         </span>
                         <a class="c-sub-a" href="<?php $this->permalink() ?>#comments">
                             <i class="fa-regular fa-comment mr-1"></i> 

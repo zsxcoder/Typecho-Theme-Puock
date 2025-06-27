@@ -23,9 +23,9 @@
     <div class="option puock-bg ta3 t-sm mr-1">
         <i class="fa-regular fa-eye mr-1"></i>
         <span id="post-views">
-            <span class="view">浏览：<?php get_post_view($this) ?></span>
+            <span class="view"><?php get_post_view($this) ?></span>
         </span>
-        <span>次阅读</span>
+        <span>次浏览</span>
     </div> 
     <a href="#comments">
         <div class="option puock-bg ta3 t-sm mr-1">
@@ -52,19 +52,17 @@ $wordCount = mb_strlen($content, 'UTF-8');
 ?>
 <div class="mt20 entry-content-box">
 <div class="entry-content show-link-icon content-main puock-text ">
-<p class="fs12 c-sub no-indent"> <i class="fa-regular fa-clock"></i> 共计<?php echo $wordCount; ?>个字符，预计需要花费 <?php echo ceil($wordCount / 100); ?>分钟才能阅读完成。 </p>
+<p class="fs12 c-sub no-indent"> <i class="fa-regular fa-clock"></i> 共计<?php echo $wordCount; ?>个字符，预计需要花费 <?php echo ceil($wordCount / 800); ?>分钟才能阅读完成。 </p>
 <p class="fs12 c-sub">
 <?php
 $modified = $this->modified;
 $now = time();
 $days = ($now - $modified) / 86400;
- 
 if($days > 180){
     echo '<i class="fa fa-circle-exclamation me-1"></i> 本文最后更新于 ' . date('Y-m-d H:i', $modified) . '，文中所关联的信息可能已发生改变，请知悉！';
 }
 ?>
 </p>
-
 <p><?php $this->content(); ?></p>
 </div>
 <div class="t-separator c-sub t-sm mt30">正文完</div>

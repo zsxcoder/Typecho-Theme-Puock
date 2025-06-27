@@ -15,7 +15,7 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
 </nav>
 </div>    
 <div id="page-links">
-<div id="page-24" class="row row-cols-1">
+<div class="row row-cols-1">
 <div id="posts" class="col-12 animated fadeInLeft ">
 <div class="puock-text no-style">
 <p><?php $this->content(); ?></p>
