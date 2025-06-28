@@ -29,11 +29,11 @@ function themeConfig($form)
     $form->addInput($pageprev);
     $cmsmodel = new Typecho_Widget_Helper_Form_Element_Radio('cmsmodel',
     array('0'=> _t('否'), '1'=> _t('是')),
-    '0', _t('CMS模式'), _t('选择"是"开启CMS模式。选择否则使用博客模式'));
+    '0', _t('CMS模式'), _t('选择"是"开启CMS模式。'));
     $form->addInput($cmsmodel);
     $friendlink = new Typecho_Widget_Helper_Form_Element_Radio('friendlink',
     array('0'=> _t('否'), '1'=> _t('是')),
-    '0', _t('友情链接'), _t('选择"是"在首页显示友情链接。开启前请安装"Links"插件。默认关闭'));
+    '0', _t('友情链接'), _t('选择"是"在首页显示友情链接。开启前请安装"Links"插件。链接分类需设置为home，默认关闭'));
     $form->addInput($friendlink);
     $social = new Typecho_Widget_Helper_Form_Element_Radio('social',
     array('0'=> _t('否'), '1'=> _t('是')),
