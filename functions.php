@@ -338,67 +338,87 @@ function getAllCommenters() {
     
     return $commenters;
 }
-/**
- * 获取IP归属地
- */
-// 加载 XdbSearcher 类
-require_once __DIR__ . '/ip2region/XdbSearcher.php';
-
-// 单例方式加载 ip2region.xdb 到内存
-function getIp2regionSearcher() {
-    static $searcher = null;
-    if ($searcher === null) {
-        $dbPath = __DIR__ . '/ip2region/ip2region.xdb';
-        $cBuff = XdbSearcher::loadContentFromFile($dbPath);
-        if ($cBuff === null) {
-            error_log("无法加载 ip2region.xdb");
-            return null;
-        }
-        try {
-            $searcher = XdbSearcher::newWithBuffer($cBuff);
-        } catch (Exception $e) {
-            error_log("创建 ip2region searcher 失败: " . $e->getMessage());
-            return null;
-        }
-    }
-    return $searcher;
-}
 
 /**
- * 格式化 IP 归属地
- *
- * @param string $region 归属地字符串
- * @return string 格式化后的归属地
+ * 获取IP归属地 (使用 ip.asbid.cn API)
  */
-function format_ip_region($region) {
-    // 分割字符串
-    $parts = explode('|', $region);
-
-    // 去除为 0 或 空字符串的部分
-    $parts = array_filter($parts, function($item) {
-        return $item !== '0' && $item !== '';
-    });
-
-    // 重新拼接
-    return implode('', $parts);
-}
-
-// 通过 IP 获取归属地
 function get_ip_region($ip) {
-        // 检查是否是 IPv6 地址
-    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-        return 'IPv6';
-    }
-        // 检查是否是内网IP
+    // 检查是否是内网IP
     if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
         return '内网IP';
     }
     
-    $searcher = getIp2regionSearcher();
-    if (!$searcher) return '未知';
-    $region = $searcher->search($ip);
-    if ($region === null) return '未知';
-    return format_ip_region($region);
+    // 缓存目录路径
+    $cacheDir = __TYPECHO_ROOT_DIR__ . '/usr/cache/ip_cache/';
+    if (!file_exists($cacheDir)) {
+        mkdir($cacheDir, 0755, true);
+    }
+    
+    // 缓存文件名 (使用ip作为文件名)
+    $cacheFile = $cacheDir . md5($ip) . '.json';
+    
+    // 检查是否有缓存
+    if (file_exists($cacheFile)) {
+        $cacheData = json_decode(file_get_contents($cacheFile), true);
+        if ($cacheData && isset($cacheData['expire']) && $cacheData['expire'] > time()) {
+            return format_api_ip_region($cacheData['data']);
+        }
+    }
+    
+    // 调用API获取IP信息
+    $apiUrl = 'https://ip.asbid.cn/' . $ip;
+    $response = @file_get_contents($apiUrl);
+    
+    if ($response === false) {
+        // API调用失败，返回未知
+        return '未知';
+    }
+    
+    $data = json_decode($response, true);
+    if (!$data || !isset($data['country'])) {
+        return '未知';
+    }
+    
+    // 缓存数据 (设置1个月有效期)
+    $cacheData = [
+        'data' => $data,
+        'expire' => time() + 30 * 24 * 3600
+    ];
+    file_put_contents($cacheFile, json_encode($cacheData));
+    
+    return format_api_ip_region($data);
+}
+
+/**
+ * 格式化API返回的IP归属地信息
+ *
+ * @param array $data API返回的数据
+ * @return string 格式化后的归属地
+ */
+function format_api_ip_region($data) {
+    $regionParts = [];
+    
+    if (isset($data['country']) && $data['country']) {
+        $regionParts[] = $data['country'];
+    }
+    if (isset($data['province']) && $data['province']) {
+        $regionParts[] = $data['province'];
+    }
+    if (isset($data['city']) && $data['city']) {
+        // 处理"中国-江苏-南京"这样的格式
+        $cityParts = explode('–', $data['city']);
+        foreach ($cityParts as $part) {
+            if (trim($part) && !in_array(trim($part), $regionParts)) {
+                $regionParts[] = trim($part);
+            }
+        }
+    }
+    
+    if (isset($data['isp']) && $data['isp']) {
+        $regionParts[] = $data['isp'];
+    }
+    
+    return implode(' ', $regionParts);
 }
 
 /**
@@ -407,8 +427,7 @@ function get_ip_region($ip) {
  * @param string $userAgent 用户代理
  * @return string[]
  */
-function getBrowsersInfo ($userAgent) {
- 
+function getBrowsersInfo($userAgent) {
     $deviceInfo = [
         "system" => "",
         "systemVersion" => "",
@@ -416,7 +435,6 @@ function getBrowsersInfo ($userAgent) {
         "version" => "",
         "device" => "PC"
     ];
- 
  
     $match = [
         // 浏览器 - 国外浏览器
@@ -492,7 +510,6 @@ function getBrowsersInfo ($userAgent) {
         "Mobile" => strstr($userAgent,'Mobi') != false || strstr($userAgent,'iPh') != false || strstr($userAgent,'480') != false,
         "Tablet" => strstr($userAgent,'Tablet') != false || strstr($userAgent,'Pad') != false || strstr($userAgent,'Nexus 7') != false,
     ];
- 
     // 部分修正 | 因typecho评论数据只存储了ua的信息,所以不能完全进行修正尤其是360相关浏览器
     if ($match['Baidu'] && $match['Opera']) $match['Baidu'] = false;
     if ($match['iOS']) $match['Safari'] = true;
@@ -553,9 +570,6 @@ function getBrowsersInfo ($userAgent) {
         $deviceInfo['systemVersion'] = $systemVersion[$deviceInfo['system']];
         if ($deviceInfo['systemVersion'] == $userAgent) $deviceInfo['systemVersion'] = '';
     }
- 
-//    if ($deviceInfo['system'] == 'Windows' && $_windowsVersion) $deviceInfo['systemVersion'] = $_windowsVersion;
- 
  
     // 浏览器版本信息
     $browsers_360SE = [
