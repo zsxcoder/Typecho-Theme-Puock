@@ -161,6 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['likeup']) && isset($_
     }
     exit;
 }
+
 /**
  * 随机封面
  */
@@ -304,6 +305,7 @@ function get_permalink($cid) {
         return $options->siteUrl . '?cid=' . $cid;
     }
 }
+
 /**
  * 获取所有评论者信息的函数
  */
@@ -315,6 +317,7 @@ function getAllCommenters() {
     $query = $db->select('author, mail, COUNT(*) as comment_count, url')
         ->from('table.comments')
         ->where('status = ?', 'approved') // 只统计已通过审核的评论
+        ->where('authorId != ?', 1)      // 排除ID为1的管理员
         ->group('mail')
         ->order('comment_count', Typecho_Db::SORT_DESC);
         
@@ -846,53 +849,33 @@ function getPermalinkFromCoid($coid) {
 	if (empty($row)) return '';
 	return '<a href="#comment-'.$coid.'" class="c-sub">@'.$row['author'].'</a>';
 }
+
 /**
  * 全部标签按字母书序排列
  */
-// 获取中文字符首字母的函数
+// 引入 Composer 自动加载
+require __DIR__ . '/vendor/autoload.php';
+use Overtrue\Pinyin\Pinyin;
+
 function getFirstChar($str) {
     if (empty($str)) return '#';
-    
-    // 如果是数字
-    if (is_numeric($str[0])) {
+
+    $pinyin = new Pinyin();
+    $firstChar = mb_substr($str, 0, 1, 'UTF-8');
+
+    // 数字
+    if (is_numeric($firstChar)) {
         return '0';
     }
-    
-    // 如果是英文字母
-    $firstChar = ord($str[0]);
-    if ($firstChar >= ord('A') && $firstChar <= ord('z')) {
-        return strtoupper($str[0]);
+
+    // 英文字母
+    if (preg_match('/^[a-zA-Z]$/', $firstChar)) {
+        return strtoupper($firstChar);
     }
-    
-    // 如果是中文
-    $s = iconv('UTF-8', 'gb2312', $str);
-    if (strlen($s) < 2) return '#';
-    
-    $asc = ord($s[0]) * 256 + ord($s[1]) - 65536;
-    if ($asc >= -20319 && $asc <= -20284) return 'A';
-    if ($asc >= -20283 && $asc <= -19776) return 'B';
-    if ($asc >= -19775 && $asc <= -19219) return 'C';
-    if ($asc >= -19218 && $asc <= -18711) return 'D';
-    if ($asc >= -18710 && $asc <= -18527) return 'E';
-    if ($asc >= -18526 && $asc <= -18240) return 'F';
-    if ($asc >= -18239 && $asc <= -17923) return 'G';
-    if ($asc >= -17922 && $asc <= -17418) return 'H';
-    if ($asc >= -17417 && $asc <= -16475) return 'J';
-    if ($asc >= -16474 && $asc <= -16213) return 'K';
-    if ($asc >= -16212 && $asc <= -15641) return 'L';
-    if ($asc >= -15640 && $asc <= -15166) return 'M';
-    if ($asc >= -15165 && $asc <= -14923) return 'N';
-    if ($asc >= -14922 && $asc <= -14915) return 'O';
-    if ($asc >= -14914 && $asc <= -14631) return 'P';
-    if ($asc >= -14630 && $asc <= -14150) return 'Q';
-    if ($asc >= -14149 && $asc <= -14091) return 'R';
-    if ($asc >= -14090 && $asc <= -13319) return 'S';
-    if ($asc >= -13318 && $asc <= -12839) return 'T';
-    if ($asc >= -12838 && $asc <= -12557) return 'W';
-    if ($asc >= -12556 && $asc <= -11848) return 'X';
-    if ($asc >= -11847 && $asc <= -11056) return 'Y';
-    if ($asc >= -11055 && $asc <= -10247) return 'Z';
-    return '#';
+
+    // 中文转拼音首字母
+    $abbr = $pinyin->abbr($firstChar, '');
+    return strtoupper($abbr[0] ?? '#');
 }
 
 /**
