@@ -63,4 +63,20 @@ $colors = ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-warning'
     </div>
 </article> 
 <?php endwhile; ?>
+<?php 
+$pageprev = $this->options->pageprev ?? '0';
+if ($pageprev == '1' && $this->have()): 
+?>
+<div class="mt20 p-flex-s-right" data-no-instant>
+<?php $this->pageNav('&laquo;', '&raquo;', 1, '...', array(
+                'wrapTag' => 'ul',
+                'wrapClass' => 'pagination comment-ajax-load',
+                'itemTag' => 'li',
+                'textTag' => 'span',
+                'currentClass' => 'active',
+                'prevClass' => 'prev',
+                'nextClass' => 'next'
+            )); ?>
+</div>
+<?php endif; ?>
 </div> 

@@ -21,7 +21,6 @@
                     <input type="text" value="1" hidden name="comment-logged" id="comment-logged">
                     <div class="col-12">
                         <p class="t-sm c-sub">登录身份: <a href="<?php $this->options->profileUrl(); ?>"><?php $this->user->screenName(); ?></a> . <a href="<?php $this->options->logoutUrl(); ?>" title="Logout">登出 »</a></p>
-
                     </div>
                 </div>
                 <?php else: ?>
@@ -60,6 +59,7 @@
                             <i class="fa-regular fa-face-smile t-md"></i>
                         </button>
                         <?php endif; ?>
+                        <input type="hidden" name="parent" id="comment-parent" value="">
                         <button type="submit" id="comment-submit" class="btn btn-primary btn-ssm">
                             <i class="fa-regular fa-paper-plane"></i>&nbsp;发布评论
                         </button>
@@ -69,49 +69,49 @@
         </div>
     </div>
     <div id="comment-ajax-load" class="text-center mt20 d-none">
-                                <div class="pk-skeleton _comment">
-                                    <div class="_h">
-                                        <div class="_avatar"></div>
-                                        <div class="_info">
-                                            <div class="_name"></div>
-                                            <div class="_date"></div>
-                                        </div>
-                                    </div>
-                                    <div class="_text">
-                                        <div></div>
-                                        <div></div>
-                                        <div></div>
-                                    </div>
-                                </div>
-                                <div class="pk-skeleton _comment">
-                                    <div class="_h">
-                                        <div class="_avatar"></div>
-                                        <div class="_info">
-                                            <div class="_name"></div>
-                                            <div class="_date"></div>
-                                        </div>
-                                    </div>
-                                    <div class="_text">
-                                        <div></div>
-                                        <div></div>
-                                        <div></div>
-                                    </div>
-                                </div>
-                                <div class="pk-skeleton _comment">
-                                    <div class="_h">
-                                        <div class="_avatar"></div>
-                                        <div class="_info">
-                                            <div class="_name"></div>
-                                            <div class="_date"></div>
-                                        </div>
-                                    </div>
-                                    <div class="_text">
-                                        <div></div>
-                                        <div></div>
-                                        <div></div>
-                                    </div>
-                                </div>
-                            </div>
+        <div class="pk-skeleton _comment">
+            <div class="_h">
+                <div class="_avatar"></div>
+                <div class="_info">
+                    <div class="_name"></div>
+                    <div class="_date"></div>
+                </div>
+            </div>
+            <div class="_text">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+        <div class="pk-skeleton _comment">
+            <div class="_h">
+                <div class="_avatar"></div>
+                <div class="_info">
+                    <div class="_name"></div>
+                    <div class="_date"></div>
+                </div>
+            </div>
+            <div class="_text">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+        <div class="pk-skeleton _comment">
+            <div class="_h">
+                <div class="_avatar"></div>
+                <div class="_info">
+                    <div class="_name"></div>
+                    <div class="_date"></div>
+                </div>
+            </div>
+            <div class="_text">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
     <?php else: ?>
     <div class="mt20 alert alert-warning">
         <i class="fa fa-exclamation-circle"></i> 评论已关闭
@@ -172,13 +172,7 @@
             </div>
             <div class="t-sm c-sub">
                 <span><?php $comments->date('Y-m-d H:i:s'); ?></span>
-<?php $comments->reply(
-    sprintf('<a onclick="return TypechoComment.reply(\'%s\', %d);" class="hide-info animated bounceIn c-sub-a t-sm ml-1 comment-reply" href="%s#comment-%d"><span class="comment-reply-text"><i class="fa fa-share-from-square"></i>回复</span></a>',
-    $comments->theId,
-    $comments->coid,
-    $comments->commentUrl($comments->coid),
-    $comments->coid)
-); ?>
+                <a rel="nofollow" class="hide-info animated bounceIn c-sub-a t-sm ml-1 comment-reply" href="javascript:void(0);" data-coid="<?php echo $comments->coid; ?>"><span class="comment-reply-text"><i class="fa fa-share-from-square"></i>回复</span></a> 
             </div>
         </div>
     </div>
@@ -226,71 +220,57 @@
 </li>
 <?php } ?>
 <script>
-var TypechoComment = {
-    dom : function (id) {
-        return document.getElementById(id);
-    },
-    
-    create : function (tag, attr) {
-        var el = document.createElement(tag);
-        
-        for (var key in attr) {
-            el.setAttribute(key, attr[key]);
+// 评论局部回复，表单移动到评论下方
+document.addEventListener('DOMContentLoaded', function() {
+    // 监听评论区的回复按钮
+    document.body.addEventListener('click', function(e) {
+        var target = e.target;
+        if (
+            target.classList.contains('comment-reply') ||
+            (target.parentNode && target.parentNode.classList && target.parentNode.classList.contains('comment-reply'))
+        ) {
+            e.preventDefault();
+            // 兼容span嵌套与a标签直接点击
+            var replyBtn = target.classList.contains('comment-reply') ? target : target.parentNode;
+            var commentId = replyBtn.getAttribute('data-coid');
+            var commentLi = replyBtn.closest('.post-comment');
+            var respondBox = document.getElementById('comment-form-box');
+            var commentForm = document.getElementById('comment-form');
+            var cancelBtn = document.getElementById('comment-cancel');
+            var parentInput = document.getElementById('comment-parent');
+            // 记录原位置
+            if (!document.getElementById('comment-form-place-holder')) {
+                var holder = document.createElement('div');
+                holder.id = 'comment-form-place-holder';
+                respondBox.parentNode.insertBefore(holder, respondBox);
+            }
+            // 移动表单
+            commentLi.appendChild(respondBox);
+            // 设置parent
+            if (parentInput) parentInput.value = commentId;
+            // 展示取消按钮
+            if(cancelBtn) cancelBtn.classList.remove('d-none');
+            // 聚焦文本域
+            var textarea = commentForm.querySelector('textarea');
+            if (textarea) textarea.focus();
+            // 滚动至表单
+            respondBox.scrollIntoView({behavior: "smooth", block: "center"});
+            return false;
         }
-        
-        return el;
-    },
-
-    reply : function (cid, coid) {
-        var comment = this.dom(cid), parent = comment.parentNode,
-            response = this.dom('comment-form-box'), holder = response.parentNode,
-            form = this.dom('comment-form'), textarea = this.dom('comment'),
-            submit = this.dom('comment-submit'),
-            cancel = this.dom('comment-cancel');
-
-        if (null != this.dom('comment-form-place-holder')) {
-            var holder = this.dom('comment-form-place-holder');
+        // 取消回复
+        if (target.id === 'comment-cancel') {
+            e.preventDefault();
+            var respondBox = document.getElementById('comment-form-box');
+            var holder = document.getElementById('comment-form-place-holder');
+            var parentInput = document.getElementById('comment-parent');
+            if (holder) {
+                holder.parentNode.insertBefore(respondBox, holder);
+                holder.parentNode.removeChild(holder);
+            }
+            if (parentInput) parentInput.value = '';
+            target.classList.add('d-none');
+            return false;
         }
-
-        // 移动评论表单
-        if (null == this.dom('comment-form-place-holder')) {
-            var holder = this.create('div', {
-                'id': 'comment-form-place-holder'
-            });
-
-            response.parentNode.insertBefore(holder, response);
-        }
-
-        // 修改表单中的内容
-        comment.appendChild(response);
-        
-        // 显示取消回复按钮
-        cancel.style.display = '';
-
-        // 记录回复的评论ID
-        this.dom('comment-parent').value = coid;
-        
-        // 移动光标到评论框
-        textarea.focus();
-
-        return false;
-    },
-
-    cancelReply : function () {
-        var response = this.dom('comment-form-box'), holder = this.dom('comment-form-place-holder'),
-            comment = this.dom('comment-parent');
-
-        if (null != holder) {
-            holder.parentNode.insertBefore(response, holder);
-            holder.parentNode.removeChild(holder);
-        }
-
-        // 隐藏取消回复按钮
-        this.dom('comment-cancel').style.display = 'none';
-        // 清除回复评论ID
-        comment.value = '';
-
-        return false;
-    }
-};
+    });
+});
 </script>
