@@ -14,7 +14,7 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
 </ol>
 </nav>
 </div>    
-<div id="page-links">
+<div id="page">
 <div class="row row-cols-1">
 <div id="posts" class="col-12 animated fadeInLeft ">
 <div class="puock-text no-style">
@@ -22,5 +22,8 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
 </div>
 </div>
 </div>
+<?php if ($this->allow('comment')): ?>
+    <?php $this->need('comments.php'); ?>
+<?php endif; ?>
 </div>
 <?php $this->need('footer.php'); ?>

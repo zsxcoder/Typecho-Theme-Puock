@@ -85,7 +85,7 @@
             "home": "<?php $this->options->siteUrl(); ?>",
             "use_post_menu": true,
             "is_single": false,
-            "is_pjax": false,
+            "is_pjax": true,
             "main_lazy_img": true,
             "link_blank_open": true,
             //"async_view_id": null,
@@ -102,5 +102,4 @@
     <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/puock.js'); ?>" id="puock-js"></script>
     <?php $this->footer(); ?>
 </body>
-
 </html>

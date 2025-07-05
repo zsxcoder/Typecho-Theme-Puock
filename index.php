@@ -4,7 +4,7 @@
  *
  * @package Typecho Pouck Theme
  * @author 老孙博客
- * @version 1.1.2
+ * @version 1.1.3
  * @link http://www.imsun.org
  */
 

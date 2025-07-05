@@ -13,7 +13,7 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
 <li class="breadcrumb-item active " aria-current="page"><?php $this->title() ?></li>
 </ol>
 </nav>
- <div id="page-moments">
+<div id="page-moments">
     <div class="row">
         <div id="posts" class="col-lg-8 col-md-12 animated fadeInLeft ">
     <?php $tooot = $this->fields->tooot ? $this->fields->tooot : 'https://www.imsun.org/toot.json'; ?>
@@ -21,66 +21,59 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.5/css/lightbox.min.css" integrity="sha512-xtV3HfYNbQXS/1R1jP53KbFcU9WXiSA1RFKzl5hRlJgdOJm4OxHCWYpskm6lN0xp0XtKGpAfVShpbvlFH3MDAA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.5/js/lightbox.min.js" integrity="sha512-KbRFbjA5bwNan6DvPl1ODUolvTTZ/vckssnFhka5cG80JVa5zSlRPCr055xSgU/q6oMIGhZWLhcbgIC0fyw3RQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <div id="tooot"></div>
-  </div>
+</div>
 <script>
-window.onload = function() {
-    let offset = 0; // 初始偏移量
-    const limit = 20; // 每次加载的数量
-
+function fetchAndDisplayToots() {
+    let offset = 0;
+    const limit = 20;
     function formatHTML(toots) {
-        let htmlString = '';      
+        let htmlString = '';
         toots.forEach(toot => {
-            // 判断是否存在 reblog
             const isReblog = toot.reblog && toot.reblog.content;
             const content = isReblog ? toot.reblog.content : toot.content;
             const url = isReblog ? toot.reblog.url : toot.url;
             const account = isReblog ? toot.reblog.account : toot.account;
             const created_at = isReblog ? toot.reblog.created_at : toot.created_at;
             const media_attachments = isReblog ? toot.reblog.media_attachments : toot.media_attachments;
-
-            let mediaHTML = ''; // 初始化资源相关HTML为空字符串
-            // 处理媒体附件
-            if (media_attachments.length > 0) {
+            let mediaHTML = '';
+            if (media_attachments && media_attachments.length > 0) {
                 media_attachments.forEach(attachment => {
                     if (attachment.type === 'image') {
                         mediaHTML += `<a href="${attachment.url}" target="_blank" data-lightbox="image-set"><img src="${attachment.preview_url}" class="thumbnail-image img" ></a>`;
                     }
                 });
             }
-            // 使用 marked 转换 markdown 内容为 HTML
-            const htmlContent = marked.parse(content);
-            // 创建 HTML 字符串
+            const htmlContent = marked.parse(content || '');
             htmlString += `
             <div class="mb20 puock-text moments-item">
                 <div class="row">
-                    <div class="col-12 col-md-1"> 
+                    <div class="col-12 col-md-1">
                         <a class="meta ta3" href="${account.url}" target="_blank" rel="nofollow">
-                                    <div class="avatar mb10"> 
-                                        <img src='${account.avatar}'
-                                                class='lazy md-avatar mt-1'
-                                                data-src='${account.avatar}'
-                                                alt="${account.display_name}" title="${account.display_name}"> 
-                                    </div>
-                                    <div class="t-line-1 info fs12">${account.display_name}</div>
-                                </a> 
+                            <div class="avatar mb10">
+                                <img src='${account.avatar}'
+                                    class='lazy md-avatar mt-1'
+                                    data-src='${account.avatar}'
+                                    alt="${account.display_name}" title="${account.display_name}">
                             </div>
-                                <div class="col-12 col-md-11">
-                                    <div class="p-block moment-content-box"> <span class="al"></span>
-                                        <div class="mt10 moment-content entry-content show-link-icon">
-                                            <p>${htmlContent}
-                                            </p>
-                                             <div class="resimg">${mediaHTML}</div>
-                                        </div>
-                                        <div class="mt10 moment-footer p-flex-s-right"> <span class="t-sm c-sub"> 
-                                        <a class="c-sub-a" href="${url}"> 
-                                        <span class="mr-2"><i class="fa-regular fa-clock mr-1"></i>${new Date(created_at).toLocaleString()}</span> 
-                                         </a> 
-                                        </span> 
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="t-line-1 info fs12">${account.display_name}</div>
+                        </a>
+                    </div>
+                    <div class="col-12 col-md-11">
+                        <div class="p-block moment-content-box"> <span class="al"></span>
+                            <div class="mt10 moment-content entry-content show-link-icon">
+                                <p>${htmlContent}</p>
+                                <div class="resimg">${mediaHTML}</div>
+                            </div>
+                            <div class="mt10 moment-footer p-flex-s-right"> <span class="t-sm c-sub">
+                            <a class="c-sub-a" href="${url}">
+                            <span class="mr-2"><i class="fa-regular fa-clock mr-1"></i>${new Date(created_at).toLocaleString()}</span>
+                             </a>
+                            </span>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
          `;
         });
         return htmlString;
@@ -93,17 +86,26 @@ window.onload = function() {
                 return [];
             });
     }
-    function fetchAndDisplayToots() {
-        fetchToots().then(data => {
-            const memosContainer = document.getElementById('tooot');
-            const tootsToShow = data.slice(offset, offset + limit); // 选择要显示的toots
-            memosContainer.innerHTML += formatHTML(tootsToShow);
-        });
-    }
-    // 在页面加载完成后获取并展示 toots
-    fetchAndDisplayToots();
-};
-</script>         
+    const memosContainer = document.getElementById('tooot');
+    if (memosContainer) memosContainer.innerHTML = '';
+    fetchToots().then(data => {
+        if (!Array.isArray(data)) {
+            console.error('toot.json is not an array:', data);
+            return;
+        }
+        const tootsToShow = data.slice(offset, offset + limit);
+        if (memosContainer) memosContainer.innerHTML += formatHTML(tootsToShow);
+    });
+}
+
+// 保证首次和 pjax 都能调用
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", fetchAndDisplayToots);
+} else {
+  fetchAndDisplayToots();
+}
+document.addEventListener('pjax:end', fetchAndDisplayToots);
+</script>      
 <style>
 div pre code {
   white-space: pre-wrap;  
@@ -161,6 +163,6 @@ img {
 } 
 </style>          
 <?php $this->need('sidebar.php'); ?> 
- </div>
-  </div>
+</div>
+</div>
 <?php $this->need('footer.php'); ?>

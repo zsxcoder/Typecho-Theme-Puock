@@ -90,6 +90,7 @@ if($days > 180){
 </div>
 </div>
 </div>
+<!-- 分享海报点赞打赏 -->
 <div class="mt15 post-action-panel">
     <div class="post-action-content">
         <div class="d-flex justify-content-center w-100 c-sub">
@@ -120,69 +121,98 @@ if($days > 180){
             </div>
         </div>
     </div>
-</div> <!--内页中-->
+</div> 
+<!--内页中-->
 </div>
-                    <?php if ($this->options->articlemid): ?>
-                    <div class="puock-text p-block t-md ad-page-content-bottom"><?php $this->options->articlemid(); ?></div>
-                    <?php endif; ?>
-                    <?php $this->related(4)->to($relatedPosts); if ($relatedPosts->have()):?>
-                    <div class="p-block pb-0">
-                        <div class="row puock-text post-relevant"> 
-                            <?php while ($relatedPosts->next()): ?> 
-                            <a href="<?php $relatedPosts->permalink(); ?>"
-                                class="col-6 col-md-3 post-relevant-item ww"> 
-                                <div
-                                    style="background:url('<?php echo getPostCover($relatedPosts->content, $relatedPosts->cid); ?>')">
-                                    <div class="title"> <?php $relatedPosts->title(); ?></div>
-                                </div>
-                            </a> 
-                            <?php endwhile; ?>	
-                        </div>
+<?php if ($this->options->articlemid): ?>
+    <!--文章中广告-->
+    <div class="puock-text p-block t-md ad-page-content-bottom"><?php $this->options->articlemid(); ?></div>
+<?php endif; ?>
+<?php $this->related(4)->to($relatedPosts); if ($relatedPosts->have()):?>
+    <!--相关文章-->
+    <div class="p-block pb-0">
+        <div class="row puock-text post-relevant"> 
+            <?php while ($relatedPosts->next()): ?> 
+            <a href="<?php $relatedPosts->permalink(); ?>" class="col-6 col-md-3 post-relevant-item ww"> 
+                <div style="background:url('<?php echo getPostCover($relatedPosts->content, $relatedPosts->cid); ?>')">
+                    <div class="title"> <?php $relatedPosts->title(); ?></div>
+                </div>
+            </a> 
+            <?php endwhile; ?>	
+        </div>
+    </div>
+<?php endif; ?>
+<!--上一篇与下一篇-->
+<div class="p-block p-lf-15">
+    <div class="row text-center pd-links single-next-or-pre t-md">
+        <div class="col-6 p-border-r-1 p-0">
+            <?php
+            // 查询上一篇（比当前文章更早的文章）
+            $db = Typecho_Db::get();
+            $prev = $db->fetchRow($db->select('cid', 'title', 'slug', 'created')
+                ->from('table.contents')
+                ->where('created < ?', $this->created)  // 比当前文章更早
+                ->where('type = ?', 'post')            // 只查询文章，排除页面
+                ->where('status = ?', 'publish')       // 只查询已发布的
+                ->order('created', Typecho_Db::SORT_DESC)  // 按时间降序（最近的上一篇）
+                ->limit(1));
+
+            if ($prev):
+                // 生成正确链接（兼容伪静态和自定义固定链接）
+                $prevUrl = Typecho_Router::url('post', $prev, $this->options->index);
+            ?>
+                <a href="<?php echo $prevUrl; ?>" rel="prev" title="<?php echo $prev['title']; ?>">
+                    <div class="abhl puock-text">
+                        <p class="t-line-1"><?php echo $prev['title']; ?></p>
+                        <span>上一篇</span>
                     </div>
-                    <?php endif; ?>
-                    <div class="p-block p-lf-15">
-                        <div class="row text-center pd-links single-next-or-pre t-md ">
-                            <?php $prevPost = get_previous_post($this); ?>
-                            <div class="col-6 p-border-r-1 p-0"> 
-                                <?php if ($prevPost) { ?>
-                                <a href="<?php echo $prevPost->permalink; ?>"
-                                    rel="prev">
-                                    <div class='abhl puock-text'>
-                                        <p class='t-line-1'><?php echo $prevPost->title; ?></p>
-                                        <span>上一篇</span>
-                                    </div>
-                                </a>
-                                <?php } else { ?> 
-                                    <a href="javascript:void(0);" rel="prev">
-                                        <div class='abhl puock-text'>
-                                            <p class='t-line-1'>没有上一篇</p>
-                                            <span>上一篇</span>
-                                        </div>
-                                    </a>
-                                <?php } ?>
-                            </div>
-                            <?php $nextPost = get_next_post($this); ?>
-                            <div class="col-6 p-0"> 
-                                <?php if ($nextPost) { ?>
-                                <a href="<?php echo $nextPost->permalink; ?>" rel="next">
-                                    <div class="abhl">
-                                        <p class="t-line-1"><?php echo $nextPost->title; ?></p> 
-                                        <span>下一篇</span>
-                                    </div>
-                                </a> 
-                                <?php } else { ?> 
-                                    <a href="javascript:void(0);" rel="next">
-                                        <div class='abhl puock-text'>
-                                            <p class='t-line-1'>已是最新的文章</p>
-                                            <span>下一篇</span>
-                                        </div>
-                                    </a>
-                                <?php } ?>
-                            </div>
-                        </div>
-                    </div> <!--评论上方--> 
+                </a>
+            <?php else: ?>
+                <a href="javascript:void(0);" rel="prev">
+                    <div class="abhl puock-text">
+                        <p class="t-line-1">没有上一篇</p>
+                        <span>上一篇</span>
+                    </div>
+                </a>
+            <?php endif; ?>
+        </div>
+        
+        <div class="col-6 p-0">
+            <?php
+            // 查询下一篇（比当前文章更新的文章）
+            $next = $db->fetchRow($db->select('cid', 'title', 'slug', 'created')
+                ->from('table.contents')
+                ->where('created > ?', $this->created)  // 比当前文章更新
+                ->where('type = ?', 'post')            // 只查询文章，排除页面
+                ->where('status = ?', 'publish')        // 只查询已发布的
+                ->order('created', Typecho_Db::SORT_ASC)   // 按时间升序（最早的下一条）
+                ->limit(1));
+
+            if ($next):
+                // 生成正确链接（兼容伪静态和自定义固定链接）
+                $nextUrl = Typecho_Router::url('post', $next, $this->options->index);
+            ?>
+                <a href="<?php echo $nextUrl; ?>" rel="next" title="<?php echo $next['title']; ?>">
+                    <div class="abhl puock-text">
+                        <p class="t-line-1"><?php echo $next['title']; ?></p>
+                        <span>下一篇</span>
+                    </div>
+                </a>
+            <?php else: ?>
+                <a href="javascript:void(0);" rel="next">
+                    <div class="abhl puock-text">
+                        <p class="t-line-1">已是最新文章</p>
+                        <span>下一篇</span>
+                    </div>
+                </a>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+<!--评论上方--> 
 <?php $this->need('comments.php'); ?>   
 <?php if ($this->options->articlefoot): ?>
+    <!--文章底部广告-->
 <div class="puock-text p-block t-md ad-comment-top"><?php $this->options->articlefoot(); ?></div> 
 <?php endif; ?>
 </div>

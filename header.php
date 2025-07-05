@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta http-equiv='content-language' content='zh_CN'>
     <title><?php $this->archiveTitle([
             'category' => _t('分类 %s 下的文章'),
@@ -17,10 +16,10 @@
     <?php $this->options->addhead(); ?>
     <style id='puock-inline-css' type='text/css'>
         body {
-            --pk-c-primary: <?php if ($this->options->primaryColor): ?><?php $this->options->primaryColor() ?><?php else: ?>#A7E6F4<?php endif; ?>;
+            --pk-c-primary: <?php if ($this->options->primaryColor): ?><?php $this->options->primaryColor() ?><?php else: ?>#A7E6F4<?php endif; ?> !important;
         }
         :root {
-            --puock-block-not-tran: <?php if ($this->options->blockNotTransparent): ?><?php $this->options->blockNotTransparent() ?><?php else: ?>100<?php endif; ?>%;
+            --puock-block-not-tran: <?php if ($this->options->blockNotTransparent): ?><?php $this->options->blockNotTransparent() ?><?php else: ?>100<?php endif; ?>% !important;
         }
     </style> 
     <?php if ($this->options->icoUrl): ?>
@@ -32,7 +31,6 @@
     <!-- 通过自有函数输出HTML头部信息 -->
     <?php $this->header(); ?>
 </head>
-
 <body class="puock-auto custom-background">
     <div>
         <div id="header-box" class="animated fadeInDown"></div>

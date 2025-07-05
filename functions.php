@@ -39,6 +39,18 @@ function themeConfig($form)
     array('0'=> _t('否'), '1'=> _t('是')),
     '0', _t('社交分享显示'), _t('选择"是"在文章页面显示社交分享。需要搭配插件使用,默认关闭'));
     $form->addInput($social);
+    $showipregion = new Typecho_Widget_Helper_Form_Element_Radio('showipregion',
+    array('0'=> _t('否'), '1'=> _t('是')),
+    '0', _t('是否显示IP归属地'), _t('选择"是"在评论显示IP归属地。默认开启'));
+    $form->addInput($showipregion);
+    $showbrowsers = new Typecho_Widget_Helper_Form_Element_Radio('showbrowsers',
+    array('0'=> _t('否'), '1'=> _t('是')),
+    '0', _t('是否显示浏览器信息'), _t('选择"是"在评论显示浏览器信息。默认开启'));
+    $form->addInput($showbrowsers);
+    $showdevice = new Typecho_Widget_Helper_Form_Element_Radio('showdevice',
+    array('0'=> _t('否'), '1'=> _t('是')),
+    '0', _t('是否显示设备信息'), _t('选择"是"在评论显示设备信息。默认开启'));
+    $form->addInput($showdevice);
     $gonggao = new Typecho_Widget_Helper_Form_Element_Textarea('gonggao', NULL, NULL, _t('站点公告'), _t('支持HTML'));
     $form->addInput($gonggao);
     $adlisttop = new Typecho_Widget_Helper_Form_Element_Textarea('adlisttop', NULL, NULL, _t('文章列表上方广告位'), _t('支持HTML'));
@@ -184,129 +196,7 @@ function getPostCover($content, $cid, $fields = null) {
     }
 }
 
-/**
- * 获取上一篇文章
- * 
- * @param Widget_Archive $archive 当前文章归档对象
- * @return object|null 上一篇文章对象，如果没有则返回null
- */
-function get_previous_post($archive) {
-    if (!$archive->is('single')) {
-        return null;
-    }
-    $db = Typecho_Db::get();
-    $prefix = $db->getPrefix();  
-    // 获取上一篇文章（按创建时间排序）
-    $post = $db->fetchRow($db->select()
-        ->from('table.contents')
-        ->where('table.contents.status = ?', 'publish')
-        ->where('table.contents.created < ?', $archive->created)
-        ->where('table.contents.type = ?', 'post')
-        ->order('table.contents.created', Typecho_Db::SORT_DESC)
-        ->limit(1));
-    
-    if (!$post) {
-        return null;
-    }  
-    // 构建标准化的文章对象
-    $result = new stdClass();
-    $result->cid = $post['cid'];
-    $result->title = $post['title'];
-    $result->slug = $post['slug'];
-    $result->created = $post['created'];
-    $result->content = isset($post['text']) ? $post['text'] : '';
-    $result->text = isset($post['text']) ? $post['text'] : '';
-    $result->permalink = get_permalink($post['cid']);    
-    // 获取文章自定义字段
-    $fields = $db->fetchAll($db->select()->from('table.fields')
-        ->where('cid = ?', $post['cid']));
-    // 添加自定义字段到文章对象
-    if ($fields) {
-        $result->fields = new stdClass();
-        foreach ($fields as $field) {
-            $result->fields->{$field['name']} = $field['str_value'] ? $field['str_value'] : $field['int_value'];
-        }
-    } 
-    return $result;
-}
-
-/**
- * 获取下一篇文章
- * 
- * @param Widget_Archive $archive 当前文章归档对象
- * @return object|null 下一篇文章对象，如果没有则返回null
- */
-function get_next_post($archive) {
-    if (!$archive->is('single')) {
-        return null;
-    }
-    $db = Typecho_Db::get();
-    $prefix = $db->getPrefix();
-    // 获取下一篇文章（按创建时间排序）
-    $post = $db->fetchRow($db->select()
-        ->from('table.contents')
-        ->where('table.contents.status = ?', 'publish')
-        ->where('table.contents.created > ?', $archive->created)
-        ->where('table.contents.type = ?', 'post')
-        ->order('table.contents.created', Typecho_Db::SORT_ASC)
-        ->limit(1));
-    
-    if (!$post) {
-        return null;
-    }
-    // 构建标准化的文章对象
-    $result = new stdClass();
-    $result->cid = $post['cid'];
-    $result->title = $post['title'];
-    $result->slug = $post['slug'];
-    $result->created = $post['created'];
-    $result->content = isset($post['text']) ? $post['text'] : '';
-    $result->text = isset($post['text']) ? $post['text'] : '';
-    $result->permalink = get_permalink($post['cid']);
-    // 获取文章自定义字段
-    $fields = $db->fetchAll($db->select()->from('table.fields')
-        ->where('cid = ?', $post['cid']));
-    // 添加自定义字段到文章对象
-    if ($fields) {
-        $result->fields = new stdClass();
-        foreach ($fields as $field) {
-            $result->fields->{$field['name']} = $field['str_value'] ? $field['str_value'] : $field['int_value'];
-        }
-    }
-    
-    return $result;
-}
-
-/**
- * 获取文章永久链接
- * 
- * @param int $cid 文章ID
- * @return string 文章链接
- */
-function get_permalink($cid) {
-    try {
-        // 获取文章对象
-        $db = Typecho_Db::get();
-        $post = $db->fetchRow($db->select()
-            ->from('table.contents')
-            ->where('cid = ?', $cid)
-            ->where('status = ?', 'publish'));   
-        if (!$post) {
-            return '';
-        }
-        // 构造文章对象
-        $post['type'] = 'post'; // 确保类型为文章
-        $post = Typecho_Widget::widget('Widget_Abstract_Contents')->filter($post);   
-        // 使用文章对象的 permalink 方法生成链接
-        return $post['permalink'] ?? '';
-    } catch (Exception $e) {
-        // 出现异常时使用最简单的方式
-        $options = Helper::options();
-        return $options->siteUrl . '?cid=' . $cid;
-    }
-}
-
-/**
+ /**
  * 获取所有评论者信息的函数
  */
 function getAllCommenters() {

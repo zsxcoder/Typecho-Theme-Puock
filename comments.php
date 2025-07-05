@@ -180,10 +180,11 @@
         <div class="content-text t-md mt10 puock-text">
              <?php if ($comments->parent) {echo getPermalinkFromCoid($comments->parent);} $comments->content();?>
             <div class="comment-os c-sub">
-            <?php 
+            <?php
             $deviceInfo = getBrowsersInfo($comments->agent);
             $icons = getDeviceIcon($deviceInfo);
             ?>
+            <?php if (!empty($comments->options->showdevice) && $comments->options->showdevice == '1'): ?>
             <!-- 系统信息 -->
             <span class="mt10" title="<?php echo $deviceInfo['system'] . ' ' . $deviceInfo['systemVersion']; ?>">
                 <?php echo $icons['system']; ?>&nbsp;
@@ -193,7 +194,8 @@
                     : '未知系统';
                 ?>
             </span>
-
+            <?php endif; ?>
+            <?php if (!empty($comments->options->showbrowsers) && $comments->options->showbrowsers == '1'): ?>
             <!-- 浏览器信息 -->
             <span class="mt10" title="<?php echo $deviceInfo['browser'] . ' ' . $deviceInfo['version']; ?>">
                 <?php echo $icons['browser']; ?>&nbsp;
@@ -203,12 +205,15 @@
                     : '未知浏览器';
                 ?>
             </span>
-                
+            <?php endif; ?> 
+            <?php if (!empty($comments->options->showipregion) && $comments->options->showipregion == '1'): ?>
+            <!-- IP 地理位置 -->   
                 <?php if($comments->ip): ?>
                 <span class="mt10" title="IP">
                     <i class="fa-solid fa-location-dot"></i>&nbsp;<?php echo get_ip_region($comments->ip); ?>
                 </span>
                 <?php endif; ?>
+            <?php endif; ?>
             </div>
         </div>
     </div>

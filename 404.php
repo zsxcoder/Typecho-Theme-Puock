@@ -18,23 +18,42 @@
 document.addEventListener('DOMContentLoaded', function() {
     var countdown = 5; // 设置倒计时时间（秒）
     var countdownElement = document.getElementById('time-count-down');
-    
+    // 检查是否在 PJAX 环境中
+    var isPjax = typeof window.Pjax !== 'undefined' || 
+                (typeof jQuery !== 'undefined' && jQuery.pjax);
     // 更新倒计时显示
     function updateCountdown() {
         countdownElement.textContent = countdown;
-        countdown--;
-        
+        countdown--; 
         if (countdown < 0) {
             // 倒计时结束，跳转到首页
-            window.location.href = "<?php $this->options->siteUrl(); ?>";
+            var homeUrl = "<?php $this->options->siteUrl(); ?>";
+            
+            if (isPjax) {
+                // 使用 PJAX 方式跳转
+                if (typeof window.Pjax !== 'undefined') {
+                    // 使用原生 PJAX
+                    var pjax = new Pjax();
+                    pjax.loadUrl(homeUrl);
+                } else if (typeof jQuery !== 'undefined' && jQuery.pjax) {
+                    // 使用 jQuery PJAX
+                    $.pjax({url: homeUrl, container: '[data-pjax-container]'});
+                }
+            } else {
+                // 普通跳转
+                window.location.href = homeUrl;
+            }
         } else {
             // 继续倒计时
             setTimeout(updateCountdown, 1000);
         }
     }
-    
     // 开始倒计时
     updateCountdown();
+    // 如果是 PJAX 加载，需要手动执行一些初始化
+    if (isPjax && typeof window.puockInit !== 'undefined') {
+        window.puockInit();
+    }
 });
 </script>
 <?php $this->need('footer.php'); ?>
