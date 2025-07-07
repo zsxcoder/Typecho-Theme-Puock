@@ -74,9 +74,6 @@ class Puock {
         this.registerModeChangeEvent()
         this.eventCommentPageChangeEvent()
         this.eventCommentPreSubmit()
-        this.eventSmiley()
-        this.eventOpenCommentBox()
-        this.eventCloseCommentBox()
         this.eventSendPostLike()
         this.eventPostMainBoxResize()
         this.swiperOnceEvent()
@@ -84,6 +81,8 @@ class Puock {
         this.detectDevice()
         window.addEventListener('resize', ()=>this.detectDevice());
         layer.config({shade: 0.5})
+        // 新增：首次加载时初始化评论相关事件
+        this.initCommentEvents();
     }
 
     pageInit() {
@@ -465,6 +464,8 @@ class Puock {
        // $('#post-main, #sidebar').theiaStickySidebar({
        //     additionalMarginTop: 20
        // });
+        // 新增：pjax切换后重新初始化评论相关事件
+        this.initCommentEvents();
     }
 
 
@@ -879,33 +880,37 @@ class Puock {
     }
 
     eventOpenCommentBox() {
-        $(document).on("click", "[id^=comment-reply-]", (e) => {
-            this.data.comment.replyId = $(this.ct(e)).attr("data-id");
+        $(document).off("click", ".comment-reply");
+        $(document).on("click", ".comment-reply", (e) => {
+            e.preventDefault();
+            this.data.comment.replyId = $(this.ct(e)).attr("data-coid");
             if ($.trim(this.data.comment.replyId) === '') {
                 this.toast('结构有误', TYPE_DANGER);
                 return;
             }
             const cf = $("#comment-form"),
-                cb = $("#comment-box-" + this.data.comment.replyId);
-            cf.addClass("box-sw");
-            cb.removeClass("d-none").append(cf);
+                commentLi = $(this.ct(e)).closest('.post-comment');
+            commentLi.append(cf);
             $("#comment-cancel").removeClass("d-none");
             $("#comment").val("");
             $("#comment_parent").val(this.data.comment.replyId);
-        })
-
+            // 滚动至表单
+            if (cf.length && cf[0].scrollIntoView) {
+                cf[0].scrollIntoView({behavior: "smooth", block: "center"});
+            }
+        });
     }
 
     eventCloseCommentBox() {
+        $(document).off("click", "#comment-cancel");
         $(document).on("click", "#comment-cancel", () => {
             const cf = $("#comment-form"),
-                cb = $("#comment-box-" + this.data.comment.replyId);
+                cb = $(".post-comment .box-sw").parent();
             cf.removeClass("box-sw");
-            cb.addClass("d-none");
             $("#comment-form-box").append(cf);
             $("#comment-cancel").addClass("d-none");
             this.data.comment.replyId = null;
-        })
+        });
     }
 
     eventSendPostLike() {
@@ -949,11 +954,12 @@ class Puock {
 }
 
     eventSmiley() {
+        $(document).off('click', '.smiley-img');
         $(document).on('click', '.smiley-img', (e) => {
             const comment = $("#comment");
             comment.val(comment.val() + ' ' + $(this.ct(e)).attr("data-id") + ' ');
             layer.closeAll();
-        })
+        });
     }
 
     startLoading() {
@@ -1171,6 +1177,12 @@ class Puock {
         return t;
     }
 
+    // 新增：统一初始化评论相关事件
+    initCommentEvents() {
+        this.eventOpenCommentBox();
+        this.eventCloseCommentBox();
+        this.eventSmiley();
+    }
 }
 
 jQuery(() => {
