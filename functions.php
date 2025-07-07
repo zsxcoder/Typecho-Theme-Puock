@@ -918,4 +918,51 @@ class AttachmentHelper {
         <?php
     }
 }
+
+/**
+ * 解析表情短代码为图片
+ * @param string $content
+ * @return string
+ */
+function parse_smiley_shortcode($content) {
+    $smileys = [
+        ':?:' => 'doubt.png',
+        ':razz:' => 'razz.png',
+        ':sad:' => 'sad.png',
+        ':evil:' => 'evil.png',
+        ':naughty:' => 'naughty.png',
+        ':!:' => 'scare.png',
+        ':smile:' => 'smile.png',
+        ':oops:' => 'oops.png',
+        ':neutral:' => 'neutral.png',
+        ':cry:' => 'cry.png',
+        ':mrgreen:' => 'mrgreen.png',
+        ':grin:' => 'grin.png',
+        ':eek:' => 'eek.png',
+        ':shock:' => 'shock.png',
+        ':???:' => 'bz.png',
+        ':cool:' => 'cool.png',
+        ':lol:' => 'lol.png',
+        ':mad:' => 'mad.png',
+        ':twisted:' => 'twisted.png',
+        ':roll:' => 'roll.png',
+        ':wink:' => 'wink.png',
+        ':idea:' => 'idea.png',
+        ':despise:' => 'despise.png',
+        ':celebrate:' => 'celebrate.png',
+        ':watermelon:' => 'watermelon.png',
+        ':xmas:' => 'xmas.png',
+        ':warn:' => 'warn.png',
+        ':rainbow:' => 'rainbow.png',
+        ':loveyou:' => 'loveyou.png',
+        ':love:' => 'love.png',
+        ':beer:' => 'beer.png',
+    ];
+    $themeUrl = Helper::options()->themeUrl . '/assets/img/smiley/';
+    foreach ($smileys as $code => $img) {
+        $imgTag = '<img class="smiley-img" src="' . $themeUrl . $img . '" alt="' . $code . '" title="表情" style="width:24px;height:24px;vertical-align:middle;" />';
+        $content = str_replace($code, $imgTag, $content);
+    }
+    return $content;
+}
 ?>

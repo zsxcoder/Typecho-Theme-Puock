@@ -178,7 +178,7 @@
     </div>
     <div class="content">
         <div class="content-text t-md mt10 puock-text">
-             <?php if ($comments->parent) {echo getPermalinkFromCoid($comments->parent);} $comments->content();?>
+             <?php if ($comments->parent) {echo getPermalinkFromCoid($comments->parent);} echo parse_smiley_shortcode($comments->content);?>
             <div class="comment-os c-sub">
             <?php
             $deviceInfo = getBrowsersInfo($comments->agent);
