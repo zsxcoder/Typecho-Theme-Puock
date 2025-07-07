@@ -39,18 +39,6 @@ function themeConfig($form)
     array('0'=> _t('否'), '1'=> _t('是')),
     '0', _t('社交分享显示'), _t('选择"是"在文章页面显示社交分享。需要搭配插件使用,默认关闭'));
     $form->addInput($social);
-    $showipregion = new Typecho_Widget_Helper_Form_Element_Radio('showipregion',
-    array('0'=> _t('否'), '1'=> _t('是')),
-    '0', _t('是否显示IP归属地'), _t('选择"是"在评论显示IP归属地。默认开启'));
-    $form->addInput($showipregion);
-    $showbrowsers = new Typecho_Widget_Helper_Form_Element_Radio('showbrowsers',
-    array('0'=> _t('否'), '1'=> _t('是')),
-    '0', _t('是否显示浏览器信息'), _t('选择"是"在评论显示浏览器信息。默认开启'));
-    $form->addInput($showbrowsers);
-    $showdevice = new Typecho_Widget_Helper_Form_Element_Radio('showdevice',
-    array('0'=> _t('否'), '1'=> _t('是')),
-    '0', _t('是否显示设备信息'), _t('选择"是"在评论显示设备信息。默认开启'));
-    $form->addInput($showdevice);
     $gonggao = new Typecho_Widget_Helper_Form_Element_Textarea('gonggao', NULL, NULL, _t('站点公告'), _t('支持HTML'));
     $form->addInput($gonggao);
     $adlisttop = new Typecho_Widget_Helper_Form_Element_Textarea('adlisttop', NULL, NULL, _t('文章列表上方广告位'), _t('支持HTML'));

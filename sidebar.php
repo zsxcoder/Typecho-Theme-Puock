@@ -138,21 +138,18 @@ if ($totalViews === null) $totalViews = 0;
         <div class="mt20">
             <?php foreach ($hotPosts as $post): ?>
                 <?php
-                // Typecho 1.3.0 兼容处理
-                $widget = $this->widget('Widget_Archive@post_' . $post['cid'], 'type=post');
+                // 更可靠的获取文章链接方式
+                $widget = Typecho_Widget::widget('Widget_Contents_Post_Recent');
+                $permalink = '';
                 try {
-                    $widget->setArchiveProperty('cid', $post['cid']);
-                    $widget->setArchiveProperty('title', $post['title']);
-                    $widget->setArchiveProperty('slug', $post['slug']);
-                    $widget->setArchiveProperty('created', $post['created']);
-                    $widget->setArchiveProperty('authorId', $post['authorId']);
-                    $widget->setArchiveProperty('type', $post['type']);
-                    $widget->setArchiveProperty('status', $post['status']);
-                    $widget->setArchiveProperty('commentsNum', $post['commentsNum']);
-                    
-                    // 生成正确链接
-                    $permalink = $widget->archiveUrl;
-                    
+                    // 方法1：使用Typecho的Router类
+                    $permalink = Typecho_Router::url('post', $post, $this->options->index);
+                    // 方法2：或者使用辅助函数（如果方法1不行）
+                    if (empty($permalink)) {
+                        $widget->push($post);
+                        $permalink = $widget->permalink;
+                        $widget->pop();
+                    }
                     if (empty($post['title']) || empty($permalink)) {
                         continue;
                     }
@@ -177,7 +174,7 @@ if ($totalViews === null) $totalViews = 0;
 <?php endif; ?>
         <!-- 最近评论 -->
         <?php if (!empty($this->options->sidebarBlock) && in_array('ShowRecentComments', $this->options->sidebarBlock)): ?>
-                    <?php 
+        <?php 
         // 设置参数来排除管理员评论
         $comments = \Widget\Comments\Recent::alloc(array(
             'ignoreAuthor' => true  // 这里添加参数来排除作者/管理员评论
