@@ -433,9 +433,11 @@ function getBrowsersInfo($userAgent) {
         "WebOS" => pregMatch("/^.*hpwOS\/([\d.]+);.*$/", $userAgent)
     ];
  
-    if ($systemVersion[$deviceInfo['system']]) {
-        $deviceInfo['systemVersion'] = $systemVersion[$deviceInfo['system']];
-        if ($deviceInfo['systemVersion'] == $userAgent) $deviceInfo['systemVersion'] = '';
+    if (isset($deviceInfo['system']) && $deviceInfo['system'] !== "" && isset($systemVersion[$deviceInfo['system']])) {
+    $deviceInfo['systemVersion'] = $systemVersion[$deviceInfo['system']];
+    if ($deviceInfo['systemVersion'] == $userAgent) {
+        $deviceInfo['systemVersion'] = '';
+       }
     }
  
     // 浏览器版本信息
@@ -536,9 +538,11 @@ function getBrowsersInfo($userAgent) {
     ];
  
  
-    if ($browsersVersion[$deviceInfo['browser']]) {
-        $deviceInfo["version"] = $browsersVersion[$deviceInfo['browser']];
-        if ($deviceInfo["version"] == $userAgent) $deviceInfo['version'] = '';
+    if (isset($deviceInfo['browser'], $browsersVersion[$deviceInfo['browser']])) {
+    $deviceInfo['version'] = $browsersVersion[$deviceInfo['browser']];
+    if ($deviceInfo['version'] == $userAgent) {
+        $deviceInfo['version'] = '';
+      }
     }
  
     // 修正浏览器版本信息
@@ -960,7 +964,7 @@ function parse_smiley_shortcode($content) {
     ];
     $themeUrl = Helper::options()->themeUrl . '/assets/img/smiley/';
     foreach ($smileys as $code => $img) {
-        $imgTag = '<img class="smiley-img" src="' . $themeUrl . $img . '" alt="' . $code . '" title="表情" style="width:24px;height:24px;vertical-align:middle;" />';
+        $imgTag = '<img class="smiley-img" src="' . $themeUrl . $img . '" alt="' . $code . '" title="表情" style="width:16px;height:16px;vertical-align:middle;" />';
         $content = str_replace($code, $imgTag, $content);
     }
     return $content;
