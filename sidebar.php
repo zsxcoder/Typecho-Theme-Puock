@@ -45,7 +45,7 @@ if ($totalViews === null) $totalViews = 0;
 ?>        
         <?php if (!empty($this->options->sidebarBlock) && in_array('ShowAdmin', $this->options->sidebarBlock)): ?>
         <div class="widget-puock-author widget">
-            <div class="header" style="background-image: url('<?php echo $this->options->bgUrl ?? $this->options->themeUrl('assets/img/cover.png'); ?>')">
+            <div class="header" style="background-image: url('<?php echo !empty($this->options->bgUrl) ? $this->options->bgUrl : $this->options->themeUrl('assets/img/cover.png'); ?>')">
                 <img src='<?php $this->options->themeUrl('assets/img/load.svg'); ?>' class='lazy avatar' data-src='<?php echo $avatar; ?>' >
             </div>
             <div class="content t-md puock-text">

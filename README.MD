@@ -45,3 +45,13 @@
   
    - 修复头像区域背景的bug
    - 优化php8.3兼容性
+
+  - 1.1.8
+   - 优化github链接的正则表达式，只解析主仓库链接（如 https://github.com/用户名/仓库名），不再解析子路径（如 /tree/、/blob/ 等）为卡片。
+   - 实现文章内容图片懒加载，自动将常见图片格式（jpg、jpeg、png、webp）的<img>标签替换为带懒加载属性的格式。
+   - 修正getPostCover函数，确保只从原始内容中提取第一张真实图片地址，不受懒加载替换影响，避免首页首图变成load.svg。
+
+   - 新增支持[success]、[primary]、[danger]、[warning]、[info]、[dark]等alert类短代码，自动渲染为对应的Bootstrap风格提示框。
+   - 新增支持[collapse title='xxx']内容[/collapse]折叠面板短代码，自动渲染为带唯一ID的Bootstrap折叠结构。
+   - 新增支持[download file='xxx.zip' size='12MB']文件地址[/download]下载短代码，自动渲染为带文件名、大小、声明和下载地址的下载信息块。
+   - 新增支持[reply]隐藏内容[/reply]回复可见短代码，未满足条件时前端显示提示，已评论且审核通过后显示隐藏内容。

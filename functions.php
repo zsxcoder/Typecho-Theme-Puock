@@ -166,22 +166,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['likeup']) && isset($_
  * 随机封面
  */
 function getPostCover($content, $cid, $fields = null) {
-    // 首先检查是否有自定义封面字段
+    // 优先使用自定义封面字段
     if ($fields && !empty($fields->cover)) {
         return $fields->cover;
     }
-    
-    // 尝试从内容中提取第一张图片
-    preg_match_all('/<img.+src=[\'"]([^\'"]+)[\'"].*>/i', $content, $matches);
-    
-    if (!empty($matches[1][0])) {
-        // 如果找到图片，返回第一张图片URL
-        return $matches[1][0];
-    } else {
-        // 如果没有图片，使用随机封面（基于文章ID的伪随机）
-        $coverNumber = ($cid % 8) + 1;  // 得到1-8的值
-        return Helper::options()->themeUrl . '/assets/img/random/' . $coverNumber . '.jpg';
+    // 从原始内容中提取第一张图片（不管src是什么）
+    if (preg_match('/<img[^>]+src=["\']([^"\']+\.(?:jpg|jpeg|png|webp))["\'][^>]*>/i', $content, $matches)) {
+        return $matches[1];
     }
+    // 没有图片则用随机封面
+    $coverNumber = ($cid % 8) + 1;
+    return Helper::options()->themeUrl . '/assets/img/random/' . $coverNumber . '.jpg';
 }
 
  /**
@@ -970,3 +965,346 @@ function parse_smiley_shortcode($content) {
     return $content;
 }
 ?>
+<?php
+/**
+ * 短代码实现
+ */
+function get_article_info($atts) {
+    $default_atts = array('id' => '');
+    $atts = array_merge($default_atts, $atts);
+    $db = Typecho_Db::get();
+    if (!empty($atts['id'])) {
+        $post = $db->fetchRow($db->select()->from('table.contents')->where('cid = ?', $atts['id'])->limit(1));
+    } else {
+        return '请提供文章ID';
+    }
+    if (!$post) {
+        return '未找到文章';
+    }
+    $post = Typecho_Widget::widget('Widget_Abstract_Contents')->push($post);
+    $summary = get_article_summary($post);
+    $permalink = $post['permalink'];
+    $title = htmlspecialchars($post['title']);
+
+    $output = '<blockquote class="article-quote">';
+    $output .= '<div class="t-lg t-line-1">';
+    $output .= '<a class="a-link" title="' . $title . '" href="' . $permalink . '" target="_blank">' . $title . '</a>';
+    $output .= '</div>';
+    $output .= '<div class="t-md c-sub text-2line">' . htmlspecialchars($summary) . '</div>';
+    $output .= '</blockquote>';
+
+    return $output;
+}
+// 创建一个新的类来处理内容过滤
+class ContentFilter
+{
+    public static function filterContent($content, $widget, $lastResult)
+    {
+        // 先做github短代码和链接替换
+        $content = preg_replace_callback('/\[github=([\w\-\.]+\/[\w\-\.]+)\]/i', function($matches) {
+            $repo = htmlspecialchars($matches[1]);
+            return '<div class="github-card text-center" data-repo="' . $repo . '"><div class="spinner-grow text-primary"></div></div>';
+        }, $content);
+        // 只匹配主仓库链接，后面只能是空格、标点、换行或结尾
+        $content = preg_replace_callback(
+            '#https://github\.com/([\w\-\.]+/[\w\-\.]+)(?=[\s\.,;:!\?\)\]\}\"\'\n]|$)#i',
+            function($matches) {
+                $repo = htmlspecialchars($matches[1]);
+                return '<div class="github-card text-center" data-repo="' . $repo . '"><div class="spinner-grow text-primary"></div></div>';
+            },
+            $content
+        );
+
+        // 再进行 Markdown 解析
+        $content = empty($lastResult) ? $widget->markdown($content) : $lastResult;
+
+        // alert类短代码批量替换
+        $alertShortcodes = [
+            'success' => 'success',
+            'primary' => 'primary',
+            'danger'  => 'danger',
+            'warning' => 'warning',
+            'info'    => 'info',
+            'dark'    => 'dark',
+        ];
+        foreach ($alertShortcodes as $shortcode => $class) {
+            $content = preg_replace(
+                '/\[' . $shortcode . '\](.*?)\[\/' . $shortcode . '\]/is',
+                '<div class="alert alert-' . $class . '">$1</div>',
+                $content
+            );
+        }
+
+        // 其他短代码处理
+        $content = preg_replace_callback('/\[article\s+([^\]]+)\]/', function($matches) {
+            $atts = self::parse_atts($matches[1]);
+            return get_article_info($atts);
+        }, $content);
+        
+        // 懒加载图片替换
+        $themeUrl = Helper::options()->themeUrl;
+        $loadSvg = $themeUrl . '/assets/img/load.svg';
+        $title = htmlspecialchars($widget->title);
+        $content = preg_replace_callback(
+            '/<img\s+[^>]*src=["\"]([^"\"]+\.(?:jpg|jpeg|png|webp))["\"][^>]*>/i',
+            function($matches) use ($title, $loadSvg) {
+                $imgUrl = $matches[1];
+                return '<img title="' . $title . '" alt="' . $title . '" decoding="async" data-src="' . $imgUrl . '" data-lazy="true" src="' . $loadSvg . '" />';
+            },
+            $content
+        );
+        // collapse折叠面板短代码
+        static $collapseIndex = 0;
+        $content = preg_replace_callback(
+            '/\[collapse\s+title=(?:\'([^\']*)\'|\"([^\"]*)\")\](.*?)\[\/collapse\]/is',
+            function($matches) use (&$collapseIndex) {
+                $title = $matches[1] !== '' ? $matches[1] : $matches[2];
+                $body = $matches[3];
+                $collapseIndex++;
+                $uniqid = 'collapse-' . mt_rand(100,999) . '-' . $collapseIndex;
+                return '<div class="pk-sc-collapse"><a class="btn btn-primary btn-sm" data-bs-toggle="collapse" href="#' . $uniqid . '" role="button" aria-expanded="false" aria-controls="' . $uniqid . '"><i class="fa fa-angle-up"></i>&nbsp;' . htmlspecialchars($title) . '</a></div><div class="collapse" id="' . $uniqid . '">' . $body . '</div>';
+            },
+            $content
+        );
+        // download下载短代码
+        $content = preg_replace_callback(
+            '/\[download\s+file=(?:\'([^\']*)\'|\"([^\"]*)\")\s+size=(?:\'([^\']*)\'|\"([^\"]*)\")\](.*?)\[\/download\]/is',
+            function($matches) {
+                $file = $matches[1] !== '' ? $matches[1] : $matches[2];
+                $size = $matches[3] !== '' ? $matches[3] : $matches[4];
+                $url = $matches[5];
+                return '<div class="p-block p-down-box">'
+                    . "<div class='mb15'><i class='fa fa-file-zipper'></i>&nbsp;<span> 文件名称：" . htmlspecialchars($file) . "</span></div>"
+                    . "<div class='mb15'><i class='fa fa-download'></i>&nbsp;<span> 文件大小：" . htmlspecialchars($size) . "</span></div>"
+                    . "<div class='mb15'><i class='fa-regular fa-bell'></i>&nbsp;<span> 下载声明：本站部分资源来自于网络收集，若侵犯了你的隐私或版权，请及时联系我们删除有关信息。</span></div>"
+                    . "<div><i class='fa fa-link'></i><span> 下载地址：<a href='" . htmlspecialchars($url) . "' target='_blank'>点此下载</a> </span></div></p></div>";
+            },
+            $content
+        );
+        // 回复可见短代码
+        $content = preg_replace_callback(
+            '/\[reply\](.*?)\[\/reply\]/is',
+            function($matches) use ($widget) {
+                $show = false;
+                // 仅在文章页生效
+                if ($widget instanceof Widget_Archive && $widget->is('single')) {
+                    $user = Typecho_Widget::widget('Widget_User');
+                    $db = Typecho_Db::get();
+                    if ($user->hasLogin) {
+                        // 登录用户，判断是否有通过审核的评论
+                        $hasComment = $db->fetchRow($db->select()->from('table.comments')
+                            ->where('cid = ?', $widget->cid)
+                            ->where('mail = ?', $user->mail)
+                            ->where('status = ?', 'approved')
+                        );
+                        if ($hasComment) $show = true;
+                    } else {
+                        // 未登录，判断IP
+                        $hasComment = $db->fetchRow($db->select()->from('table.comments')
+                            ->where('cid = ?', $widget->cid)
+                            ->where('status = ?', 'approved')
+                            ->where('ip = ?', $widget->request->getIp())
+                        );
+                        if ($hasComment) $show = true;
+                    }
+                }
+                if ($show) {
+                    return '<div class="reply-visible">' . $matches[1] . '</div>';
+                } else {
+                    return "<div class='alert alert-primary alert-outline'><span class='c-sub fs14'><i class='fa-regular fa-eye'></i>&nbsp; 此处含有隐藏内容，请提交评论并审核通过刷新后即可查看！</span></div>";
+                }
+            },
+            $content
+        );
+        return $content;
+    }
+    // 解析短代码属性
+    private static function parse_atts($text) {
+        $atts = array();
+        $pattern = '/(\w+)\s*=\s*"([^"]*)"(?:\s|$)|(\w+)\s*=\s*\'([^\']*)\'(?:\s|$)|(\w+)\s*=\s*([^\s\'"]+)(?:\s|$)|"([^"]*)"(?:\s|$)|(\S+)(?:\s|$)/';
+        $text = preg_replace("/[\x{00a0}\x{200b}]+/u", " ", $text);
+        if (preg_match_all($pattern, $text, $match, PREG_SET_ORDER)) {
+            foreach ($match as $m) {
+                if (!empty($m[1]))
+                    $atts[strtolower($m[1])] = stripcslashes($m[2]);
+                elseif (!empty($m[3]))
+                    $atts[strtolower($m[3])] = stripcslashes($m[4]);
+                elseif (!empty($m[5]))
+                    $atts[strtolower($m[5])] = stripcslashes($m[6]);
+                elseif (isset($m[7]) && strlen($m[7]))
+                    $atts[] = stripcslashes($m[7]);
+                elseif (isset($m[8]))
+                    $atts[] = stripcslashes($m[8]);
+            }
+        }
+        return $atts;
+    }
+}
+// 注册钩子，自动处理所有内容输出
+Typecho_Plugin::factory('Widget_Abstract_Contents')->content = array('ContentFilter', 'filterContent');
+Typecho_Plugin::factory('Widget_Abstract_Contents')->contentEx = array('ContentFilter', 'filterContent');
+
+// 编辑器按钮类
+class EditorButton {
+    public static function render()
+    {
+        echo <<<EOF
+<style>
+#wmd-button-row {
+    display: flex;
+    flex-wrap: wrap;
+    min-height: 40px;
+    height: auto !important;
+    overflow: visible;
+}
+#text, .wmd-input {
+    margin-top: 0 !important;
+}
+</style>
+<script>
+$(document).ready(function() {
+    $('#wmd-button-row').append('<li class="wmd-button" id="wmd-article-button" title="插入文章引用"><span style="background: none;"><svg t="1687164718203" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4158" width="20" height="20"><path d="M810.666667 213.333333H213.333333c-46.933333 0-85.333333 38.4-85.333333 85.333334v426.666666c0 46.933333 38.4 85.333333 85.333333 85.333334h597.333334c46.933333 0 85.333333-38.4 85.333333-85.333334V298.666667c0-46.933333-38.4-85.333333-85.333333-85.333334z m0 512H213.333333V298.666667h597.333334v426.666666z" p-id="4159"></path><path d="M298.666667 384h426.666666v85.333333H298.666667zM298.666667 554.666667h426.666666v85.333333H298.666667z" p-id="4160"></path></svg></span></li>');
+    // 新增github按钮
+    $('#wmd-button-row').append('<li class="wmd-button" id="wmd-github-button" title="插入GitHub仓库"><span style="background: none;"><svg t="1714380000000" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="8888" width="20" height="20"><path d="M512 76C276.6 76 80 272.6 80 508c0 190.2 123.2 351.4 294 408.6 21.4 4 29.2-9.2 29.2-20.4 0-10-0.4-43-0.6-78.2-119.6 26-144.8-57.6-144.8-57.6-19.4-49.2-47.4-62.2-47.4-62.2-38.8-26.6 2.8-26 2.8-26 42.8 3 65.4 44 65.4 44 38.2 65.4 100.2 46.5 124.6 35.6 3.8-27.7 15-46.5 27.2-57.2-95.4-10.8-195.8-47.7-195.8-212.4 0-46.9 16.8-85.3 44.2-115.4-4.4-10.8-19.2-54.2 4.2-113 0 0 36.2-11.6 118.8 44.1 34.4-9.6 71.4-14.4 108.2-14.6 36.8 0.2 73.8 5 108.2 14.6 82.6-55.7 118.8-44.1 118.8-44.1 23.4 58.8 8.6 102.2 4.2 113 27.4 30.1 44.2 68.5 44.2 115.4 0 164.9-100.6 201.5-196.2 212.1 15.4 13.2 29.2 39.2 29.2 79.1 0 57.1-0.5 103.2-0.5 117.3 0 11.3 7.7 24.6 29.4 20.4C820.8 859.4 944 698.2 944 508 944 272.6 747.4 76 512 76z" p-id="8889" fill="#181616"></path></svg></span></li>');
+
+    // alert类按钮
+    var alertTypes = [
+        {id: 'success', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="rgba(100,205,138,1)"><path d="M9.9997 15.1709L19.1921 5.97852L20.6063 7.39273L9.9997 17.9993L3.63574 11.6354L5.04996 10.2212L9.9997 15.1709Z"></path></svg>', label: '成功'},
+        {id: 'primary', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="rgba(240,187,64,1)"><path d="M11.9996 0.5L16.2256 6.68342L23.4123 8.7918L18.8374 14.7217L19.053 22.2082L11.9996 19.6897L4.94617 22.2082L5.16179 14.7217L0.586914 8.7918L7.7736 6.68342L11.9996 0.5ZM9.99959 12H7.99959C7.99959 14.2091 9.79045 16 11.9996 16C14.1418 16 15.8907 14.316 15.9947 12.1996L15.9996 12H13.9996C13.9996 13.1046 13.1042 14 11.9996 14C10.9452 14 10.0814 13.1841 10.0051 12.1493L9.99959 12Z"></path></svg>', label: '重要'},
+        {id: 'danger', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="rgba(251,12,12,1)"><path d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"></path></svg>', label: '危险'},
+        {id: 'warning', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M4.00001 20V14C4.00001 9.58172 7.58173 6 12 6C16.4183 6 20 9.58172 20 14V20H21V22H3.00001V20H4.00001ZM6.00001 14H8.00001C8.00001 11.7909 9.79087 10 12 10V8C8.6863 8 6.00001 10.6863 6.00001 14ZM11 2H13V5H11V2ZM19.7782 4.80761L21.1924 6.22183L19.0711 8.34315L17.6569 6.92893L19.7782 4.80761ZM2.80762 6.22183L4.22183 4.80761L6.34315 6.92893L4.92894 8.34315L2.80762 6.22183Z"></path></svg>', label: '警告'},
+        {id: 'info', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 11V17H13V11H11ZM11 7V9H13V7H11Z"></path></svg>', label: '关于'},
+        {id: 'dark', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M4 3H20C20.5523 3 21 3.44772 21 4V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V4C3 3.44772 3.44772 3 4 3Z"></path></svg>', label: '黑色'}
+    ];
+    alertTypes.forEach(function(type) {
+        $('#wmd-button-row').append('<li class="wmd-button" id="wmd-alert-' + type.id + '" title="插入' + type.label + '提示"><span>' + type.icon + '</span></li>');
+        $(document).on('click', '#wmd-alert-' + type.id, function() {
+            var textarea = $('#text')[0];
+            var start = textarea.selectionStart;
+            var end = textarea.selectionEnd;
+            var value = textarea.value;
+            var selected = value.substring(start, end) || type.label;
+            var text = '[' + type.id + ']' + selected + '[/' + type.id + ']';
+            textarea.value = value.substring(0, start) + text + value.substring(end);
+            textarea.setSelectionRange(start + text.length, start + text.length);
+            textarea.focus();
+            $('#text').trigger('change');
+        });
+    });
+    // 折叠面板按钮
+    $('#wmd-button-row').append('<li class="wmd-button" id="wmd-collapse-button" title="插入折叠面板"><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 12C20.0929 12 21.1175 12.2922 22 12.8027V6C22 5.44772 21.5523 5 21 5H12.4142L10.4142 3H3C2.44772 3 2 3.44772 2 4V20C2 20.5523 2.44772 21 3 21H13.8027C13.2922 20.1175 13 19.0929 13 18C13 14.6863 15.6863 12 19 12ZM20.4143 17.9999L22.5356 20.1212L21.1214 21.5354L19.0001 19.4141L16.8788 21.5354L15.4646 20.1212L17.5859 17.9999L15.4646 15.8786L16.8788 14.4644L19.0001 16.5857L21.1214 14.4644L22.5356 15.8786L20.4143 17.9999Z"></path></svg></span></li>');
+    $(document).on('click', '#wmd-collapse-button', function() {
+        var title = prompt('请输入折叠面板标题：', '折叠标题');
+        if (title !== null) {
+            var textarea = $('#text')[0];
+            var start = textarea.selectionStart;
+            var end = textarea.selectionEnd;
+            var value = textarea.value;
+            var selected = value.substring(start, end) || '这里是折叠内容';
+            var text = "[collapse title='" + title + "']" + selected + "[/collapse]";
+            textarea.value = value.substring(0, start) + text + value.substring(end);
+            textarea.setSelectionRange(start + text.length, start + text.length);
+            textarea.focus();
+            $('#text').trigger('change');
+        }
+    });
+    // 下载按钮
+    $('#wmd-button-row').append('<li class="wmd-button" id="wmd-download-button" title="插入下载信息"><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3 19H21V21H3V19ZM13 9H20L12 17L4 9H11V1H13V9Z"></path></svg></span></li>');
+    $(document).on('click', '#wmd-download-button', function() {
+        var file = prompt('请输入文件名：', 'xxx.zip');
+        if (file === null) return;
+        var size = prompt('请输入文件大小：', '12MB');
+        if (size === null) return;
+        var url = prompt('请输入下载地址：', 'https://example.com/file.zip');
+        if (url === null) return;
+        var textarea = $('#text')[0];
+        var start = textarea.selectionStart;
+        var end = textarea.selectionEnd;
+        var value = textarea.value;
+        var text = "[download file='" + file + "' size='" + size + "']" + url + "[/download]";
+        textarea.value = value.substring(0, start) + text + value.substring(end);
+        textarea.setSelectionRange(start + text.length, start + text.length);
+        textarea.focus();
+        $('#text').trigger('change');
+    });
+    // 回复可见按钮
+    $('#wmd-button-row').append('<li class="wmd-button" id="wmd-reply-button" title="插入回复可见"><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M10.1305 15.8421L9.34268 18.7821L7.41083 18.2645L8.1983 15.3256C7.00919 14.8876 5.91661 14.2501 4.96116 13.4536L2.80783 15.6069L1.39362 14.1927L3.54695 12.0394C2.35581 10.6105 1.52014 8.8749 1.17578 6.96843L2.07634 6.80469C4.86882 8.81573 8.29618 10.0003 12.0002 10.0003C15.7043 10.0003 19.1316 8.81573 21.9241 6.80469L22.8247 6.96843C22.4803 8.8749 21.6446 10.6105 20.4535 12.0394L22.6068 14.1927L21.1926 15.6069L19.0393 13.4536C18.0838 14.2501 16.9912 14.8876 15.8021 15.3256L16.5896 18.2645L14.6578 18.7821L13.87 15.8421C13.2623 15.9461 12.6376 16.0003 12.0002 16.0003C11.3629 16.0003 10.7381 15.9461 10.1305 15.8421Z"></path></svg></span></li>');
+    $(document).on('click', '#wmd-reply-button', function() {
+        var textarea = $('#text')[0];
+        var start = textarea.selectionStart;
+        var end = textarea.selectionEnd;
+        var value = textarea.value;
+        var selected = value.substring(start, end) || '这里是隐藏内容';
+        var text = '[reply]' + selected + '[/reply]';
+        textarea.value = value.substring(0, start) + text + value.substring(end);
+        textarea.setSelectionRange(start + text.length, start + text.length);
+        textarea.focus();
+        $('#text').trigger('change');
+    });
+
+    $('#wmd-article-button').click(function() {
+        var articleId = prompt("请输入要引用的文章ID：");
+        if (articleId) {
+            var text = "[article id=\"" + articleId + "\"]";
+            var textarea = $('#text')[0];
+            var start = textarea.selectionStart;
+            var end = textarea.selectionEnd;
+            var value = textarea.value;
+            textarea.value = value.substring(0, start) + text + value.substring(end);
+            // 将光标移动到插入的文本之后
+            textarea.setSelectionRange(start + text.length, start + text.length);
+            textarea.focus();
+            // 触发change事件，确保编辑器更新
+            $('#text').trigger('change');
+        }
+    });
+    // github按钮插入
+    $('#wmd-github-button').click(function() {
+        var repo = prompt("请输入GitHub仓库名（如 jkjoy/typecho）：");
+        if (repo) {
+            var text = "[github=" + repo + "]";
+            var textarea = $('#text')[0];
+            var start = textarea.selectionStart;
+            var end = textarea.selectionEnd;
+            var value = textarea.value;
+            textarea.value = value.substring(0, start) + text + value.substring(end);
+            textarea.setSelectionRange(start + text.length, start + text.length);
+            textarea.focus();
+            $('#text').trigger('change');
+        }
+    });
+});
+</script>
+EOF;
+    }
+}
+// 注册编辑器按钮钩子
+// 避免重复注册，在最后执行
+if (!Typecho_Plugin::exists('Widget_Abstract_Contents', 'editor')) {
+    Typecho_Plugin::factory('admin/write-post.php')->bottom = array('EditorButton', 'render');
+    Typecho_Plugin::factory('admin/write-page.php')->bottom = array('EditorButton', 'render');
+}
+
+/**
+ * 获取文章摘要
+ * @param $post Widget_Abstract_Contents|array
+ * @param int $length 摘要长度
+ * @return string
+ */
+function get_article_summary($post, $length = 100) {
+    // 如果有自定义摘要字段
+    if (is_array($post) && isset($post['fields']) && !empty($post['fields']['summary'])) {
+        return $post['fields']['summary'];
+    }
+    if (is_object($post) && isset($post->fields) && !empty($post->fields->summary)) {
+        return $post->fields->summary;
+    }
+    // 否则自动截取正文
+    $text = is_array($post) ? $post['text'] : (isset($post->text) ? $post->text : '');
+    $text = strip_tags($text); // 去除HTML标签
+    $text = str_replace(["\r", "\n", "\t"], '', $text); // 去除换行和制表
+    if (mb_strlen($text, 'UTF-8') > $length) {
+        return mb_substr($text, 0, $length, 'UTF-8') . '...';
+    }
+    return $text;
+}
