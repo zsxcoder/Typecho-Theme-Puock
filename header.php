@@ -83,6 +83,15 @@
                         </a>
                     </li>
                     <?php endwhile; ?>
+                    <?php if($this->user->hasLogin()): ?> 
+                        <li>
+                            <a data-bs-toggle="tooltip" title="用户中心" href="/admin" target="_blank">
+                            <img alt="用户中心" src="<?php $stats = get_site_statistics();echo $stats['avatar']; ?>" class="min-avatar">
+                            </a>
+                        </li>
+                    <?php else: ?>
+                    <li><a data-no-instant data-bs-toggle="tooltip" title="登入" data-title="登入" href="javascript:void(0)" class="pk-modal-toggle" data-once-load="true" data-url="<?php echo get_correct_url('/login/'); ?>"><i class="fa fa-right-to-bracket"></i></a></li>
+                    <?php endif; ?>
                                 <li><a class="colorMode" data-bs-toggle="tooltip" title="模式切换" href="javascript:void(0)"><i class="fa fa-circle-half-stroke"></i></a></li>
                                 <li><a class="search-modal-btn" data-bs-toggle="tooltip" title="搜索" href="javascript:void(0)"><i class="fa fa-search"></i></a></li>
                             </ul>
@@ -130,8 +139,8 @@
                             <?php endwhile; ?>
                             <li class='menu-item menu-item-type-post_type menu-item-object-page'>
                             <span><a href="#">分类</a>
-                            <a href="#menu-sub-689" data-bs-toggle="collapse"><i class="fa fa-chevron-down t-sm ml-1 menu-sub-icon"></i></a></span>
-                            <ul id="menu-sub-689" class="sub-menu collapse">
+                            <a href="#menu" data-bs-toggle="collapse"><i class="fa fa-chevron-down t-sm ml-1 menu-sub-icon"></i></a></span>
+                            <ul id="menu" class="sub-menu collapse">
                             <?php $categories = Typecho_Widget::widget('Widget_Metas_Category_List'); ?>
                             <?php while($categories->next()): ?>
                             <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-child">
@@ -143,6 +152,15 @@
                             </li>
                             <?php endwhile; ?>
                             </ul>
+                            <?php if($this->user->hasLogin()): ?> 
+                        <li>
+                            <a data-bs-toggle="tooltip" title="用户中心" href="/admin" target="_blank">
+                            <img alt="用户中心" src="<?php $stats = get_site_statistics();echo $stats['avatar']; ?>" class="min-avatar">
+                            </a>
+                        </li>
+                    <?php else: ?>
+                    <li><a data-no-instant data-bs-toggle="tooltip" title="登入" data-title="登入" href="javascript:void(0)" class="pk-modal-toggle" data-once-load="true" data-url="<?php echo get_correct_url('/login/'); ?>"><i class="fa fa-right-to-bracket"></i></a></li>
+                    <?php endif; ?>
                         </ul>
                     </nav>
                 </div>

@@ -143,6 +143,10 @@ class Puock {
         });
         // form ajax submit
         $(document).on("submit", ".ajax-form", (e) => {
+            // 如果是登录弹窗表单，允许原生提交
+            if ($(e.target).attr('id') === 'front-login-form') {
+                return true;
+            }
             e.preventDefault();
             const form = $(this.ct(e));
             const formEls = form.find(":input")
@@ -208,6 +212,32 @@ class Puock {
             }
             return false;
         })
+        // 登录弹窗表单AJAX提交（集成Puock插件接口）
+        $(document).off('submit', '#front-login-form');
+        $(document).on('submit', '#front-login-form', function(e) {
+            e.preventDefault();
+            var $form = $(this);
+            var data = $form.serialize();
+            $.ajax({
+                url: '/index.php/ajaxlogin/',
+                type: 'POST',
+                data: data,
+                dataType: 'json',
+                success: function(res) {
+                    if (res.success) {
+                        window.Puock.toast(res.msg || '登录成功', TYPE_SUCCESS);
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 800);
+                    } else {
+                        window.Puock.toast(res.msg || '登录失败', TYPE_DANGER);
+                    }
+                },
+                error: function() {
+                    window.Puock.toast('请求失败', TYPE_DANGER);
+                }
+            });
+        });
     }
 
     pageLinkBlankOpenInit() {
@@ -415,7 +445,7 @@ class Puock {
         this.pageLinkBlankOpenInit()
         this.initGithubCard();
         this.keyUpHandle();
-        this.loadHitokoto();
+     //   this.loadHitokoto();
     //    this.asyncCacheViews();
         this.swiperInit();
      //   this.validateInit();
@@ -771,12 +801,14 @@ class Puock {
     }
 
     parseFormData(formEl, args = {}) {
+        // 先获取表单所有字段
         const dataArr = formEl.serializeArray();
-        const data = {...args};
+        const data = {};
         for (let i = 0; i < dataArr.length; i++) {
             data[dataArr[i].name] = dataArr[i].value;
         }
-        return jQuery.param(data);
+        // 合并额外参数
+        return jQuery.param(Object.assign(data, args));
     }
 
     eventCommentPreSubmit() {
@@ -881,19 +913,26 @@ class Puock {
 
     eventOpenCommentBox() {
         $(document).off("click", ".comment-reply");
-        $(document).on("click", ".comment-reply", (e) => {
+        $(document).on("click", ".comment-reply", function(e) {
             e.preventDefault();
-            this.data.comment.replyId = $(this.ct(e)).attr("data-coid");
-            if ($.trim(this.data.comment.replyId) === '') {
-                this.toast('结构有误', TYPE_DANGER);
+            const replyBtn = $(e.currentTarget);
+            const replyId = replyBtn.attr("data-coid");
+            if ($.trim(replyId) === '') {
+                window.Puock.toast('结构有误', TYPE_DANGER);
                 return;
             }
-            const cf = $("#comment-form"),
-                commentLi = $(this.ct(e)).closest('.post-comment');
+            const cf = $("#comment-form");
+            const commentLi = replyBtn.closest('.post-comment');
+            // 只在表单在原位时插入占位符
+            if (!$("#comment-form-place-holder").length && cf.parent().attr("id") === "comment-form-box") {
+                cf.before('<div id="comment-form-place-holder"></div>');
+            }
+            // 每次都append到目标评论下方
             commentLi.append(cf);
             $("#comment-cancel").removeClass("d-none");
             $("#comment").val("");
-            $("#comment_parent").val(this.data.comment.replyId);
+            $("#comment_parent").val(replyId);
+            window.Puock.data.comment.replyId = replyId;
             // 滚动至表单
             if (cf.length && cf[0].scrollIntoView) {
                 cf[0].scrollIntoView({behavior: "smooth", block: "center"});
@@ -904,12 +943,17 @@ class Puock {
     eventCloseCommentBox() {
         $(document).off("click", "#comment-cancel");
         $(document).on("click", "#comment-cancel", () => {
-            const cf = $("#comment-form"),
-                cb = $(".post-comment .box-sw").parent();
-            cf.removeClass("box-sw");
-            $("#comment-form-box").append(cf);
+            const cf = $("#comment-form");
+            const holder = $("#comment-form-place-holder");
+            if (holder.length) {
+                holder.before(cf);
+                holder.remove();
+            } else {
+                $("#comment-form-box").append(cf);
+            }
             $("#comment-cancel").addClass("d-none");
             this.data.comment.replyId = null;
+            $("#comment_parent").val('');
         });
     }
 
@@ -1140,25 +1184,6 @@ class Puock {
             }
         });
     }
-
-    loadHitokoto() {
-        setTimeout(() => {
-            $(".widget-puock-hitokoto").each((_, v) => {
-                const el = $(v);
-                const api = el.attr("data-api") || "https://v1.hitokoto.cn/"
-                $.get(api, (res) => {
-                    el.find(".t").text(res.hitokoto ?? res.content ?? "无内容");
-                    el.find('.f').text(res.from);
-                    el.find('.fb').removeClass("d-none");
-                }, 'json').fail((err) => {
-                    console.error(err)
-                    el.find(".t").text("加载失败：" + err.responseText || err);
-                    el.remove(".fb");
-                })
-            })
-        }, 300)
-    }
-
 
     toast(msg, type = TYPE_PRIMARY, options = {}) {
         options = Object.assign({

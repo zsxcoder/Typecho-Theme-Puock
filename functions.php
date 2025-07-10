@@ -186,14 +186,30 @@ function getAllCommenters() {
     $db = Typecho_Db::get();
     $commenters = array();
     
-    // 查询所有评论者信息并按邮箱分组统计
-    $query = $db->select('author, mail, COUNT(*) as comment_count, url')
+    $isSqlite = strpos(strtolower(get_class($db->getAdapter())), 'sqlite') !== false;
+    if ($isSqlite) {
+        // SQLite 不支持 ANY_VALUE
+        $query = $db->select('author', 'mail', 'COUNT(*) as comment_count', 'url')
+            ->from('table.comments')
+            ->where('status = ?', 'approved')
+            ->where('authorId != ?', 1)
+            ->group('mail')
+            ->order('comment_count', Typecho_Db::SORT_DESC);
+    } else {
+        // MySQL 用 ANY_VALUE 兼容 ONLY_FULL_GROUP_BY
+        $query = $db->select(
+            'ANY_VALUE(author) as author',
+            'mail',
+            'COUNT(*) as comment_count',
+            'ANY_VALUE(url) as url'
+        )
         ->from('table.comments')
-        ->where('status = ?', 'approved') // 只统计已通过审核的评论
-        ->where('authorId != ?', 1)      // 排除ID为1的管理员
+        ->where('authorId != ?', 1)
+        ->where('status = ?', 'approved')
         ->group('mail')
         ->order('comment_count', Typecho_Db::SORT_DESC);
-        
+    }
+
     $rows = $db->fetchAll($query);
     
     // 获取 Gravatar 镜像设置
@@ -964,8 +980,7 @@ function parse_smiley_shortcode($content) {
     }
     return $content;
 }
-?>
-<?php
+
 /**
  * 短代码实现
  */
@@ -1308,4 +1323,76 @@ function get_article_summary($post, $length = 100) {
         return mb_substr($text, 0, $length, 'UTF-8') . '...';
     }
     return $text;
+}
+
+/**
+ * 获取站点统计信息（包含当前登录用户信息）
+ * @return array
+ */
+function get_site_statistics() {
+    $db = Typecho_Db::get();
+    $prefix = $db->getPrefix();
+    
+    // 获取当前登录用户对象
+    $currentUser = Typecho_Widget::widget('Widget_User');
+    
+    // 如果用户未登录，获取默认uid=1的用户
+    if (!$currentUser->hasLogin()) {
+        $defaultUser = $db->fetchRow($db->select()->from('table.users')->where('uid = ?', 1));
+        $email = $defaultUser['mail'];
+        $nickname = $defaultUser['screenName'];
+    } else {
+        // 用户已登录，使用当前用户信息
+        $email = $currentUser->mail;
+        $nickname = $currentUser->screenName;
+    }
+    
+    // 获取用户设置的 Gravatar 镜像
+    $cnavatar = Helper::options()->cnavatar ? Helper::options()->cnavatar : 'https://cravatar.cn/avatar/';
+    $hash = md5($email);
+    $avatar = rtrim($cnavatar, '/') . '/' . $hash . '?s=80&d=identicon';
+    
+    // 其余统计信息保持不变
+    $userCount = $db->fetchObject($db->select(array('COUNT(*)' => 'num'))->from('table.users'))->num;
+    $postCount = $db->fetchObject($db->select(array('COUNT(*)' => 'num'))->from('table.contents')->where('type = ?', 'post')->where('status = ?', 'publish'))->num;
+    $commentCount = $db->fetchObject($db->select(array('COUNT(*)' => 'num'))->from('table.comments'))->num;
+    $totalViews = $db->fetchObject(
+        $db->select(array('SUM(views)' => 'viewsum'))->from('table.contents')->where('type = ?', 'post')
+    )->viewsum;
+    if ($totalViews === null) $totalViews = 0;
+    
+    return [
+        'email' => $email,
+        'nickname' => $nickname,
+        'avatar' => $avatar,
+        'userCount' => $userCount,
+        'postCount' => $postCount,
+        'commentCount' => $commentCount,
+        'totalViews' => $totalViews,
+        'isLogin' => $currentUser->hasLogin() // 添加一个是否登录的标志
+    ];
+}
+
+// Typecho AJAX 登录接口，支持前端 AJAX 提交并返回 JSON
+if (!empty($_GET['ajaxLogin']) && $_GET['ajaxLogin'] == 1) {
+    header('Content-Type: application/json; charset=utf-8');
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        echo json_encode(['success' => false, 'msg' => '请求方式错误']);
+        exit;
+    }
+    $name = isset($_POST['name']) ? trim($_POST['name']) : '';
+    $password = isset($_POST['password']) ? $_POST['password'] : '';
+    $referer = isset($_POST['referer']) ? $_POST['referer'] : '/';
+    if (!$name || !$password) {
+        echo json_encode(['success' => false, 'msg' => '用户名或密码不能为空']);
+        exit;
+    }
+    $user = Typecho_Widget::widget('Widget_User');
+    try {
+        $user->login($name, $password, isset($_POST['remember']) ? 1 : 0);
+        echo json_encode(['success' => true, 'msg' => '登录成功', 'redirect' => $referer]);
+    } catch (Typecho_Exception $e) {
+        echo json_encode(['success' => false, 'msg' => $e->getMessage()]);
+    }
+    exit;
 }

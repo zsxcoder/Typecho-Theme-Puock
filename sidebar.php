@@ -18,57 +18,34 @@
         </div>
         <?php endif; ?>
 
-<!-- 个人信息 -->
-<?php
-// 获取数据库连接
-$db = Typecho_Db::get();
-$prefix = $db->getPrefix();
-// 1. 获取uid=1的用户信息
-$user = $db->fetchRow($db->select()->from('table.users')->where('uid = ?', 1));
-$email = $user['mail'];
-$nickname = $user['screenName'];
-// 获取用户设置的 Gravatar 镜像
-$cnavatar = Helper::options()->cnavatar ? Helper::options()->cnavatar : 'https://cravatar.cn/avatar/';
-$hash = md5($email);
-$avatar = rtrim($cnavatar, '/') . '/' . $hash . '?s=80&d=identicon';
-// 2. 获取用户总数
-$userCount = $db->fetchObject($db->select(array('COUNT(*)' => 'num'))->from('table.users'))->num;
-// 3. 获取文章总数（只统计 type='post' 且 status='publish'）
-$postCount = $db->fetchObject($db->select(array('COUNT(*)' => 'num'))->from('table.contents')->where('type = ?', 'post')->where('status = ?', 'publish'))->num;
-// 4. 获取评论总数
-$commentCount = $db->fetchObject($db->select(array('COUNT(*)' => 'num'))->from('table.comments'))->num;
-// 5. 获取文章浏览总量（累加所有文章的 views 字段）
-$totalViews = $db->fetchObject(
-    $db->select(array('SUM(views)' => 'viewsum'))->from('table.contents')->where('type = ?', 'post')
-)->viewsum;
-if ($totalViews === null) $totalViews = 0;
-?>        
+<!-- 个人信息 -->   
+<?php $stats = get_site_statistics(); ?>
         <?php if (!empty($this->options->sidebarBlock) && in_array('ShowAdmin', $this->options->sidebarBlock)): ?>
         <div class="widget-puock-author widget">
             <div class="header" style="background-image: url('<?php echo !empty($this->options->bgUrl) ? $this->options->bgUrl : $this->options->themeUrl('assets/img/cover.png'); ?>')">
-                <img src='<?php $this->options->themeUrl('assets/img/load.svg'); ?>' class='lazy avatar' data-src='<?php echo $avatar; ?>' >
+                <img src='<?php $this->options->themeUrl('assets/img/load.svg'); ?>' class='lazy avatar' data-src='<?php echo $stats['avatar']; ?>' >
             </div>
             <div class="content t-md puock-text">
                 <div class="text-center p-2">
-                    <div class="t-lg"><?php echo $nickname; ?></div>
+                    <div class="t-lg"><?php echo $stats['nickname']; ?></div>
                     <div class="mt10 t-sm"><?php $this->options->description(); ?></div>
                 </div>
                 <div class="row mt10">
                     <div class="col-3 text-center">
                         <div class="c-sub t-sm">用户数</div>
-                        <div><?php echo $userCount; ?></div>
+                        <div><?php echo $stats['userCount']; ?></div>
                     </div>
                     <div class="col-3 text-center">
                         <div class="c-sub t-sm">文章数</div>
-                        <div><?php echo $postCount; ?></div>
+                        <div><?php echo $stats['postCount']; ?></div>
                     </div>
                     <div class="col-3 text-center">
                         <div class="c-sub t-sm">评论数</div>
-                        <div><?php echo $commentCount; ?></div>
+                        <div><?php echo $stats['commentCount']; ?></div>
                     </div>
                     <div class="col-3 text-center">
                         <div class="c-sub t-sm">阅读量</div>
-                        <div><?php echo $totalViews; ?></div>
+                        <div><?php echo $stats['totalViews']; ?></div>
                     </div>
                 </div>
             </div>

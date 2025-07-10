@@ -59,7 +59,7 @@
                             <i class="fa-regular fa-face-smile t-md"></i>
                         </button>
                         <?php endif; ?>
-                        <input type="hidden" name="parent" id="comment-parent" value="">
+                        <input type="hidden" name="parent" id="comment_parent" value="">
                         <button type="submit" id="comment-submit" class="btn btn-primary btn-ssm">
                             <i class="fa-regular fa-paper-plane"></i>&nbsp;发布评论
                         </button>
@@ -218,58 +218,3 @@
     <?php endif; ?>
 </li>
 <?php } ?>
-<script>
-// 评论局部回复，表单移动到评论下方
-document.addEventListener('DOMContentLoaded', function() {
-    // 监听评论区的回复按钮
-    document.body.addEventListener('click', function(e) {
-        var target = e.target;
-        if (
-            target.classList.contains('comment-reply') ||
-            (target.parentNode && target.parentNode.classList && target.parentNode.classList.contains('comment-reply'))
-        ) {
-            e.preventDefault();
-            // 兼容span嵌套与a标签直接点击
-            var replyBtn = target.classList.contains('comment-reply') ? target : target.parentNode;
-            var commentId = replyBtn.getAttribute('data-coid');
-            var commentLi = replyBtn.closest('.post-comment');
-            var respondBox = document.getElementById('comment-form-box');
-            var commentForm = document.getElementById('comment-form');
-            var cancelBtn = document.getElementById('comment-cancel');
-            var parentInput = document.getElementById('comment-parent');
-            // 记录原位置
-            if (!document.getElementById('comment-form-place-holder')) {
-                var holder = document.createElement('div');
-                holder.id = 'comment-form-place-holder';
-                respondBox.parentNode.insertBefore(holder, respondBox);
-            }
-            // 移动表单
-            commentLi.appendChild(respondBox);
-            // 设置parent
-            if (parentInput) parentInput.value = commentId;
-            // 展示取消按钮
-            if(cancelBtn) cancelBtn.classList.remove('d-none');
-            // 聚焦文本域
-            var textarea = commentForm.querySelector('textarea');
-            if (textarea) textarea.focus();
-            // 滚动至表单
-            respondBox.scrollIntoView({behavior: "smooth", block: "center"});
-            return false;
-        }
-        // 取消回复
-        if (target.id === 'comment-cancel') {
-            e.preventDefault();
-            var respondBox = document.getElementById('comment-form-box');
-            var holder = document.getElementById('comment-form-place-holder');
-            var parentInput = document.getElementById('comment-parent');
-            if (holder) {
-                holder.parentNode.insertBefore(respondBox, holder);
-                holder.parentNode.removeChild(holder);
-            }
-            if (parentInput) parentInput.value = '';
-            target.classList.add('d-none');
-            return false;
-        }
-    });
-});
-</script>
