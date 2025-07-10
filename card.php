@@ -73,7 +73,7 @@ if ($pageprev == '1' && $this->have()):
                 'wrapClass' => 'pagination comment-ajax-load',
                 'itemTag' => 'li',
                 'textTag' => 'span',
-                'currentClass' => 'active',
+                'currentClass' => 'cur',
                 'prevClass' => 'prev',
                 'nextClass' => 'next'
             )); ?>
