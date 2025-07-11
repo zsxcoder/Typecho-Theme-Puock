@@ -997,10 +997,10 @@ function get_article_info($atts) {
         return '未找到文章';
     }
     // 获取文章对象，避免permalink警告
-    $widget = Typecho_Widget::widget('Widget_Archive@article_quote_' . $post['cid'], 'cid=' . $post['cid'], null, false);
-    $permalink = $widget->permalink;
-    $title = htmlspecialchars($widget->title);
-    $summary = get_article_summary($widget);
+    $post = Typecho_Widget::widget('Widget_Abstract_Contents')->push($post);
+    $permalink = $post['permalink'];
+    $title = htmlspecialchars($post['title']);
+    $summary = get_article_summary($post);
 
     $output = '<blockquote class="article-quote">';
     $output .= '<div class="t-lg t-line-1">';
