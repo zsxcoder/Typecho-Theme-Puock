@@ -1374,25 +1374,25 @@ function get_site_statistics() {
 }
 
 // Typecho AJAX 登录接口，支持前端 AJAX 提交并返回 JSON
-if (!empty($_GET['ajaxLogin']) && $_GET['ajaxLogin'] == 1) {
-    header('Content-Type: application/json; charset=utf-8');
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        echo json_encode(['success' => false, 'msg' => '请求方式错误']);
-        exit;
-    }
-    $name = isset($_POST['name']) ? trim($_POST['name']) : '';
-    $password = isset($_POST['password']) ? $_POST['password'] : '';
-    $referer = isset($_POST['referer']) ? $_POST['referer'] : '/';
-    if (!$name || !$password) {
-        echo json_encode(['success' => false, 'msg' => '用户名或密码不能为空']);
-        exit;
-    }
-    $user = Typecho_Widget::widget('Widget_User');
-    try {
-        $user->login($name, $password, isset($_POST['remember']) ? 1 : 0);
-        echo json_encode(['success' => true, 'msg' => '登录成功', 'redirect' => $referer]);
-    } catch (Typecho_Exception $e) {
-        echo json_encode(['success' => false, 'msg' => $e->getMessage()]);
-    }
-    exit;
-}
+//if (!empty($_GET['ajaxLogin']) && $_GET['ajaxLogin'] == 1) {
+//    header('Content-Type: application/json; charset=utf-8');
+//    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+//        echo json_encode(['success' => false, 'msg' => '请求方式错误']);
+//        exit;
+//    }
+//    $name = isset($_POST['name']) ? trim($_POST['name']) : '';
+//    $password = isset($_POST['password']) ? $_POST['password'] : '';
+//    $referer = isset($_POST['referer']) ? $_POST['referer'] : '/';
+//    if (!$name || !$password) {
+//        echo json_encode(['success' => false, 'msg' => '用户名或密码不能为空']);
+//        exit;
+//    }
+//    $user = Typecho_Widget::widget('Widget_User');
+//    try {
+//        $user->login($name, $password, isset($_POST['remember']) ? 1 : 0);
+//        echo json_encode(['success' => true, 'msg' => '登录成功', 'redirect' => $referer]);
+//    } catch (Typecho_Exception $e) {
+//        echo json_encode(['success' => false, 'msg' => $e->getMessage()]);
+//    }
+//    exit;
+//}

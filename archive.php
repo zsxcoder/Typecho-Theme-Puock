@@ -67,7 +67,7 @@ $coverImage = getPostCover($this->content, $this->cid);
                 'wrapClass' => 'pagination comment-ajax-load',
                 'itemTag' => 'li',
                 'textTag' => 'span',
-                'currentClass' => 'active',
+                'currentClass' => 'cur',
                 'prevClass' => 'prev',
                 'nextClass' => 'next'
             )); ?>
