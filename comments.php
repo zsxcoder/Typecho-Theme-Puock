@@ -43,9 +43,9 @@
                     <div>
                         <?php if(!$this->user->hasLogin()): ?>
                         <div class="d-inline-block">
-                            <a class="btn btn-primary btn-ssm" href="<?php $this->options->loginUrl(); ?>" title="登录" target="_blank">
-                                <i class="fa fa-right-to-bracket"></i>&nbsp;登录
-                            </a>
+                            <button class="btn btn-primary btn-ssm pk-modal-toggle" type="button" data-once-load="true" data-id="front-login" title="快捷登录" data-url="<?php echo get_correct_url('/login/'); ?>"> 
+                                <i class="fa fa-right-to-bracket"></i>&nbsp;快捷登录 
+                            </button>
                         </div>
                         <?php endif; ?>
                     </div>
