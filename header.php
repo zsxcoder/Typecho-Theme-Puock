@@ -75,7 +75,7 @@
                     </li>
                     <?php \Widget\Contents\Page\Rows::alloc()->to($pages); ?>
                     <?php while ($pages->next()): ?>
-                    <li <?php if ($this->is('page', $pages->slug)): ?> class='current-menu-item current_page_item  menu-current<?php endif; ?> menu-item menu-item-type-post_type menu-item-object-page '>
+                    <li class="menu-item menu-item-type-post_type menu-item-object-page<?php if ($this->is('page', $pages->slug)) echo ' current-menu-item current_page_item menu-current'; ?>">
                         <a class='ww'
                             href="<?php $pages->permalink(); ?>"
                             title="<?php $pages->title(); ?>">
