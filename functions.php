@@ -39,7 +39,7 @@ function themeConfig($form)
     array('0'=> _t('否'), '1'=> _t('是')),
     '0', _t('社交分享显示'), _t('选择"是"在文章页面显示社交分享。需要搭配插件使用,默认关闭'));
     $form->addInput($social);
-    $gonggao = new Typecho_Widget_Helper_Form_Element_Textarea('gonggao', NULL, NULL, _t('站点公告'), _t('支持HTML'));
+    $gonggao = new Typecho_Widget_Helper_Form_Element_Textarea('gonggao', NULL, NULL, _t('站点公告'), _t('<b style=color:red>使用格式: </b><b>标题|链接|图标</b><br>多条公告回车分隔.链接和图标可以为空.图标使用Font Awesome,如: fa-regular fa-bell'));
     $form->addInput($gonggao);
     $adlisttop = new Typecho_Widget_Helper_Form_Element_Textarea('adlisttop', NULL, NULL, _t('文章列表上方广告位'), _t('支持HTML'));
     $form->addInput($adlisttop);
@@ -51,13 +51,19 @@ function themeConfig($form)
     $form->addInput($articlemid);
     $articlefoot = new Typecho_Widget_Helper_Form_Element_Textarea('articlefoot', NULL, NULL, _t('文章页底部广告位'), _t('支持HTML'));
     $form->addInput($articlefoot);
-    $addhead = new Typecho_Widget_Helper_Form_Element_Textarea('addhead', NULL, NULL, _t('网站验证代码'), _t('若开启无刷新加载，请在标签上加上data-instant属性'));
+    $addhead = new Typecho_Widget_Helper_Form_Element_Textarea('addhead', NULL, '<link rel="stylesheet" href="https://cdnjs.imsun.org/lxgw-wenkai-screen-webfont/style.css"></link>
+<style>* {font-family: -apple-system, BlinkMacSystemFont,"LXGW WenKai Screen", sans-serif;}</style>', _t('网站验证代码'), _t('若开启无刷新加载，请在标签上加上data-instant属性'));
     $form->addInput($addhead);
-    $tongji = new Typecho_Widget_Helper_Form_Element_Textarea('tongji', NULL, NULL, _t('网站统计代码'), _t('支持HTML'));
+    $tongji = new Typecho_Widget_Helper_Form_Element_Textarea('tongji', NULL, '<script async defer src="https://0tz.top/tracker.js" data-website-id="Puock"></script>', _t('网站统计代码'), _t('支持HTML'));
     $form->addInput($tongji);
-    $footerinfo = new Typecho_Widget_Helper_Form_Element_Textarea('footerinfo', NULL, NULL, _t('底部关于我们'), _t('支持HTML'));
+    $footerinfo = new Typecho_Widget_Helper_Form_Element_Textarea('footerinfo', NULL, '<a href="https://www.imsun.org/feed" target="_blank"><i class="fa-solid fa-rss fa-2x"></i></a>
+<a href="https://jiong.us/@sun" target="_blank"><i class="fa-brands fa-mastodon fa-2x"></i></a>
+<a href="https://discord.gg/RUUcPEQKNt" target="_blank"><i class="fa-brands fa-discord fa-2x"></i></a>
+<a href="https://t.me/imsunpw" target="_blank"><i class="fa-brands fa-telegram fa-2x"></i></a>
+<a href="mailto:imsunpw@gmail.com" target="_blank"><i class="fa-solid fa-envelope fa-2x"></i></a>
+<a href="https://www.imsun.org/sitemap.xml" target="_blank"><i class="fa-solid fa-sitemap fa-2x"></i></a>', _t('底部关于我们'), _t('支持HTML'));
     $form->addInput($footerinfo);
-    $footercopyright = new Typecho_Widget_Helper_Form_Element_Textarea('footercopyright', NULL, NULL, _t('底部版权信息'), _t('支持HTML'));
+    $footercopyright = new Typecho_Widget_Helper_Form_Element_Textarea('footercopyright', NULL, '<b>版权所有 转载请注明出处</b>', _t('底部版权信息'), _t('支持HTML'));
     $form->addInput($footercopyright);
     $sidebarBlock = new \Typecho\Widget\Helper\Form\Element\Checkbox(
         'sidebarBlock',

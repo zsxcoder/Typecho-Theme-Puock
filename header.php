@@ -177,12 +177,34 @@
 <div data-swiper="init" data-swiper-class="global-top-notice-swiper" data-swiper-args='{"direction":"vertical","autoplay":{"delay":3000,"disableOnInteraction":false},"loop":true}'>
 <div class="swiper global-top-notice-swiper">
 <div class="swiper-wrapper">
-<div class="swiper-slide t-line-1"> 
-<a class="ta3" data-no-instant href="javascript:void(0)"> 
-<span class="notice-icon"><i class="fa-regular fa-bell"></i></span> 
-<span><?php $this->options->gonggao(); ?></span> 
-</a> 
-</div>
+<?php
+// 获取公告内容
+$gonggao = $this->options->gonggao;
+if ($gonggao) {
+    // 按行分割
+    $lines = explode("\n", $gonggao);
+    foreach ($lines as $line) {
+        $parts = explode('|', $line);
+        // 只处理格式正确的行
+        if (count($parts) >= 3) {
+            $title = trim($parts[0]);
+            $url = trim($parts[1]);
+            $icon = trim($parts[2]);
+            // 链接为空时使用 javascript:void(0)
+            $href = $url !== '' ? htmlspecialchars($url) : 'javascript:void(0)';
+            // 图标为空时使用默认
+            $icon_class = $icon !== '' ? $icon : 'fa-regular fa-bell';
+            // 输出 HTML
+            echo '<div class="swiper-slide t-line-1">';
+            echo '<a class="ta3" data-no-instant href="' . $href . '">';
+            echo '<span class="notice-icon"><i class="' . $icon_class . '"></i></span>';
+            echo '<span>' . htmlspecialchars($title) . '</span>';
+            echo '</a>';
+            echo '</div>';
+        }
+    }
+}
+?>
 </div>
 </div>
 </div>
