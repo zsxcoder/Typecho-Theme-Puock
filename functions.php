@@ -1037,9 +1037,6 @@ class ContentFilter
             $content
         );
 
-        // 再进行 Markdown 解析
-        $content = empty($lastResult) ? $widget->markdown($content) : $lastResult;
-
         // alert类短代码批量替换
         $alertShortcodes = [
             'success' => 'success',
@@ -1138,6 +1135,10 @@ class ContentFilter
             },
             $content
         );
+        
+        // 再进行 Markdown 解析
+        $content = empty($lastResult) ? $widget->markdown($content) : $lastResult;
+
         return $content;
     }
     // 解析短代码属性
