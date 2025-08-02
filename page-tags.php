@@ -16,20 +16,21 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
 </div>   
 <div id="page-tags">
     <div id="page" class="row row-cols-1">
+        <?php if ($this->options->showsidebar): ?>  
         <div id="posts" class="col-lg-8 col-md-12 animated fadeInLeft">
+        <?php else: ?>
+        <div id="posts" class="col-lg-12 col-md-12">
+        <?php endif; ?>
             <div class="puock-text p-block no-style pb-2">
                 <?php
                 // 获取所有标签
                 $tags = Typecho_Widget::widget('Widget_Metas_Tag_Cloud');
-                
                 // 准备字母数组
                 $letters = range('A', 'Z');
-                $letters[] = '0';
-                
+                $letters[] = '0';  
                 // 获取所有存在的首字母
                 $existingLetters = array();
-                $tagsArray = array();
-                
+                $tagsArray = array();   
                 while ($tags->next()) {
                     $firstChar = getFirstChar($tags->name);
                     if (!in_array($firstChar, $existingLetters)) {
@@ -41,7 +42,6 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
                         'count' => $tags->count
                     );
                 }
-                
                 // 对每个字母下的标签按名称排序
                 foreach ($tagsArray as &$letterTags) {
                     usort($letterTags, function($a, $b) {
@@ -49,7 +49,6 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
                     });
                 }
                 ?>
-                
                 <!-- 字母导航 -->
                 <ul class='pl-0' id='tags-main-index'>
                     <?php foreach ($letters as $letter): ?>
@@ -63,13 +62,11 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
                         <li class='t'><?php echo $i; ?></li>
                     <?php endfor; ?>
                 </ul>
-                
                 <!-- 标签列表 -->
                 <ul id='tags-main-box' class='pl-0'>
                     <?php 
                     // 按字母顺序排序
                     ksort($tagsArray);
-                    
                     foreach ($tagsArray as $letter => $tags): ?>
                         <li class='n' id='<?php echo $letter; ?>'>
                             <h4 class='tag-name'><span class='t-lg c-sub'>#</span><?php echo $letter; ?></h4>
@@ -81,9 +78,7 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
                 </ul>
             </div>
         </div> 
-<?php
-
-?>
-  
+<?php if ($this->options->showsidebar): ?>    
 <?php $this->need('sidebar.php'); ?>
+<?php endif; ?>
 <?php $this->need('footer.php'); ?>
