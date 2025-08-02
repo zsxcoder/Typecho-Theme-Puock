@@ -15,7 +15,11 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
 </nav>
 <div id="page-moments">
     <div class="row">
+        <?php if ($this->options->showsidebar): ?>    
         <div id="posts" class="col-lg-8 col-md-12 animated fadeInLeft ">
+        <?php else: ?>
+        <div id="posts" class="col-lg-12 col-md-12">
+        <?php endif; ?>
     <?php $tooot = $this->fields->tooot ? $this->fields->tooot : 'https://www.imsun.org/toot.json'; ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.12/marked.min.js" integrity="sha512-rCQgmUulW6f6QegOvTntKKb5IAoxTpGVCdWqYjkXEpzAns6XUFs8NKVqWe+KQpctp/EoRSFSuykVputqknLYMg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.5/css/lightbox.min.css" integrity="sha512-xtV3HfYNbQXS/1R1jP53KbFcU9WXiSA1RFKzl5hRlJgdOJm4OxHCWYpskm6lN0xp0XtKGpAfVShpbvlFH3MDAA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -161,8 +165,10 @@ img {
        height: 480px;
 } 
 } 
-</style>          
+</style> 
+<?php if ($this->options->showsidebar): ?>             
 <?php $this->need('sidebar.php'); ?> 
+<?php endif; ?>
 </div>
 </div>
 <?php $this->need('footer.php'); ?>

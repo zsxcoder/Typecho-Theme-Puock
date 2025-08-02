@@ -109,7 +109,7 @@
     <div class="pk-widget p-block">
         <div> 
             <span class="t-lg border-bottom border-primary puock-text pb-2">
-                <i class="fa fa-chart-simple mr-1"></i>热门文章
+                <i class="fa-solid fa-fire"></i> 热门文章
             </span> 
         </div>
         <div class="mt20">

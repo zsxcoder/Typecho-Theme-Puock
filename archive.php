@@ -3,10 +3,16 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit;
 $this->need('header.php');
 ?>
 <div class="row row-cols-1">
+<?php if ($this->options->showsidebar): ?>    
 <div class="col-lg-8 col-md-12 animated fadeInLeft ">
 <div class="animated fadeInLeft ">
+<?php else: ?>
+<div class="col-lg-12 col-md-12">
+<div class="row box-plr15">
+<?php endif; ?>
 <div> <!--文章列表-->
 <div id="posts">
+<?php if ($this->options->listmodel): ?>
 <div class=" mr-0 ml-0">  
 <?php while ($this->next()): ?>
 <?php 
@@ -61,8 +67,8 @@ $coverImage = getPostCover($this->content, $this->cid);
 </article>  
 <?php endwhile; ?>
 </div>
-        <div class="mt20 p-flex-s-right" data-no-instant>
-            <?php $this->pageNav('&laquo;', '&raquo;', 1, '...', array(
+<div class="mt20 p-flex-s-right" data-no-instant>
+<?php $this->pageNav('&laquo;', '&raquo;', 1, '...', array(
                 'wrapTag' => 'ul',
                 'wrapClass' => 'pagination comment-ajax-load',
                 'itemTag' => 'li',
@@ -71,11 +77,15 @@ $coverImage = getPostCover($this->content, $this->cid);
                 'prevClass' => 'prev',
                 'nextClass' => 'next'
             )); ?>
-        </div>
+</div>
+<?php else: ?>
+<?php $this->need('card.php'); ?>
+<?php endif; ?>        
 </div>
 </div>
 </div>
 </div>
+<?php if ($this->options->showsidebar): ?>    
 <?php $this->need('sidebar.php'); ?>
-
+<?php endif; ?>
 <?php $this->need('footer.php'); ?>

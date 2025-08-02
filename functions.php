@@ -33,7 +33,7 @@ function themeConfig($form)
     $form->addInput($cmsmodel);
     $friendlink = new Typecho_Widget_Helper_Form_Element_Radio('friendlink',
     array('0'=> _t('否'), '1'=> _t('是')),
-    '0', _t('友情链接'), _t('选择"是"在首页显示友情链接。开启前请安装"Links"插件。链接分类需设置为home，默认关闭'));
+    '0', _t('友情链接'), _t('选择"是"在首页显示友情链接。开启前请安装"Links"插件。链接分类需设置为<b>home</b>，默认关闭'));
     $form->addInput($friendlink);
     $social = new Typecho_Widget_Helper_Form_Element_Radio('social',
     array('0'=> _t('否'), '1'=> _t('是')),
@@ -56,15 +56,19 @@ function themeConfig($form)
     $form->addInput($addhead);
     $tongji = new Typecho_Widget_Helper_Form_Element_Textarea('tongji', NULL, '<script async defer src="https://0tz.top/tracker.js" data-website-id="Puock"></script>', _t('网站统计代码'), _t('支持HTML'));
     $form->addInput($tongji);
-    $footerinfo = new Typecho_Widget_Helper_Form_Element_Textarea('footerinfo', NULL, '<a href="https://www.imsun.org/feed" target="_blank"><i class="fa-solid fa-rss fa-2x"></i></a>
+    $footerinfo = new Typecho_Widget_Helper_Form_Element_Textarea('footerinfo', NULL, '<a href="/feed" target="_blank"><i class="fa-solid fa-rss fa-2x"></i></a>
 <a href="https://jiong.us/@sun" target="_blank"><i class="fa-brands fa-mastodon fa-2x"></i></a>
 <a href="https://discord.gg/RUUcPEQKNt" target="_blank"><i class="fa-brands fa-discord fa-2x"></i></a>
 <a href="https://t.me/imsunpw" target="_blank"><i class="fa-brands fa-telegram fa-2x"></i></a>
 <a href="mailto:imsunpw@gmail.com" target="_blank"><i class="fa-solid fa-envelope fa-2x"></i></a>
-<a href="https://www.imsun.org/sitemap.xml" target="_blank"><i class="fa-solid fa-sitemap fa-2x"></i></a>', _t('底部关于我们'), _t('支持HTML'));
+<a href="/sitemap.xml" target="_blank"><i class="fa-solid fa-sitemap fa-2x"></i></a>', _t('底部关于我们'), _t('支持HTML'));
     $form->addInput($footerinfo);
     $footercopyright = new Typecho_Widget_Helper_Form_Element_Textarea('footercopyright', NULL, '<b>版权所有 转载请注明出处</b>', _t('底部版权信息'), _t('支持HTML'));
     $form->addInput($footercopyright);
+    $showsidebar = new Typecho_Widget_Helper_Form_Element_Radio('showsidebar',
+    array('0'=> _t('关闭'), '1'=> _t('显示')),
+    '0', _t('全局侧边栏显示'), _t('<p style=color:red>注意!</p>如果选择关闭侧边栏则下方的侧边栏显示设置将无效'));
+    $form->addInput($showsidebar);
     $sidebarBlock = new \Typecho\Widget\Helper\Form\Element\Checkbox(
         'sidebarBlock',
         [
@@ -78,7 +82,6 @@ function themeConfig($form)
         ['ShowSearch', 'ShowAdmin', 'ShowRecentPosts', 'ShowHotPosts', 'ShowRecentComments', 'ShowTags'],
         _t('侧边栏显示')
     );
-
     $form->addInput($sidebarBlock->multiMode());
 }
 
@@ -319,92 +322,93 @@ function getBrowsersInfo($userAgent) {
         "version" => "",
         "device" => "PC"
     ];
- 
+
     $match = [
         // 浏览器 - 国外浏览器
-        "Safari" => strstr($userAgent, 'Safari') != false ,
-        "Chrome" => strstr($userAgent, 'Chrome') != false || strstr($userAgent, 'CriOS') != false ,
-        "IE" => strstr($userAgent, 'MSIE') != false || strstr($userAgent, 'Trident') != false ,
-        "Edge" => strstr($userAgent, 'Edge') != false || strstr($userAgent, 'Edg/') != false || strstr($userAgent, 'EdgA') != false || strstr($userAgent, 'EdgiOS') != false,
-        "Firefox" => strstr($userAgent, 'Firefox') != false || strstr($userAgent, 'FxiOS') != false ,
-        "Firefox Focus" => strstr($userAgent, 'Focus') != false,
-        "Chromium" => strstr($userAgent,'Chromium') != false,
-        "Opera" => strstr($userAgent,'Opera') != false || strstr($userAgent,'OPR') != false,
-        "Vivaldi" => strstr($userAgent,'Vivaldi') != false,
-        "Yandex" => strstr($userAgent,'YaBrowser') != false,
-        "Arora" => strstr($userAgent,'Arora') != false,
-        "Lunascape" => strstr($userAgent,'Lunascape') != false,
-        "QupZilla" => strstr($userAgent,'QupZilla') != false,
-        "Coc Coc" => strstr($userAgent,'coc_coc_browser') != false,
-        "Kindle" => strstr($userAgent,'Kindle') != false || strstr($userAgent,'Silk/') != false,
-        "Iceweasel" => strstr($userAgent,'Iceweasel') != false,
-        "Konqueror" => strstr($userAgent,'Konqueror') != false,
-        "Iceape" => strstr($userAgent,'Iceape') != false,
-        "SeaMonkey" => strstr($userAgent,'SeaMonkey') != false,
-        "Epiphany" => strstr($userAgent,'Epiphany') != false,
+        "Safari" => strstr($userAgent, 'Safari') !== false,
+        "Chrome" => strstr($userAgent, 'Chrome') !== false || strstr($userAgent, 'CriOS') !== false,
+        "IE" => strstr($userAgent, 'MSIE') !== false || strstr($userAgent, 'Trident') !== false,
+        "Edge" => strstr($userAgent, 'Edge') !== false || strstr($userAgent, 'Edg/') !== false || strstr($userAgent, 'EdgA') !== false || strstr($userAgent, 'EdgiOS') !== false,
+        "Firefox" => strstr($userAgent, 'Firefox') !== false || strstr($userAgent, 'FxiOS') !== false,
+        "Firefox Focus" => strstr($userAgent, 'Focus') !== false,
+        "Chromium" => strstr($userAgent, 'Chromium') !== false,
+        "Opera" => strstr($userAgent, 'Opera') !== false || strstr($userAgent, 'OPR') !== false,
+        "Vivaldi" => strstr($userAgent, 'Vivaldi') !== false,
+        "Yandex" => strstr($userAgent, 'YaBrowser') !== false,
+        "Arora" => strstr($userAgent, 'Arora') !== false,
+        "Lunascape" => strstr($userAgent, 'Lunascape') !== false,
+        "QupZilla" => strstr($userAgent, 'QupZilla') !== false,
+        "Coc Coc" => strstr($userAgent, 'coc_coc_browser') !== false,
+        "Kindle" => strstr($userAgent, 'Kindle') !== false || strstr($userAgent, 'Silk/') !== false,
+        "Iceweasel" => strstr($userAgent, 'Iceweasel') !== false,
+        "Konqueror" => strstr($userAgent, 'Konqueror') !== false,
+        "Iceape" => strstr($userAgent, 'Iceape') !== false,
+        "SeaMonkey" => strstr($userAgent, 'SeaMonkey') !== false,
+        "Epiphany" => strstr($userAgent, 'Epiphany') !== false,
         // 浏览器 - 国内浏览器
-        "360" => strstr($userAgent,'QihooBrowser') != false || strstr($userAgent,'QHBrowser') != false,
-        "360EE" => strstr($userAgent,'360EE') != false,
-        "360SE" => strstr($userAgent,'360SE') != false,
-        "UC" => strstr($userAgent,'UCBrowser') != false || strstr($userAgent,' UBrowser') != false || strstr($userAgent,'UCWEB') != false,
-        "QQBrowser" => strstr($userAgent,'QQBrowser') != false,
-        "QQ" => strstr($userAgent,'QQ/') != false,
-        "Baidu" => strstr($userAgent,'Baidu') != false || strstr($userAgent,'BIDUBrowser') != false || strstr($userAgent,'baidubrowser') != false || strstr($userAgent,'baiduboxapp') != false || strstr($userAgent,'BaiduHD') != false,
-        "Maxthon" => strstr($userAgent,'Maxthon') != false,
-        "Sogou" => strstr($userAgent,'MetaSr') != false || strstr($userAgent,'Sogou') != false,
-        "Liebao" => strstr($userAgent,'LBBROWSER') != false || strstr($userAgent,'LieBaoFast') != false,
-        "2345Explorer" => strstr($userAgent,'2345Explorer') != false || strstr($userAgent,'Mb2345Browser') != false || strstr($userAgent,'2345chrome') != false,
-        "115Browser" => strstr($userAgent,'115Browser') != false,
-        "TheWorld" => strstr($userAgent,'TheWorld') != false,
-        "Quark" => strstr($userAgent,'Quark') != false,
-        "Qiyu" => strstr($userAgent,'Qiyu') != false,
+        "360" => strstr($userAgent, 'QihooBrowser') !== false || strstr($userAgent, 'QHBrowser') !== false,
+        "360EE" => strstr($userAgent, '360EE') !== false,
+        "360SE" => strstr($userAgent, '360SE') !== false,
+        "UC" => strstr($userAgent, 'UCBrowser') !== false || strstr($userAgent, ' UBrowser') !== false || strstr($userAgent, 'UCWEB') !== false,
+        "QQBrowser" => strstr($userAgent, 'QQBrowser') !== false,
+        "QQ" => strstr($userAgent, 'QQ/') !== false,
+        "Baidu" => strstr($userAgent, 'Baidu') !== false || strstr($userAgent, 'BIDUBrowser') !== false || strstr($userAgent, 'baidubrowser') !== false || strstr($userAgent, 'baiduboxapp') !== false || strstr($userAgent, 'BaiduHD') !== false,
+        "Maxthon" => strstr($userAgent, 'Maxthon') !== false,
+        "Sogou" => strstr($userAgent, 'MetaSr') !== false || strstr($userAgent, 'Sogou') !== false,
+        "Liebao" => strstr($userAgent, 'LBBROWSER') !== false || strstr($userAgent, 'LieBaoFast') !== false,
+        "2345Explorer" => strstr($userAgent, '2345Explorer') !== false || strstr($userAgent, 'Mb2345Browser') !== false || strstr($userAgent, '2345chrome') !== false,
+        "115Browser" => strstr($userAgent, '115Browser') !== false,
+        "TheWorld" => strstr($userAgent, 'TheWorld') !== false,
+        "Quark" => strstr($userAgent, 'Quark') !== false,
+        "Qiyu" => strstr($userAgent, 'Qiyu') !== false,
         // 浏览器 - 手机厂商
-        "XiaoMi" => strstr($userAgent,'MiuiBrowser') != false,
-        "Huawei" => strstr($userAgent,'HuaweiBrowser') != false || strstr($userAgent,'HUAWEI/') != false || strstr($userAgent,'HONOR') != false || strstr($userAgent,'HBPC/') != false,
-        "Vivo" => strstr($userAgent,'VivoBrowser') != false,
-        "OPPO" => strstr($userAgent,'HeyTapBrowser') != false,
+        "XiaoMi" => strstr($userAgent, 'MiuiBrowser') !== false,
+        "Huawei" => strstr($userAgent, 'HuaweiBrowser') !== false || strstr($userAgent, 'HUAWEI/') !== false || strstr($userAgent, 'HONOR') !== false || strstr($userAgent, 'HBPC/') !== false,
+        "Vivo" => strstr($userAgent, 'VivoBrowser') !== false,
+        "OPPO" => strstr($userAgent, 'HeyTapBrowser') !== false,
         // 浏览器 - 客户端
-        "Wechat" => strstr($userAgent,'MicroMessenger') != false,
-        "WechatWork" => strstr($userAgent,'wxwork/') != false,
-        "Taobao" => strstr($userAgent,'AliApp(TB') != false,
-        "Alipay" => strstr($userAgent,'AliApp(AP') != false,
-        "Weibo" => strstr($userAgent,'Weibo') != false,
-        "Douban" => strstr($userAgent,'com.douban.frodo') != false,
-        "Suning" => strstr($userAgent,'SNEBUY-APP') != false,
-        "iQiYi" => strstr($userAgent,'IqiyiApp') != false,
-        "DingTalk" => strstr($userAgent,'DingTalk') != false,
-        "Douyin" => strstr($userAgent,'aweme') != false,
+        "Wechat" => strstr($userAgent, 'MicroMessenger') !== false,
+        "WechatWork" => strstr($userAgent, 'wxwork/') !== false,
+        "Taobao" => strstr($userAgent, 'AliApp(TB') !== false,
+        "Alipay" => strstr($userAgent, 'AliApp(AP') !== false,
+        "Weibo" => strstr($userAgent, 'Weibo') !== false,
+        "Douban" => strstr($userAgent, 'com.douban.frodo') !== false,
+        "Suning" => strstr($userAgent, 'SNEBUY-APP') !== false,
+        "iQiYi" => strstr($userAgent, 'IqiyiApp') !== false,
+        "DingTalk" => strstr($userAgent, 'DingTalk') !== false,
+        "Douyin" => strstr($userAgent, 'aweme') !== false,
         // 系统或平台
-        "Windows" => strstr($userAgent,'Windows') != false,
-        "Linux" => strstr($userAgent,'Linux') != false || strstr($userAgent,'X11') != false,
-        "Mac OS" => strstr($userAgent,'Macintosh') != false,
-        "Android" => strstr($userAgent,'Android') != false || strstr($userAgent,'Adr') != false,
-        "HarmonyOS" => strstr($userAgent,'HarmonyOS') != false,
-        "Ubuntu" => strstr($userAgent,'Ubuntu') != false,
-        "FreeBSD" => strstr($userAgent,'FreeBSD') != false,
-        "Debian" => strstr($userAgent,'Debian') != false,
-        "Windows Phone" => strstr($userAgent,'IEMobile') != false || strstr($userAgent,'Windows Phone') != false,
-        "BlackBerry" => strstr($userAgent,'BlackBerry') != false || strstr($userAgent,'RIM') != false,
-        "MeeGo" => strstr($userAgent,'MeeGo') != false,
-        "Symbian" => strstr($userAgent,'Symbian') != false,
-        "iOS" => strstr($userAgent,'like Mac OS X') != false,
-        "Chrome OS" => strstr($userAgent,'CrOS') != false,
-        "WebOS" => strstr($userAgent,'hpwOS') != false,
+        "Windows" => strstr($userAgent, 'Windows') !== false,
+        "Linux" => strstr($userAgent, 'Linux') !== false || strstr($userAgent, 'X11') !== false,
+        "Mac OS" => strstr($userAgent, 'Macintosh') !== false,
+        "Android" => strstr($userAgent, 'Android') !== false || strstr($userAgent, 'Adr') !== false,
+        "HarmonyOS" => strstr($userAgent, 'HarmonyOS') !== false,
+        "Ubuntu" => strstr($userAgent, 'Ubuntu') !== false,
+        "FreeBSD" => strstr($userAgent, 'FreeBSD') !== false,
+        "Debian" => strstr($userAgent, 'Debian') !== false,
+        "Windows Phone" => strstr($userAgent, 'IEMobile') !== false || strstr($userAgent, 'Windows Phone') !== false,
+        "BlackBerry" => strstr($userAgent, 'BlackBerry') !== false || strstr($userAgent, 'RIM') !== false,
+        "MeeGo" => strstr($userAgent, 'MeeGo') !== false,
+        "Symbian" => strstr($userAgent, 'Symbian') !== false,
+        "iOS" => strstr($userAgent, 'like Mac OS X') !== false,
+        "Chrome OS" => strstr($userAgent, 'CrOS') !== false,
+        "WebOS" => strstr($userAgent, 'hpwOS') !== false,
         // 设备
-        "Mobile" => strstr($userAgent,'Mobi') != false || strstr($userAgent,'iPh') != false || strstr($userAgent,'480') != false,
-        "Tablet" => strstr($userAgent,'Tablet') != false || strstr($userAgent,'Pad') != false || strstr($userAgent,'Nexus 7') != false,
+        "Mobile" => strstr($userAgent, 'Mobi') !== false || strstr($userAgent, 'iPh') !== false || strstr($userAgent, '480') !== false,
+        "Tablet" => strstr($userAgent, 'Tablet') !== false || strstr($userAgent, 'Pad') !== false || strstr($userAgent, 'Nexus 7') !== false,
     ];
-    // 部分修正 | 因typecho评论数据只存储了ua的信息,所以不能完全进行修正尤其是360相关浏览器
+
+    // 部分修正
     if ($match['Baidu'] && $match['Opera']) $match['Baidu'] = false;
     if ($match['iOS']) $match['Safari'] = true;
- 
+
     // 基本信息
     $baseInfo = [
         "browser" => [
             'Safari', 'Chrome', 'Edge', 'IE', 'Firefox', 'Firefox Focus', 'Chromium',
-            'Opera', 'Vivaldi', 'Yandex', 'Arora', 'Lunascape','QupZilla', 'Coc Coc',
-            'Kindle', 'Iceweasel', 'Konqueror', 'Iceape','SeaMonkey', 'Epiphany', 'XiaoMi',
-            'Vivo', 'OPPO', '360', '360SE','360EE', 'UC', 'QQBrowser', 'QQ', 'Huawei', 'Baidu',
+            'Opera', 'Vivaldi', 'Yandex', 'Arora', 'Lunascape', 'QupZilla', 'Coc Coc',
+            'Kindle', 'Iceweasel', 'Konqueror', 'Iceape', 'SeaMonkey', 'Epiphany', 'XiaoMi',
+            'Vivo', 'OPPO', '360', '360SE', '360EE', 'UC', 'QQBrowser', 'QQ', 'Huawei', 'Baidu',
             'Maxthon', 'Sogou', 'Liebao', '2345Explorer', '115Browser', 'TheWorld', 'Quark', 'Qiyu',
             'Wechat', 'WechatWork', 'Taobao', 'Alipay', 'Weibo', 'Douban', 'Suning', 'iQiYi', 'DingTalk', 'Douyin'
         ],
@@ -415,17 +419,15 @@ function getBrowsersInfo($userAgent) {
         ],
         "device" => ['Mobile', 'Tablet'],
     ];
- 
+
     foreach ($baseInfo as $k => $v) {
         foreach ($v as $xv) {
             if ($match[$xv]) $deviceInfo[$k] = $xv;
         }
     }
- 
+
     // 操作系统版本信息
     $windowsVersion = [
-        '10' => "10",
-        '6.4' => '10',
         '6.3' => '8.1',
         '6.2' => '8',
         '6.1' => '7',
@@ -434,29 +436,58 @@ function getBrowsersInfo($userAgent) {
         '5.1' => 'XP',
         '5.0' => '2000',
     ];
-    $wv = pregMatch("/^Mozilla\/\d.0 \(Windows NT ([\d.]+)[;)].*$/", $userAgent);
+
+    // Extract Windows NT version and build number
+    if (preg_match("/\(Windows NT ([\d.]+)(?:;[^)]*Build\/(\d+))?(?:;[^)]*)?\)/i", $userAgent, $matches)) {
+        $ntVersion = $matches[1];
+        $buildNumber = isset($matches[2]) ? (int)$matches[2] : 0;
+
+        if ($ntVersion === '10.0') {
+            // Check build number for Windows 11
+            if ($buildNumber >= 22000) {
+                $deviceInfo['systemVersion'] = '11';
+            } else {
+                // Fallback heuristic: Check Edge version (Windows 11 requires Edge >= 91)
+                if ($deviceInfo['browser'] === 'Edge' && preg_match("/Edg\/([\d.]+)/", $userAgent, $edgeMatch)) {
+                    $edgeVersion = (float)$edgeMatch[1];
+                    if ($edgeVersion >= 91) {
+                        $deviceInfo['systemVersion'] = '11'; // Assume Windows 11 for modern Edge
+                    } else {
+                        $deviceInfo['systemVersion'] = '10';
+                    }
+                } else {
+                    $deviceInfo['systemVersion'] = '10';
+                    // Log ambiguous case for debugging
+                    error_log("Ambiguous Windows version (NT 10.0, no build number): $userAgent");
+                }
+            }
+        } else {
+            $deviceInfo['systemVersion'] = $windowsVersion[$ntVersion] ?? $ntVersion;
+        }
+    }
+
     $HarmonyOSVersion = [
         10 => "2",
         12 => "3"
     ];
     $systemVersion = [
-        "Windows" => $windowsVersion[$wv] ?? $wv,
-        "Android" => pregMatch("/^.*Android ([\d.]+);.*$/", $userAgent),
-        "HarmonyOS" => $HarmonyOSVersion[pregMatch("/^Mozilla.*Android ([\d.]+)[;)].*$/", $userAgent)] ?? '',
-        "iOS" => preg_replace("/_/", '.', pregMatch("/^.*OS ([\d_]+) like.*$/", $userAgent)),
-        "Debian" =>  pregMatch("/^.*Debian\/([\d.]+).*$/", $userAgent),
-        "Windows Phone" => pregMatch("/^.*Windows Phone( OS)? ([\d.]+);.*$/", $userAgent),
-        "Mac OS" => preg_replace("/_/", '.',pregMatch("/^.*Mac OS X ([\d_]+).*$/", $userAgent)),
-        "WebOS" => pregMatch("/^.*hpwOS\/([\d.]+);.*$/", $userAgent)
+        "Windows" => $deviceInfo['systemVersion'], // Already set above
+        "Android" => preg_match("/Android ([\d.]+);/", $userAgent, $matches) ? $matches[1] : '',
+        "HarmonyOS" => preg_match("/Android ([\d.]+)[;)]/", $userAgent, $matches) ? ($HarmonyOSVersion[(int)$matches[1]] ?? '') : '',
+        "iOS" => preg_match("/OS ([\d_]+) like/", $userAgent, $matches) ? str_replace('_', '.', $matches[1]) : '',
+        "Debian" => preg_match("/Debian\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Windows Phone" => preg_match("/Windows Phone( OS)? ([\d.]+);/", $userAgent, $matches) ? $matches[2] : '',
+        "Mac OS" => preg_match("/Mac OS X ([\d_]+)/", $userAgent, $matches) ? str_replace('_', '.', $matches[1]) : '',
+        "WebOS" => preg_match("/hpwOS\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : ''
     ];
- 
+
     if (isset($deviceInfo['system']) && $deviceInfo['system'] !== "" && isset($systemVersion[$deviceInfo['system']])) {
-    $deviceInfo['systemVersion'] = $systemVersion[$deviceInfo['system']];
-    if ($deviceInfo['systemVersion'] == $userAgent) {
-        $deviceInfo['systemVersion'] = '';
-       }
+        $deviceInfo['systemVersion'] = $systemVersion[$deviceInfo['system']];
+        if ($deviceInfo['systemVersion'] == $userAgent) {
+            $deviceInfo['systemVersion'] = '';
+        }
     }
- 
+
     // 浏览器版本信息
     $browsers_360SE = [
         108 => '14.0',
@@ -481,7 +512,7 @@ function getBrowsersInfo($userAgent) {
         30 => '7.5',
     ];
     $browsers_liebao = [
-         57 => '6.5',
+        57 => '6.5',
         49 => '6.0',
         46 => '5.9',
         42 => '5.3',
@@ -493,82 +524,81 @@ function getBrowsersInfo($userAgent) {
     $browsers_2345 = [
         69 => '10.0',
         55 => '9.9',
-        69 => '10.0',
-        55 => '9.9',
-        69 => '10.0',
-        55 => '9.9'
     ];
- 
-    $chromeVersion = pregMatch('/^.*Chrome\/([\d]+).*$/', $userAgent);
- 
+
+    $chromeVersion = preg_match('/Chrome\/([\d]+)/', $userAgent, $matches) ? (int)$matches[1] : 0;
+
     $browsersVersion = [
-        "Safari" => pregMatch("/^.*Version\/([\d.]+).*$/", $userAgent),
-        "Chrome" => pregMatch("/^.*Chrome\/([\d.]+).*$/", $userAgent) ?? pregMatch("/^.*CriOS\/([\d.]+).*$/", $userAgent),
-        "IE" => pregMatch("/^.*MSIE ([\d.]+).*$/", $userAgent) ?? pregMatch("/^.*rv:([\d.]+).*$/", $userAgent),
-        "Edge" => pregMatch("/^.*Edge\/([\d.]+).*$/", $userAgent) ?? pregMatch("/^.*Edg\/([\d.]+).*$/", $userAgent) ?? pregMatch("/^.*EdgA\/([\d.]+).*$/", $userAgent) ?? pregMatch("/^.*EdgiOS\/([\d.]+).*$/", $userAgent),
-        "Firefox" => pregMatch("/^.*Firefox\/([\d.]+).*$/", $userAgent) ?? pregMatch("/^.*FxiOS\/([\d.]+).*$/", $userAgent),
-        "Firefox Focus" => pregMatch("/^.*Focus\/([\d.]+).*$/", $userAgent),
-        "Chromium" => pregMatch("/^.*Chromium\/([\d.]+).*$/", $userAgent),
-        "Opera" => pregMatch("/^.*Opera\/([\d.]+).*$/", $userAgent) ?? pregMatch("/^.*OPR\/([\d.]+).*$/", $userAgent),
-        "Vivaldi" => pregMatch("/^.*Vivaldi\/([\d.]+).*$/", $userAgent),
-        "Yandex" => pregMatch("/^.*YaBrowser\/([\d.]+).*$/", $userAgent),
-        "Brave" => pregMatch("/^.*Chrome\/([\d.]+).*$/", $userAgent),
-        "Arora" => pregMatch("/^.*Arora\/([\d.]+).*$/", $userAgent),
-        "Lunascape" => pregMatch("/^.*Lunascape[\/\s]([\d.]+).*$/", $userAgent),
-        "QupZilla" => pregMatch("/^.*QupZilla[\/\s]([\d.]+).*$/", $userAgent),
-        "Coc Coc" => pregMatch("/^.*coc_coc_browser\/([\d.]+).*$/", $userAgent),
-        "Kindle" => pregMatch("/^.*Version\/([\d.]+).*$/", $userAgent),
-        "Iceweasel" => pregMatch("/^.*Iceweasel\/([\d.]+).*$/", $userAgent),
-        "Konqueror" => pregMatch("/^.*Konqueror\/([\d.]+).*$/", $userAgent),
-        "Iceape" => pregMatch("/^.*Iceape\/([\d.]+).*$/", $userAgent),
-        "SeaMonkey" => pregMatch("/^.*SeaMonkey\/([\d.]+).*$/", $userAgent),
-        "Epiphany" => pregMatch("/^.*Epiphany\/([\d.]+).*$/", $userAgent),
-        "360" => pregMatch("/^.*QihooBrowser(HD)?\/([\d.]+).*$/", $userAgent),
-        "Maxthon" => pregMatch("/^.*Maxthon\/([\d.]+).*$/", $userAgent),
-        "QQBrowser" => pregMatch("/^.*QQBrowser\/([\d.]+).*$/", $userAgent),
-        "QQ" => pregMatch("/^.*QQ\/([\d.]+).*$/", $userAgent),
-        "Baidu" => pregMatch("/^.*BIDUBrowser[\s\/]([\d.]+).*$/", $userAgent) ?? pregMatch("/^.*baiduboxapp\/([\d.]+).*$/", $userAgent),
-        "UC" => pregMatch("/^.*UC?Browser\/([\d.]+).*$/", $userAgent),
-        "Sogou" => pregMatch("/^.*SE ([\d.X]+).*$/", $userAgent) ?? pregMatch("/^.*SogouMobileBrowser\/([\d.]+).*$/", $userAgent),
-        "115Browser" => pregMatch("/^.*115Browser\/([\d.]+).*$/", $userAgent),
-        "TheWorld" => pregMatch("/^.*TheWorld ([\d.]+).*$/", $userAgent),
-        "XiaoMi" => pregMatch("/^.*MiuiBrowser\/([\d.]+).*$/", $userAgent),
-        "Vivo" => pregMatch("/^.*VivoBrowser\/([\d.]+).*$/", $userAgent),
-        "OPPO" => pregMatch("/^.*HeyTapBrowser\/([\d.]+).*$/", $userAgent),
-        "Quark" => pregMatch("/^.*Quark\/([\d.]+).*$/", $userAgent),
-        "Qiyu" => pregMatch("/^.*Qiyu\/([\d.]+).*$/", $userAgent),
-        "Wechat" => pregMatch("/^.*MicroMessenger\/([\d.]+).*$/", $userAgent),
-        "WechatWork" => pregMatch("/^.*wxwork\/([\d.]+).*$/", $userAgent),
-        "Taobao" => pregMatch("/^.*AliApp\(TB\/([\d.]+).*$/", $userAgent),
-        "Alipay" => pregMatch("/^.*AliApp\(AP\/([\d.]+).*$/", $userAgent),
-        "Weibo" => pregMatch("/^.*weibo__([\d.]+).*$/", $userAgent),
-        "Douban" => pregMatch("/^.*com.douban.frodo\/([\d.]+).*$/", $userAgent),
-        "Suning" => pregMatch("/^.*SNEBUY-APP([\d.]+).*$/", $userAgent),
-        "iQiYi" => pregMatch("/^.*IqiyiVersion\/([\d.]+).*$/", $userAgent),
-        "DingTalk" => pregMatch("/^.*DingTalk\/([\d.]+).*$/", $userAgent),
-        "Douyin" => pregMatch("/^.*app_version\/([\d.]+).*$/", $userAgent),
-        "Huawei" => pregMatch("/^.*Version\/([\d.]+).*$/", $userAgent) ??  pregMatch("/^.*HuaweiBrowser\/([\d.]+).*$/", $userAgent) ?? pregMatch("/^.*HBPC\/([\d.]+).*$/", $userAgent),
-        "360SE" => $browsers_360SE[$chromeVersion] ?? '',
-        "360EE" => $browsers_360EE[$chromeVersion] ?? '',
-        "Liebao" => pregMatch("/^.*LieBaoFast\/([\d.]+).*$/", $userAgent) ?? $browsers_liebao[$chromeVersion],
-        "2345Explorer" => $browsers_2345[$chromeVersion]  ?? pregMatch("/^.*2345Explorer\/([\d.]+).*$/", $userAgent) ?? pregMatch("/^.*Mb2345Browser\/([\d.]+).*$/", $userAgent),
+        "Safari" => preg_match("/Version\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Chrome" => preg_match("/Chrome\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : (preg_match("/CriOS\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : ''),
+        "IE" => preg_match("/MSIE ([\d.]+)/", $userAgent, $matches) ? $matches[1] : (preg_match("/rv:([\d.]+)/", $userAgent, $matches) ? $matches[1] : ''),
+        "Edge" => preg_match("/Edge\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : (preg_match("/Edg\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : (preg_match("/EdgA\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : (preg_match("/EdgiOS\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : ''))),
+        "Firefox" => preg_match("/Firefox\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : (preg_match("/FxiOS\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : ''),
+        "Firefox Focus" => preg_match("/Focus\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Chromium" => preg_match("/Chromium\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Opera" => preg_match("/Opera\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : (preg_match("/OPR\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : ''),
+        "Vivaldi" => preg_match("/Vivaldi\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Yandex" => preg_match("/YaBrowser\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Brave" => preg_match("/Chrome\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Arora" => preg_match("/Arora\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Lunascape" => preg_match("/Lunascape[\/\s]([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "QupZilla" => preg_match("/QupZilla[\/\s]([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Coc Coc" => preg_match("/coc_coc_browser\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Kindle" => preg_match("/Version\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Iceweasel" => preg_match("/Iceweasel\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Konqueror" => preg_match("/Konqueror\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Iceape" => preg_match("/Iceape\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "SeaMonkey" => preg_match("/SeaMonkey\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Epiphany" => preg_match("/Epiphany\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "360" => preg_match("/QihooBrowser(HD)?\/([\d.]+)/", $userAgent, $matches) ? $matches[2] : '',
+        "Maxthon" => preg_match("/Maxthon\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "QQBrowser" => preg_match("/QQBrowser\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "QQ" => preg_match("/QQ\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Baidu" => preg_match("/BIDUBrowser[\s\/]([\d.]+)/", $userAgent, $matches) ? $matches[1] : (preg_match("/baiduboxapp\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : ''),
+        "UC" => preg_match("/UC?Browser\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Sogou" => preg_match("/SE ([\d.X]+)/", $userAgent, $matches) ? $matches[1] : (preg_match("/SogouMobileBrowser\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : ''),
+        "115Browser" => preg_match("/115Browser\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "TheWorld" => preg_match("/TheWorld ([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "XiaoMi" => preg_match("/MiuiBrowser\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Vivo" => preg_match("/VivoBrowser\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "OPPO" => preg_match("/HeyTapBrowser\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Quark" => preg_match("/Quark\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Qiyu" => preg_match("/Qiyu\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Wechat" => preg_match("/MicroMessenger\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "WechatWork" => preg_match("/wxwork\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Taobao" => preg_match("/AliApp\(TB\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Alipay" => preg_match("/AliApp\(AP\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Weibo" => preg_match("/weibo__([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Douban" => preg_match("/com.douban.frodo\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Suning" => preg_match("/SNEBUY-APP([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "iQiYi" => preg_match("/IqiyiVersion\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "DingTalk" => preg_match("/DingTalk\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Douyin" => preg_match("/app_version\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '',
+        "Huawei" => preg_match("/Version\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : (preg_match("/HuaweiBrowser\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : (preg_match("/HBPC\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : '')),
+        "360SE" => isset($browsers_360SE[$chromeVersion]) ? $browsers_360SE[$chromeVersion] : '',
+        "360EE" => isset($browsers_360EE[$chromeVersion]) ? $browsers_360EE[$chromeVersion] : '',
+        "Liebao" => preg_match("/LieBaoFast\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : (isset($browsers_liebao[$chromeVersion]) ? $browsers_liebao[$chromeVersion] : ''),
+        "2345Explorer" => preg_match("/2345Explorer\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : (preg_match("/Mb2345Browser\/([\d.]+)/", $userAgent, $matches) ? $matches[1] : (isset($browsers_2345[$chromeVersion]) ? $browsers_2345[$chromeVersion] : '')),
     ];
- 
- 
+
     if (isset($deviceInfo['browser'], $browsersVersion[$deviceInfo['browser']])) {
-    $deviceInfo['version'] = $browsersVersion[$deviceInfo['browser']];
-    if ($deviceInfo['version'] == $userAgent) {
-        $deviceInfo['version'] = '';
-      }
+        $deviceInfo['version'] = $browsersVersion[$deviceInfo['browser']];
+        if ($deviceInfo['version'] == $userAgent) {
+            $deviceInfo['version'] = '';
+        }
     }
- 
+
     // 修正浏览器版本信息
-    $chrome = pregMatch('/\S+Browser/', $userAgent);
-    if ($deviceInfo['browser'] == 'Chrome' && $chrome) {
-        $deviceInfo['browser'] = $chrome;
-        $deviceInfo['version'] = pregMatch('/^.*Browser\/([\d.]+).*$/', $userAgent);
+    if (preg_match('/\S+Browser/', $userAgent, $matches)) {
+        $chrome = $matches[0];
+        if ($deviceInfo['browser'] == 'Chrome' && $chrome !== 'Chrome') {
+            $deviceInfo['browser'] = $chrome;
+            if (preg_match('/Browser\/([\d.]+)/', $userAgent, $matches)) {
+                $deviceInfo['version'] = $matches[1];
+            }
+        }
     }
- 
+
     return $deviceInfo;
 }
  
@@ -990,7 +1020,8 @@ function parse_smiley_shortcode($content) {
 /**
  * 短代码实现
  */
-function get_article_info($atts) {
+function get_article_info($atts)
+{
     $default_atts = array('id' => '');
     $atts = array_merge($default_atts, $atts);
     $db = Typecho_Db::get();
@@ -1002,7 +1033,6 @@ function get_article_info($atts) {
     if (!$post) {
         return '未找到文章';
     }
-    // 获取文章对象，避免permalink警告
     $post = Typecho_Widget::widget('Widget_Abstract_Contents')->push($post);
     $permalink = $post['permalink'];
     $title = htmlspecialchars($post['title']);
@@ -1017,17 +1047,37 @@ function get_article_info($atts) {
 
     return $output;
 }
-// 创建一个新的类来处理内容过滤
 class ContentFilter
 {
+    /**
+     * 过滤内容中的短代码
+     *
+     * @param string $content 内容
+     * @param object $widget 小工具对象
+     * @param array $lastResult 上一次结果
+     * @return string 处理后的内容
+     */
     public static function filterContent($content, $widget, $lastResult)
     {
-        // 先做github短代码和链接替换
+        // Step 1: 保护代码块
+        $codeBlocks = [];
+        $content = preg_replace_callback(
+            '/```[\s\S]*?```/m', // 匹配 Markdown 代码块（包括多行）
+            function ($matches) use (&$codeBlocks) {
+                $placeholder = '<!--CODEBLOCK_' . count($codeBlocks) . '-->';
+                $codeBlocks[$placeholder] = $matches[0]; // 存储原始代码块内容
+                return $placeholder;
+            },
+            $content
+        );
+
+        // Step 2: 执行现有的短代码处理
+        // GitHub 短代码替换
         $content = preg_replace_callback('/\[github=([\w\-\.]+\/[\w\-\.]+)\]/i', function($matches) {
             $repo = htmlspecialchars($matches[1]);
             return '<div class="github-card text-center" data-repo="' . $repo . '"><div class="spinner-grow text-primary"></div></div>';
         }, $content);
-        // 只匹配主仓库链接，后面只能是空格、标点、换行或结尾
+
         $content = preg_replace_callback(
             '#https://github\.com/([\w\-\.]+/[\w\-\.]+)(?=[\s\.,;:!\?\)\]\}\"\'\n]|$)#i',
             function($matches) {
@@ -1037,7 +1087,7 @@ class ContentFilter
             $content
         );
 
-        // alert类短代码批量替换
+        // alert 类短代码
         $alertShortcodes = [
             'success' => 'success',
             'primary' => 'primary',
@@ -1054,12 +1104,12 @@ class ContentFilter
             );
         }
 
-        // 其他短代码处理
+        // article 短代码
         $content = preg_replace_callback('/\[article\s+([^\]]+)\]/', function($matches) {
             $atts = self::parse_atts($matches[1]);
             return get_article_info($atts);
         }, $content);
-        
+
         // 懒加载图片替换
         $themeUrl = Helper::options()->themeUrl;
         $loadSvg = $themeUrl . '/assets/img/load.svg';
@@ -1072,7 +1122,8 @@ class ContentFilter
             },
             $content
         );
-        // collapse折叠面板短代码
+
+        // collapse 折叠面板短代码
         static $collapseIndex = 0;
         $content = preg_replace_callback(
             '/\[collapse\s+title=(?:\'([^\']*)\'|\"([^\"]*)\")\](.*?)\[\/collapse\]/is',
@@ -1085,7 +1136,8 @@ class ContentFilter
             },
             $content
         );
-        // download下载短代码
+
+        // download 短代码
         $content = preg_replace_callback(
             '/\[download\s+file=(?:\'([^\']*)\'|\"([^\"]*)\")\s+size=(?:\'([^\']*)\'|\"([^\"]*)\")\](.*?)\[\/download\]/is',
             function($matches) {
@@ -1100,17 +1152,16 @@ class ContentFilter
             },
             $content
         );
-        // 回复可见短代码
+
+        // reply 短代码
         $content = preg_replace_callback(
             '/\[reply\](.*?)\[\/reply\]/is',
             function($matches) use ($widget) {
                 $show = false;
-                // 仅在文章页生效
                 if ($widget instanceof Widget_Archive && $widget->is('single')) {
                     $user = Typecho_Widget::widget('Widget_User');
                     $db = Typecho_Db::get();
                     if ($user->hasLogin) {
-                        // 登录用户，判断是否有通过审核的评论
                         $hasComment = $db->fetchRow($db->select()->from('table.comments')
                             ->where('cid = ?', $widget->cid)
                             ->where('mail = ?', $user->mail)
@@ -1118,7 +1169,6 @@ class ContentFilter
                         );
                         if ($hasComment) $show = true;
                     } else {
-                        // 未登录，判断IP
                         $hasComment = $db->fetchRow($db->select()->from('table.comments')
                             ->where('cid = ?', $widget->cid)
                             ->where('status = ?', 'approved')
@@ -1135,13 +1185,19 @@ class ContentFilter
             },
             $content
         );
-        
-        // 再进行 Markdown 解析
+
+        // Step 3: 恢复代码块
+        foreach ($codeBlocks as $placeholder => $code) {
+            $content = str_replace($placeholder, $code, $content);
+        }
+
+        // Step 4: 进行 Markdown 解析
         $content = empty($lastResult) ? $widget->markdown($content) : $lastResult;
 
         return $content;
     }
-    // 解析短代码属性
+
+    // 解析短代码属性（保持不变）
     private static function parse_atts($text) {
         $atts = array();
         $pattern = '/(\w+)\s*=\s*"([^"]*)"(?:\s|$)|(\w+)\s*=\s*\'([^\']*)\'(?:\s|$)|(\w+)\s*=\s*([^\s\'"]+)(?:\s|$)|"([^"]*)"(?:\s|$)|(\S+)(?:\s|$)/';
@@ -1163,7 +1219,8 @@ class ContentFilter
         return $atts;
     }
 }
-// 注册钩子，自动处理所有内容输出
+
+// 注册钩子
 Typecho_Plugin::factory('Widget_Abstract_Contents')->content = array('ContentFilter', 'filterContent');
 Typecho_Plugin::factory('Widget_Abstract_Contents')->contentEx = array('ContentFilter', 'filterContent');
 

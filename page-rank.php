@@ -17,7 +17,11 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
 <?php $commenters = getAllCommenters(); ?>
 <div id="page-reads">
     <div id="page" class="row row-cols-1">
+        <?php if ($this->options->showsidebar): ?>    
         <div id="posts" class="col-lg-8 col-md-12 animated fadeInLeft ">
+        <?php else: ?>
+        <div id="posts" class="col-lg-12 col-md-12">
+        <?php endif; ?>
             <div class="p-block puock-text">
                 <h2 class="t-lg"><?php $this->title() ?></h2>
                 <div class="mt20 row pd-links">
@@ -44,5 +48,7 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
         </div>
     </div>
 </div>
-<?php $this->need('sidebar.php'); ?>           
+<?php if ($this->options->showsidebar): ?>    
+<?php $this->need('sidebar.php'); ?>   
+<?php endif; ?>        
 <?php $this->need('footer.php'); ?>

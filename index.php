@@ -1,7 +1,8 @@
 <?php
 /**
  * Pouck theme for Typecho
- *
+ * 老孙移植
+ * 
  * @package Typecho Pouck Theme
  * @author 老孙博客
  * @version 1.2.2
@@ -13,8 +14,13 @@ $this->need('header.php');
 $this->need('sticky.php');
 ?>
 <div class="row row-cols-1">
+<?php if ($this->options->showsidebar): ?>    
 <div class="col-lg-8 col-md-12 animated fadeInLeft ">
 <div class="animated fadeInLeft ">
+<?php else: ?>
+<div class="col-lg-12 col-md-12">
+<div class="row box-plr15">
+<?php endif; ?>
 <div> <!--文章列表-->
 <div id="posts">
 <?php if ($this->options->listmodel): ?>
@@ -96,5 +102,7 @@ if ($pageprev == '1' && $this->have()):
 </div>
 </div>
 </div>
+<?php if ($this->options->showsidebar): ?>   
 <?php $this->need('sidebar.php'); ?>
+<?php endif; ?>
 <?php $this->need('footer.php'); ?>

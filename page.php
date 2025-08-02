@@ -10,7 +10,11 @@
 </div>   
 <div id="page-empty">
     <div id="page" class="row row-cols-1">
+        <?php if ($this->options->showsidebar): ?>    
         <div id="post-main" class="col-lg-8 col-md-12 animated fadeInLeft ">
+        <?php else: ?>
+        <div id="post-main" class="col-lg-12 col-md-12">
+        <?php endif; ?>
             <div class="p-block"><div>
             <h1 id="post-title" class="mb-0 puock-text t-xxl"><?php $this->title() ?></h1>
         </div>
@@ -60,5 +64,7 @@ if($days > 180){
     <?php $this->need('comments.php'); ?>
 <?php endif; ?>
 </div>   
+<?php if ($this->options->showsidebar): ?>    
 <?php $this->need('sidebar.php'); ?>
+<?php endif; ?>
 <?php $this->need('footer.php'); ?>
