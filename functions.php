@@ -92,6 +92,16 @@ function themeFields($layout) {
     $layout->addItem($cover);
 }
 
+/** 头像镜像加速全局设置
+ * @param $email
+ * @param $size
+ * @param $default
+ * @return string
+*/
+$options = Typecho_Widget::widget('Widget_Options');
+$gravatarPrefix = empty($options->cnavatar) ? 'https://cravatar.cn/avatar/' : $options->cnavatar;
+define('__TYPECHO_GRAVATAR_PREFIX__', $gravatarPrefix);
+
 /*
 * 文章浏览数统计
 */
@@ -1437,26 +1447,25 @@ function get_site_statistics() {
     ];
 }
 
-// Typecho AJAX 登录接口，支持前端 AJAX 提交并返回 JSON
-//if (!empty($_GET['ajaxLogin']) && $_GET['ajaxLogin'] == 1) {
-//    header('Content-Type: application/json; charset=utf-8');
-//    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-//        echo json_encode(['success' => false, 'msg' => '请求方式错误']);
-//        exit;
-//    }
-//    $name = isset($_POST['name']) ? trim($_POST['name']) : '';
-//    $password = isset($_POST['password']) ? $_POST['password'] : '';
-//    $referer = isset($_POST['referer']) ? $_POST['referer'] : '/';
-//    if (!$name || !$password) {
-//        echo json_encode(['success' => false, 'msg' => '用户名或密码不能为空']);
-//        exit;
-//    }
-//    $user = Typecho_Widget::widget('Widget_User');
-//    try {
-//        $user->login($name, $password, isset($_POST['remember']) ? 1 : 0);
-//        echo json_encode(['success' => true, 'msg' => '登录成功', 'redirect' => $referer]);
-//    } catch (Typecho_Exception $e) {
-//        echo json_encode(['success' => false, 'msg' => $e->getMessage()]);
-//    }
-//    exit;
-//}
+/**
+ * 友好时间显示函数
+ * @param $timestamp
+ * @return string
+ */
+function friendly_date($timestamp) {
+    $time = is_numeric($timestamp) ? $timestamp : strtotime($timestamp);
+    $diff = time() - $time;
+    if ($diff < 60) {
+        return '刚刚';
+    } elseif ($diff < 3600) {
+        return floor($diff / 60) . '分钟前';
+    } elseif ($diff < 86400) {
+        return floor($diff / 3600) . '小时前';
+    } elseif ($diff < 2592000) {
+        return floor($diff / 86400) . '天前';
+    } elseif ($diff < 31536000) {
+        return floor($diff / 2592000) . '月前';
+    } else {
+        return date('Y-m-d H:i:s', $time);
+    }
+}

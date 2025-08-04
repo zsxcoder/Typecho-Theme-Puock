@@ -16,7 +16,7 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
 </div>    
 <div id="page">
 <div class="row row-cols-1">
-<div id="posts" class="col-12 animated fadeInLeft ">
+<div id="posts" class="col-12">
 <div class="puock-text no-style">
 <p><?php $this->content(); ?></p>
 </div>
