@@ -70,61 +70,61 @@ $this->need('header.php');
                  </div>
             <?php } ?>
     <?php $this->comments()->to($comments); ?>
+    <?php if ($this->user->hasLogin() && $this->user->group == 'administrator') : ?>
+    <div class="p-block">
+        <input type="hidden" value="<?php $this->commentUrl() ?>">
+        <div>
+            <span class="t-lg border-bottom border-primary puock-text pb-2">
+                <i class="fa-regular fa-comments mr-1"></i>有什么新鲜事
+            </span>
+        </div>
+        <div class="mt20 clearfix" id="comment-form-box">
+            <form method="post" action="<?php $this->commentUrl() ?>" id="comment-form" class="mt10" role="form">
+                <div class="form-group">
+                    <textarea rows="4" name="text" id="comment" class="form-control form-control-sm t-sm" placeholder="发表您的新鲜事儿..." required><?php $this->remember('text'); ?></textarea>
+                </div>
+                <input type="hidden" value="<?php $this->user->screenName(); ?>" name="author" />
+                <input type="hidden" value="<?php $this->user->mail(); ?>" name="mail" />
+                <input type="hidden" value="<?php $this->options->siteUrl(); ?>" name="url" />
+                <input type="hidden" name="_" value="<?php Typecho_Widget::widget('Widget_Security')->to($security);
+                    echo $security->getToken($this->request->getRequestUrl()); ?>">
+                <div class="p-flex-sbc mt10">
+                    <div class="form-foot">
+                        <?php if($this->options->social): ?>
+                        <button id="comment-insert-image" class="btn btn-outline-secondary btn-ssm pk-modal-toggle" type="button" title="插入图片">
+                            <i class="fa-solid fa-image"></i>
+                        </button>
+                        <button id="comment-smiley" class="btn btn-outline-secondary btn-ssm pk-modal-toggle" type="button" title="表情" data-once-load="true"
+                                    data-url="<?php echo get_correct_url('/emoji/'); ?>">
+                        <i class="fa-regular fa-face-smile t-md"></i>
+                        </button>
+                        <?php endif; ?>
+                        <button type="submit" class="btn btn-primary btn-ssm"><i class="fa-regular fa-paper-plane"></i> 立即发表</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <?php endif; ?>
     <?php if ($comments->have()): ?>
-        <?php if ($this->user->hasLogin() && $this->user->group == 'administrator') : ?>
-        <div class="p-block">
-            <input type="hidden" value="<?php $this->commentUrl() ?>">
-            <div>
-                <span class="t-lg border-bottom border-primary puock-text pb-2">
-                    <i class="fa-regular fa-comments mr-1"></i>有什么新鲜事
-                </span>
-            </div>
-            <div class="mt20 clearfix" id="comment-form-box">
-                <form method="post" action="<?php $this->commentUrl() ?>" id="comment-form" class="mt10" role="form">
-                    <div class="form-group">
-                        <textarea rows="4" name="text" id="comment" class="form-control form-control-sm t-sm" placeholder="发表您的新鲜事儿..." required><?php $this->remember('text'); ?></textarea>
-                    </div>
-                    <input type="hidden" value="<?php $this->user->screenName(); ?>" name="author" />
-                    <input type="hidden" value="<?php $this->user->mail(); ?>" name="mail" />
-                    <input type="hidden" value="<?php $this->options->siteUrl(); ?>" name="url" />
-                    <input type="hidden" name="_" value="<?php Typecho_Widget::widget('Widget_Security')->to($security);
-                        echo $security->getToken($this->request->getRequestUrl()); ?>">
-                    <div class="p-flex-sbc mt10">
-                        <div class="form-foot">
-                            <?php if($this->options->social): ?>
-                            <button id="comment-insert-image" class="btn btn-outline-secondary btn-ssm pk-modal-toggle" type="button" title="插入图片">
-                                <i class="fa-solid fa-image"></i>
-                            </button>
-                            <button id="comment-smiley" class="btn btn-outline-secondary btn-ssm pk-modal-toggle" type="button" title="表情" data-once-load="true"
-                                        data-url="<?php echo get_correct_url('/emoji/'); ?>">
-                            <i class="fa-regular fa-face-smile t-md"></i>
-                            </button>
-                            <?php endif; ?>
-                            <button type="submit" class="btn btn-primary btn-ssm"><i class="fa-regular fa-paper-plane"></i> 立即发表</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-            <?php endif; ?>
-            <!-- 评论列表 -->
-            <?php while ($comments->next()): ?>
-                <?php threadedComments($comments, $this->options); ?>
-            <?php endwhile; ?>
-            <!-- 分页导航 -->
-            <div class="mt20 p-flex-s-right" data-no-instant>
-                <?php $comments->pageNav('&laquo;', '&raquo;', 1, '...', array(
-                    'wrapTag' => 'ul',
-                    'wrapClass' => 'pagination comment-ajax-load',
-                    'itemTag' => 'li',
-                    'textTag' => 'span',
-                    'currentClass' => 'active',
-                    'prevClass' => 'prev',
-                    'nextClass' => 'next'
-                )); ?>
-            </div>
-        </div>
-        <?php endif; ?>
+    <!-- 评论列表 -->
+    <?php while ($comments->next()): ?>
+        <?php threadedComments($comments, $this->options); ?>
+    <?php endwhile; ?>
+    <!-- 分页导航 -->
+    <div class="mt20 p-flex-s-right" data-no-instant>
+        <?php $comments->pageNav('&laquo;', '&raquo;', 1, '...', array(
+            'wrapTag' => 'ul',
+            'wrapClass' => 'pagination comment-ajax-load',
+            'itemTag' => 'li',
+            'textTag' => 'span',
+            'currentClass' => 'active',
+            'prevClass' => 'prev',
+            'nextClass' => 'next'
+        )); ?>
+    </div>
+    </div>
+    <?php endif; ?>
         <?php if ($this->options->showsidebar): ?>             
             <?php $this->need('sidebar.php'); ?> 
         <?php endif; ?>
