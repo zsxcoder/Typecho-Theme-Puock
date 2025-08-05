@@ -68,7 +68,7 @@
                 &copy; <?php echo date('Y'); ?> <a href="<?php $this->options->siteUrl(); ?>"><?php $this->options->title(); ?></a>
                     <div class="fs12 mt10 c-sub"> 
                         <span>  &nbsp;Theme by 
-                            <a target="_blank" class="c-sub" title="Puock v1.2.2" href="https://github.com/jkjoy/typecho-theme-puock">Puock</a> 
+                            <a target="_blank" class="c-sub" title="Puock v1.2.3" href="https://github.com/jkjoy/typecho-theme-puock">Puock</a> 
                         </span> 
                         <span>  &nbsp;Powered by 
                             <a target="_blank" class="c-sub" title="Typecho" href="https://typecho.org">Typecho</a> <p><a target="_blank" class="c-sub" title="老孙博客" href="https://imsun.org">老孙博客</a>制作</p>

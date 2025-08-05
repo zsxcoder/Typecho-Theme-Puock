@@ -1041,6 +1041,13 @@ class Puock {
             const title = el.attr("title") || el.data("title") || '提示';
             const url = el.data("url");
             const onceLoad = el.data("once-load")
+            
+            // 检查 url 是否存在，避免 SparkMD5 错误
+            if (!url) {
+                console.warn('Modal toggle: url is undefined');
+                return;
+            }
+            
             const id = SparkMD5.hash(url)
             if (onceLoad && this.data.modalStorage[id]) {
                 this.modalLoadRender(id, this.data.modalStorage[id], title, noTitle, noPadding)

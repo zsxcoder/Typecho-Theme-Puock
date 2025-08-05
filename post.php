@@ -56,7 +56,7 @@ $wordCount = mb_strlen($content, 'UTF-8');
 ?>
 <div class="mt20 entry-content-box">
 <div class="entry-content show-link-icon content-main puock-text ">
-<p class="fs12 c-sub no-indent"> <i class="fa-regular fa-clock"></i> 共计<?php echo $wordCount; ?>个字符，预计需要花费 <?php echo ceil($wordCount / 800); ?>分钟才能阅读完成。 </p>
+<p class="fs12 c-sub no-indent"> <i class="fa-regular fa-clock"></i> &nbsp;本文共计<?php echo $wordCount; ?>字，预计需要花费 <?php echo ceil($wordCount / 800); ?>分钟才能阅读完成。 </p>
 <p class="fs12 c-sub">
 <?php
 $modified = $this->modified;

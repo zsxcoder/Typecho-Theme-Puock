@@ -91,7 +91,7 @@ $this->need('header.php');
                 <div class="p-flex-sbc mt10">
                     <div class="form-foot">
                         <?php if($this->options->social): ?>
-                        <button id="comment-insert-image" class="btn btn-outline-secondary btn-ssm pk-modal-toggle" type="button" title="插入图片">
+                        <button id="comment-insert-image" class="btn btn-outline-secondary btn-ssm" type="button" title="插入图片">
                             <i class="fa-solid fa-image"></i>
                         </button>
                         <button id="comment-smiley" class="btn btn-outline-secondary btn-ssm pk-modal-toggle" type="button" title="表情" data-once-load="true"
@@ -138,23 +138,40 @@ document.addEventListener('DOMContentLoaded', function() {
     btn.addEventListener('click', function() {
         let modal = document.createElement('div');
         modal.innerHTML = `
-        <div id="img-insert-modal" style="position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
-            <div style="background:#fff;padding:24px 32px;border-radius:8px;min-width:320px;box-shadow:0 2px 16px rgba(0,0,0,0.15);">
-                <div style="font-size:18px;font-weight:bold;margin-bottom:12px;">插入图片</div>
-                <div style="margin-bottom:10px;">
-                    <label style="display:block;font-size:14px;margin-bottom:4px;">标题（可选）</label>
-                    <input id="img-insert-title" type="text" style="width:100%;padding:6px 8px;border:1px solid #ccc;border-radius:4px;">
+        <style>
+        .insert-image {
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(211, 134, 202, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        </style>
+        <div id="img-insert-modal" class="insert-image">
+            <div class="min-width-modal" style="max-width: 290px">
+            <form>
+                <div class="form-label">插入图片</div>
+                <div class="mb15">
+                    <label for="img-insert-title" class="form-label">标题（可选）</label>
+                    <input id="img-insert-title" type="text" class="form-control form-control-sm">
                 </div>
-                <div style="margin-bottom:10px;">
-                    <label style="display:block;font-size:14px;margin-bottom:4px;">图片地址 <span style="color:red">*</span></label>
-                    <input id="img-insert-url" type="text" style="width:100%;padding:6px 8px;border:1px solid #ccc;border-radius:4px;" required>
+                <div class="mb15">
+                    <label for="img-insert-url" class="form-label">图片地址 <span style="color:red">*</span></label>
+                    <input id="img-insert-url" type="text" class="form-control form-control-sm" required>
                 </div>
-                <div style="text-align:right;">
-                    <button id="img-insert-cancel" style="margin-right:10px;padding:6px 16px;">取消</button>
-                    <button id="img-insert-confirm" style="background:#007bff;color:#fff;padding:6px 16px;border:none;border-radius:4px;">插入</button>
+                <div class="mb15 d-flex justify-content-center wh100">
+                    <button id="img-insert-cancel" class="btn btn-ssm btn-primary mr5">取消</button>
+                    <button id="img-insert-confirm" class="btn btn-ssm btn-primary mr5">插入</button>
                 </div>
+            </form>
             </div>
-        </div>`;
+        </div>
+         `;
         document.body.appendChild(modal);
         document.getElementById('img-insert-cancel').onclick = function() {
             document.body.removeChild(modal);
