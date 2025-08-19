@@ -64,8 +64,8 @@
             <div class="mt20 text-center t-md">
                 <div class="info"> 
                     <p><?php $this->options->tongji(); ?></p>
-                    <a href="https://beian.miit.gov.cn/" target="_blank" rel="nofollow"><?php $this->options->ICP(); ?></a>
-                &copy; <?php echo date('Y'); ?> <a href="<?php $this->options->siteUrl(); ?>"><?php $this->options->title(); ?></a>
+                    <a href="https://beian.miit.gov.cn/" target="_blank" rel="nofollow" title="备案信息"><?php $this->options->ICP(); ?></a>
+                &copy; <?php echo date('Y'); ?> <a href="<?php $this->options->siteUrl(); ?>" title="<?php $this->options->title(); ?>"><?php $this->options->title(); ?></a>
                     <div class="fs12 mt10 c-sub"> 
                         <span>  &nbsp;Theme by 
                             <a target="_blank" class="c-sub" title="Puock v1.2.3" href="https://github.com/jkjoy/typecho-theme-puock">Puock</a> 

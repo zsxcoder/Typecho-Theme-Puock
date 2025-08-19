@@ -9,8 +9,6 @@ function themeConfig($form)
     $form->addInput($icoUrl);
     $primaryColor = new Typecho_Widget_Helper_Form_Element_Text('primaryColor', NULL, NULL, _t('主题主色调'), _t('默认 #A7E6F4'));
     $form->addInput($primaryColor);
-    $blockNotTransparent = new Typecho_Widget_Helper_Form_Element_Text('blockNotTransparent', NULL, NULL, _t('全站区块不透明度'), _t('默认100%, 0-100之间的数字, 0为透明'));
-    $form->addInput($blockNotTransparent);
     $sticky = new Typecho_Widget_Helper_Form_Element_Text('sticky', NULL, NULL, _t('置顶文章cid'), _t('多篇文章以`|`符号隔开'), _t('会在首页展示置顶文章。'));
     $form->addInput($sticky);
     $ICP = new Typecho_Widget_Helper_Form_Element_Text('ICP', NULL, NULL, _t('ICP 备案号'), _t('用于网站备案的 ICP 号'));
@@ -56,12 +54,12 @@ function themeConfig($form)
     $form->addInput($addhead);
     $tongji = new Typecho_Widget_Helper_Form_Element_Textarea('tongji', NULL, '<script async defer src="https://0tz.top/tracker.js" data-website-id="Puock"></script>', _t('网站统计代码'), _t('支持HTML'));
     $form->addInput($tongji);
-    $footerinfo = new Typecho_Widget_Helper_Form_Element_Textarea('footerinfo', NULL, '<a href="/feed" target="_blank"><i class="fa-solid fa-rss fa-2x"></i></a>
-<a href="https://jiong.us/@sun" target="_blank"><i class="fa-brands fa-mastodon fa-2x"></i></a>
-<a href="https://discord.gg/RUUcPEQKNt" target="_blank"><i class="fa-brands fa-discord fa-2x"></i></a>
-<a href="https://t.me/imsunpw" target="_blank"><i class="fa-brands fa-telegram fa-2x"></i></a>
-<a href="mailto:imsunpw@gmail.com" target="_blank"><i class="fa-solid fa-envelope fa-2x"></i></a>
-<a href="/sitemap.xml" target="_blank"><i class="fa-solid fa-sitemap fa-2x"></i></a>', _t('底部关于我们'), _t('支持HTML'));
+    $footerinfo = new Typecho_Widget_Helper_Form_Element_Textarea('footerinfo', NULL, '<a href="/feed" target="_blank" title="RSS订阅"><i class="fa-solid fa-rss fa-2x"></i></a>
+<a href="https://jiong.us/@sun" target="_blank" title="Mastodon"><i class="fa-brands fa-mastodon fa-2x"></i></a>
+<a href="https://discord.gg/RUUcPEQKNt" target="_blank" title="Discord"><i class="fa-brands fa-discord fa-2x"></i></a>
+<a href="https://t.me/imsunpw" target="_blank" title="Telegram"><i class="fa-brands fa-telegram fa-2x"></i></a>
+<a href="mailto:imsunpw@gmail.com" target="_blank" title="Email"><i class="fa-solid fa-envelope fa-2x"></i></a>
+<a href="/sitemap.xml" target="_blank" title="Sitemap"><i class="fa-solid fa-sitemap fa-2x"></i></a>', _t('底部关于我们'), _t('支持HTML'));
     $form->addInput($footerinfo);
     $footercopyright = new Typecho_Widget_Helper_Form_Element_Textarea('footercopyright', NULL, '<b>版权所有 转载请注明出处</b>', _t('底部版权信息'), _t('支持HTML'));
     $form->addInput($footercopyright);

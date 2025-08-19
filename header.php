@@ -1,6 +1,6 @@
 <?php if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
 <!doctype html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
@@ -23,7 +23,7 @@
             --pk-c-primary: <?php if ($this->options->primaryColor): ?><?php $this->options->primaryColor() ?><?php else: ?>#A7E6F4<?php endif; ?> !important;
         }
         :root {
-            --puock-block-not-tran: <?php if ($this->options->blockNotTransparent): ?><?php $this->options->blockNotTransparent() ?><?php else: ?>100<?php endif; ?>% !important;
+            --puock-block-not-tran: 80% !important;
         }
     </style> 
     <?php if ($this->options->icoUrl): ?>
