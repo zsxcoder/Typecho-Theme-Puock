@@ -7,35 +7,32 @@ function themeConfig($form)
     $form->addInput($logoUrl);
     $icoUrl = new Typecho_Widget_Helper_Form_Element_Text('icoUrl', NULL, NULL, _t('站点 Favicon 地址'), _t('建议尺寸 16px * 16px,不填写则使用默认图标'));
     $form->addInput($icoUrl);
-    $primaryColor = new Typecho_Widget_Helper_Form_Element_Text('primaryColor', NULL, NULL, _t('主题主色调'), _t('默认 #A7E6F4'));
+    $primaryColor = new Typecho_Widget_Helper_Form_Element_Text('primaryColor', NULL, NULL, _t('主题主色调'), _t('默认浅蓝色 <b style=color:red>#A7E6F4</b> 常见的<a href="https://tool.imsun.org/" target="_blank">颜色选择器</a>'));
     $form->addInput($primaryColor);
-    $sticky = new Typecho_Widget_Helper_Form_Element_Text('sticky', NULL, NULL, _t('置顶文章cid'), _t('多篇文章以`|`符号隔开'), _t('会在首页展示置顶文章。'));
+    $sticky = new Typecho_Widget_Helper_Form_Element_Text('sticky', NULL, NULL, _t('置顶文章'), _t('填入文章的cid,多个cid以`|`符号隔开'));
     $form->addInput($sticky);
-    $ICP = new Typecho_Widget_Helper_Form_Element_Text('ICP', NULL, NULL, _t('ICP 备案号'), _t('用于网站备案的 ICP 号'));
+    $ICP = new Typecho_Widget_Helper_Form_Element_Text('ICP', NULL, NULL, _t('ICP 备案号'), _t('展示网站备案ICP号'));
     $form->addInput($ICP);
     $bgUrl = new Typecho_Widget_Helper_Form_Element_Text('bgUrl', NULL, NULL, _t('个人信息背景图片地址'), _t('用于个人信息展示的背景图片'));
     $form->addInput($bgUrl);
     $cnavatar = new Typecho_Widget_Helper_Form_Element_Text('cnavatar', NULL, NULL, _t('Gravatar镜像'), _t('默认使用https://cravatar.cn/avatar/'));
     $form->addInput($cnavatar);
     $listmodel = new Typecho_Widget_Helper_Form_Element_Radio('listmodel',
-    array('0'=> _t('否'), '1'=> _t('是')),
-    '0', _t('列表模式'), _t('选择"是"将在首页显示列表模式。选择否则显示卡片模式'));
+    array('0'=> _t('卡片模式'), '1'=> _t('列表模式')),'0', _t('列表模式'));
     $form->addInput($listmodel);
     $pageprev = new Typecho_Widget_Helper_Form_Element_Radio('pageprev',
-    array('0'=> _t('否'), '1'=> _t('是')),
-    '0', _t('首页文章列表页码'), _t('选择"是"首页文章列表显示页码。选择否则不显示分页'));
+    array('0'=> _t('不显示翻页页码'), '1'=> _t('显示页码')),'0', _t('首页文章列表页码'));
     $form->addInput($pageprev);
     $cmsmodel = new Typecho_Widget_Helper_Form_Element_Radio('cmsmodel',
-    array('0'=> _t('否'), '1'=> _t('是')),
-    '0', _t('CMS模式'), _t('选择"是"开启CMS模式。'));
+    array('0'=> _t('博客模式'), '1'=> _t('CMS模式')),'0', _t('显示模式'));
     $form->addInput($cmsmodel);
     $friendlink = new Typecho_Widget_Helper_Form_Element_Radio('friendlink',
-    array('0'=> _t('否'), '1'=> _t('是')),
-    '0', _t('友情链接'), _t('选择"是"在首页显示友情链接。开启前请安装"Links"插件。链接分类需设置为<b>home</b>，默认关闭'));
+    array('0'=> _t('关闭'), '1'=> _t('开启')),
+    '0', _t('首页友情链接'), _t('选择"开启"在首页显示友情链接。开启前请安装"Links"插件。链接分类需设置为<b>home</b>，默认关闭'));
     $form->addInput($friendlink);
     $social = new Typecho_Widget_Helper_Form_Element_Radio('social',
-    array('0'=> _t('否'), '1'=> _t('是')),
-    '0', _t('社交分享显示'), _t('选择"是"在文章页面显示社交分享。需要搭配插件使用,默认关闭'));
+    array('0'=> _t('关闭'), '1'=> _t('开启')),
+    '0', _t('社交分享显示'), _t('选择"开启"在文章页面显示社交分享。需要搭配插件使用,默认关闭'));
     $form->addInput($social);
     $gonggao = new Typecho_Widget_Helper_Form_Element_Textarea('gonggao', NULL, NULL, _t('站点公告'), _t('<b style=color:red>使用格式: </b><b>标题|链接|图标</b><br>多条公告回车分隔.链接和图标可以为空.图标使用Font Awesome,如: fa-regular fa-bell'));
     $form->addInput($gonggao);
