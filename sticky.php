@@ -5,7 +5,7 @@ $pageSize = $this->options->pageSize;
 if ($sticky && !empty(trim($sticky))) {
     $sticky_cids = array_filter(explode('|', $sticky));
     if (!empty($sticky_cids)) {
-        $sticky_html = " <span class=\"badge bg-danger\"><i class=\"fa fa-bolt-lightning\"></i>置顶</span>";  
+        $sticky_html = '<span class="badge bg-danger"><i class="fa fa-bolt-lightning"></i>置顶</span>';  
         // 保存原始对象状态
         $originalRows = $this->row;
         $originalStack = $this->stack;
@@ -64,9 +64,6 @@ if ($sticky && !empty(trim($sticky))) {
                 ->limit($standardPageSize)
                 ->offset(0);
         } else {
-            // 非第一页的查询
-            // 计算正确的偏移量：(当前页码-1) * 每页数量 - 置顶文章数
-            // 这样可以确保不会漏掉文章
             $offset = ($this->currentPage - 1) * $pageSize - count($sticky_cids);
             $offset = max($offset, 0); // 确保偏移量不为负
             
