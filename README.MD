@@ -4,10 +4,6 @@
 
 源主题为`wordpress`主题`puock`,现移植到`Typecho`平台。
 
-### 主题特点
-- 主题简洁，适合个人博客使用
-- 支持`Typecho`的所有功能
-
 ### 主题预览
 
 ![主题预览](/screenshot.png)
