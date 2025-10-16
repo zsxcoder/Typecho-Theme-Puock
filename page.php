@@ -57,7 +57,14 @@ if($days > 180){
 }
 ?>
 </p>
-<p><?php $this->content(); ?></p>
+<?php
+// 手动解析短代码以兼容 Typecho 1.3.0
+// 获取页面内容
+ob_start();
+$this->content();
+$content = ob_get_clean();
+echo parse_shortcodes($content, $this);
+?>
 </div>
 </div>    
 <?php if ($this->allow('comment')): ?>

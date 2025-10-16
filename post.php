@@ -49,10 +49,9 @@
 </div>
 </div>
 <?php
-// 获取当前文章内容（去除 HTML 标签）
-$content = strip_tags($this->content);
-// 计算字数（适用于中英文混合）
-$wordCount = mb_strlen($content, 'UTF-8');
+// 计算字数使用纯文本，不影响实际渲染内容
+$plainContent = strip_tags($this->content);
+$wordCount = mb_strlen($plainContent, 'UTF-8');
 ?>
 <div class="mt20 entry-content-box">
 <div class="entry-content show-link-icon content-main puock-text ">
@@ -67,7 +66,14 @@ if($days > 180){
 }
 ?>
 </p>
-<p><?php $this->content(); ?></p>
+<?php
+// 手动解析短代码以兼容 Typecho 1.3.0
+// 获取文章内容
+ob_start();
+$this->content();
+$content = ob_get_clean();
+echo parse_shortcodes($content, $this);
+?>
 </div>
 <div class="t-separator c-sub t-sm mt30">正文完</div>
 <div class="footer-info puock-text mt20">

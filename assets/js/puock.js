@@ -269,7 +269,7 @@ class Puock {
         $(document).on("submit", ".global-search-form", (e) => {
             e.preventDefault();
             const el = $(this.ct(e));
-            this.goUrl(el.attr("action") + "/?" + el.serialize())
+            this.goUrl(el.attr("action") + "?" + el.serialize())
         })
     }
 

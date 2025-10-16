@@ -80,6 +80,36 @@ function themeConfig($form)
     $form->addInput($sidebarBlock->multiMode());
 }
 
+// 注册短代码过滤钩子
+if (!class_exists('Puock_Shortcode_Filter')) {
+    class Puock_Shortcode_Filter {
+        public static function contentEx($content, $widget, $lastResult = null) {
+            // 如果 lastResult 已经存在（说明 Markdown 已转换），直接处理
+            if (!empty($lastResult)) {
+                $content = $lastResult;
+            }
+            // 执行短代码替换
+            return ContentFilter::applyShortcodesOnly($content, $widget);
+        }
+    }
+}
+
+// Typecho 1.3.0 兼容性 - 修复钩子注册
+// 尝试注册到 1.3.0 的新钩子系统
+if (class_exists('\\Typecho\\Plugin')) {
+    // 1.3.0 版本 - 使用 excerptEx 和 contentEx 钩子
+    \Typecho\Plugin::factory('Widget_Abstract_Contents')->excerptEx = array('Puock_Shortcode_Filter', 'contentEx');
+    \Typecho\Plugin::factory('Widget_Abstract_Contents')->contentEx = array('Puock_Shortcode_Filter', 'contentEx');
+    \Typecho\Plugin::factory('Widget_Archive')->excerptEx = array('Puock_Shortcode_Filter', 'contentEx');
+    \Typecho\Plugin::factory('Widget_Archive')->contentEx = array('Puock_Shortcode_Filter', 'contentEx');
+} elseif (class_exists('Typecho_Plugin')) {
+    // 旧版本兼容
+    Typecho_Plugin::factory('Widget_Abstract_Contents')->excerptEx = array('Puock_Shortcode_Filter', 'contentEx');
+    Typecho_Plugin::factory('Widget_Abstract_Contents')->contentEx = array('Puock_Shortcode_Filter', 'contentEx');
+    Typecho_Plugin::factory('Widget_Archive')->excerptEx = array('Puock_Shortcode_Filter', 'contentEx');
+    Typecho_Plugin::factory('Widget_Archive')->contentEx = array('Puock_Shortcode_Filter', 'contentEx');
+}
+
 function themeFields($layout) {
     $summary= new Typecho_Widget_Helper_Form_Element_Textarea('summary', NULL, NULL, _t('文章摘要'), _t('自定义摘要'));
     $layout->addItem($summary);
@@ -118,14 +148,15 @@ function get_post_view($archive) {
             $views = explode(',', $views);
         }
         if (!in_array($cid, $views)) {
-            $db->query($db->update('table.contents')->rows(array('views' => (int)$row['views'] + 1))->where('cid = ?', $cid));
+            $currentViews = isset($row['views']) ? (int)$row['views'] : 0;
+            $db->query($db->update('table.contents')->rows(array('views' => $currentViews + 1))->where('cid = ?', $cid));
             array_push($views, $cid);
             $views = implode(',', $views);
             Typecho_Cookie::set('extend_contents_views', $views); //记录查看cookie
             
         }
     }
-    echo $row['views'];
+    echo isset($row['views']) ? $row['views'] : 0;
 }
 
 /*
@@ -162,13 +193,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['likeup']) && isset($_
         $likesArr = $likes ? explode(',', $likes) : [];
         if (!in_array($cid, $likesArr)) {
             // 更新点赞数
-            $newLikes = intval($row['likes']) + 1;
+            $currentLikes = isset($row['likes']) ? (int)$row['likes'] : 0;
+            $newLikes = $currentLikes + 1;
             $db->query($db->update('table.contents')->rows(['likes' => $newLikes])->where('cid = ?', $cid));
             $likesArr[] = $cid;
             Typecho_Cookie::set('extend_contents_likes', implode(',', $likesArr));
             echo json_encode(['success' => true, 'likes' => $newLikes]);
         } else {
-            echo json_encode(['success' => false, 'likes' => $row['likes'], 'msg' => '已点赞']);
+            $currentLikes = isset($row['likes']) ? $row['likes'] : 0;
+            echo json_encode(['success' => false, 'likes' => $currentLikes, 'msg' => '已点赞']);
         }
     } else {
         echo json_encode(['success' => false, 'likes' => 0, 'msg' => '文章ID错误']);
@@ -462,8 +495,8 @@ function getBrowsersInfo($userAgent) {
                     }
                 } else {
                     $deviceInfo['systemVersion'] = '10';
-                    // Log ambiguous case for debugging
-                    error_log("Ambiguous Windows version (NT 10.0, no build number): $userAgent");
+                    // 不再记录警告日志，避免产生错误日志
+                    // error_log("Ambiguous Windows version (NT 10.0, no build number): $userAgent");
                 }
             }
         } else {
@@ -1038,9 +1071,20 @@ function get_article_info($atts)
     if (!$post) {
         return '未找到文章';
     }
-    $post = Typecho_Widget::widget('Widget_Abstract_Contents')->push($post);
-    $permalink = $post['permalink'];
-    $title = htmlspecialchars($post['title']);
+
+    // 生成正确的文章链接
+    $options = Helper::options();
+
+    // 使用 Typecho 路由系统生成永久链接
+    if (class_exists('\\Typecho\\Router')) {
+        // Typecho 1.3.0 新版本
+        $permalink = \Typecho\Router::url('post', $post, $options->index);
+    } else {
+        // 旧版本 Typecho
+        $permalink = Typecho_Router::url('post', $post, $options->index);
+    }
+
+    $title = isset($post['title']) ? htmlspecialchars($post['title']) : '无标题';
     $summary = get_article_summary($post);
 
     $output = '<blockquote class="article-quote">';
@@ -1052,8 +1096,8 @@ function get_article_info($atts)
 
     return $output;
 }
-class ContentFilter
-{
+
+class ContentFilter  {
     /**
      * 过滤内容中的短代码
      *
@@ -1062,7 +1106,7 @@ class ContentFilter
      * @param array $lastResult 上一次结果
      * @return string 处理后的内容
      */
-    public static function filterContent($content, $widget, $lastResult)
+    public static function filterContent($content, $widget = null, $lastResult = null)
     {
         // Step 1: 保护代码块
         $codeBlocks = [];
@@ -1102,6 +1146,13 @@ class ContentFilter
             'dark'    => 'dark',
         ];
         foreach ($alertShortcodes as $shortcode => $class) {
+            // 先处理被 Markdown 包裹在 <p> 标签中的短代码
+            $content = preg_replace(
+                '/<p>\s*\[' . $shortcode . '\](.*?)\[\/' . $shortcode . '\]\s*<\/p>/is',
+                '<div class="alert alert-' . $class . '">$1</div>',
+                $content
+            );
+            // 再处理普通的短代码（向后兼容）
             $content = preg_replace(
                 '/\[' . $shortcode . '\](.*?)\[\/' . $shortcode . '\]/is',
                 '<div class="alert alert-' . $class . '">$1</div>',
@@ -1118,7 +1169,7 @@ class ContentFilter
         // 懒加载图片替换
         $themeUrl = Helper::options()->themeUrl;
         $loadSvg = $themeUrl . '/assets/img/load.svg';
-        $title = htmlspecialchars($widget->title);
+        $title = isset($widget->title) ? htmlspecialchars($widget->title) : '';
         $content = preg_replace_callback(
             '/<img\s+[^>]*src=["\"]([^"\"]+\.(?:jpg|jpeg|png|webp))["\"][^>]*>/i',
             function($matches) use ($title, $loadSvg) {
@@ -1163,21 +1214,29 @@ class ContentFilter
             '/\[reply\](.*?)\[\/reply\]/is',
             function($matches) use ($widget) {
                 $show = false;
-                if ($widget instanceof Widget_Archive && $widget->is('single')) {
-                    $user = Typecho_Widget::widget('Widget_User');
+                // 兼容 Typecho 1.3.0 的 Widget 类检查
+                $isArchive = (class_exists('Widget_Archive') && $widget instanceof Widget_Archive) || 
+                           (class_exists('\Typecho\Widget\Archive') && $widget instanceof \Typecho\Widget\Archive);
+                
+                if ($isArchive && method_exists($widget, 'is') && $widget->is('single')) {
+                    $user = \Typecho\Widget::widget('Widget_User');
                     $db = Typecho_Db::get();
-                    if ($user->hasLogin) {
+                    if (isset($user->hasLogin) && $user->hasLogin) {
                         $hasComment = $db->fetchRow($db->select()->from('table.comments')
-                            ->where('cid = ?', $widget->cid)
-                            ->where('mail = ?', $user->mail)
+                            ->where('cid = ?', isset($widget->cid) ? $widget->cid : 0)
+                            ->where('mail = ?', isset($user->mail) ? $user->mail : '')
                             ->where('status = ?', 'approved')
                         );
                         if ($hasComment) $show = true;
                     } else {
+                        $ip = '';
+                        if (method_exists($widget, 'request') && $widget->request) {
+                            $ip = method_exists($widget->request, 'getIp') ? $widget->request->getIp() : '';
+                        }
                         $hasComment = $db->fetchRow($db->select()->from('table.comments')
-                            ->where('cid = ?', $widget->cid)
+                            ->where('cid = ?', isset($widget->cid) ? $widget->cid : 0)
                             ->where('status = ?', 'approved')
-                            ->where('ip = ?', $widget->request->getIp())
+                            ->where('ip = ?', $ip)
                         );
                         if ($hasComment) $show = true;
                     }
@@ -1197,7 +1256,19 @@ class ContentFilter
         }
 
         // Step 4: 进行 Markdown 解析
-        $content = empty($lastResult) ? $widget->markdown($content) : $lastResult;
+        if (empty($lastResult)) {
+            // 检查 widget 是否有效并且有 markdown 方法
+            if ($widget && method_exists($widget, 'markdown')) {
+                $content = $widget->markdown($content);
+            } else {
+                // 当未提供 widget 时，使用 Typecho 内置的 Markdown 转换器
+                if (class_exists('\\Utils\\Markdown')) {
+                    $content = \Utils\Markdown::convert($content);
+                }
+            }
+        } else {
+            $content = $lastResult;
+        }
 
         return $content;
     }
@@ -1223,11 +1294,154 @@ class ContentFilter
         }
         return $atts;
     }
+
+    // 仅执行短代码替换，不进行 Markdown 转换或图片懒加载
+    public static function applyShortcodesOnly($content, $widget = null)
+    {
+        $codeBlocks = [];
+        $content = preg_replace_callback(
+            '/```[\s\S]*?```/m',
+            function ($matches) use (&$codeBlocks) {
+                $placeholder = '<!--CODEBLOCK_' . count($codeBlocks) . '-->';
+                $codeBlocks[$placeholder] = $matches[0];
+                return $placeholder;
+            },
+            $content
+        );
+
+        // GitHub 短代码与直链
+        $content = preg_replace_callback('/\[github=([\w\-\.]+\/[\w\-\.]+)\]/i', function($matches) {
+            $repo = htmlspecialchars($matches[1]);
+            return '<div class="github-card text-center" data-repo="' . $repo . '"><div class="spinner-grow text-primary"></div></div>';
+        }, $content);
+
+        // 匹配已被 Markdown 转换为 <a> 标签的 GitHub 链接
+        $content = preg_replace_callback(
+            '#<a\s+href="https://github\.com/([\w\-\.]+/[\w\-\.]+)"[^>]*>https://github\.com/[\w\-\.]+/[\w\-\.]+</a>#i',
+            function($matches) {
+                $repo = htmlspecialchars($matches[1]);
+                return '<div class="github-card text-center" data-repo="' . $repo . '"><div class="spinner-grow text-primary"></div></div>';
+            },
+            $content
+        );
+
+        // alert 类短代码
+        $alertShortcodes = [
+            'success' => 'success',
+            'primary' => 'primary',
+            'danger'  => 'danger',
+            'warning' => 'warning',
+            'info'    => 'info',
+            'dark'    => 'dark',
+        ];
+        foreach ($alertShortcodes as $shortcode => $class) {
+            // 先处理被 Markdown 包裹在 <p> 标签中的短代码
+            $content = preg_replace(
+                '/<p>\s*\[' . $shortcode . '\](.*?)\[\/' . $shortcode . '\]\s*<\/p>/is',
+                '<div class="alert alert-' . $class . '">$1</div>',
+                $content
+            );
+            // 再处理普通的短代码（向后兼容）
+            $content = preg_replace(
+                '/\[' . $shortcode . '\](.*?)\[\/' . $shortcode . '\]/is',
+                '<div class="alert alert-' . $class . '">$1</div>',
+                $content
+            );
+        }
+
+        // article 短代码
+        $content = preg_replace_callback('/\[article\s+([^\]]+)\]/', function($matches) {
+            $atts = self::parse_atts($matches[1]);
+            return get_article_info($atts);
+        }, $content);
+
+        // collapse 折叠面板短代码
+        static $collapseIndex = 0;
+        $content = preg_replace_callback(
+            '/\[collapse\s+title=(?:\'([^\']*)\'|\"([^\"]*)\")\](.*?)\[\/collapse\]/is',
+            function($matches) use (&$collapseIndex) {
+                $title = $matches[1] !== '' ? $matches[1] : $matches[2];
+                $body = $matches[3];
+                $collapseIndex++;
+                $uniqid = 'collapse-' . mt_rand(100,999) . '-' . $collapseIndex;
+                return '<div class="pk-sc-collapse"><a class="btn btn-primary btn-sm" data-bs-toggle="collapse" href="#' . $uniqid . '" role="button" aria-expanded="false" aria-controls="' . $uniqid . '"><i class="fa fa-angle-up"></i>&nbsp;' . htmlspecialchars($title) . '</a></div><div class="collapse" id="' . $uniqid . '">' . $body . '</div>';
+            },
+            $content
+        );
+
+        // download 短代码
+        $content = preg_replace_callback(
+            '/\[download\s+file=(?:\'([^\']*)\'|\"([^\"]*)\")\s+size=(?:\'([^\']*)\'|\"([^\"]*)\")\](.*?)\[\/download\]/is',
+            function($matches) {
+                $file = $matches[1] !== '' ? $matches[1] : $matches[2];
+                $size = $matches[3] !== '' ? $matches[3] : $matches[4];
+                $url = $matches[5];
+                return '<div class="p-block p-down-box">'
+                    . "<div class='mb15'><i class='fa fa-file-zipper'></i>&nbsp;<span> 文件名称：" . htmlspecialchars($file) . "</span></div>"
+                    . "<div class='mb15'><i class='fa fa-download'></i>&nbsp;<span> 文件大小：" . htmlspecialchars($size) . "</span></div>"
+                    . "<div class='mb15'><i class='fa-regular fa-bell'></i>&nbsp;<span> 下载声明：本站部分资源来自于网络收集，若侵犯了你的隐私或版权，请及时联系我们删除有关信息。</span></div>"
+                    . "<div><i class='fa fa-link'></i><span> 下载地址：<a href='" . htmlspecialchars($url) . "' target='_blank'>点此下载</a> </span></div></p></div>";
+            },
+            $content
+        );
+
+        // reply 短代码
+        $content = preg_replace_callback(
+            '/\[reply\](.*?)\[\/reply\]/is',
+            function($matches) use ($widget) {
+                $show = false;
+                $isArchive = (class_exists('Widget_Archive') && $widget instanceof Widget_Archive) || 
+                           (class_exists('\\Typecho\\Widget\\Archive') && $widget instanceof \Typecho\Widget\Archive);
+                if ($isArchive && method_exists($widget, 'is') && $widget->is('single')) {
+                    $user = \Typecho\Widget::widget('Widget_User');
+                    $db = Typecho_Db::get();
+                    if (isset($user->hasLogin) && $user->hasLogin) {
+                        $hasComment = $db->fetchRow($db->select()->from('table.comments')
+                            ->where('cid = ?', isset($widget->cid) ? $widget->cid : 0)
+                            ->where('mail = ?', isset($user->mail) ? $user->mail : '')
+                            ->where('status = ?', 'approved')
+                        );
+                        if ($hasComment) $show = true;
+                    } else {
+                        $ip = '';
+                        if (method_exists($widget, 'request') && $widget->request) {
+                            $ip = method_exists($widget->request, 'getIp') ? $widget->request->getIp() : '';
+                        }
+                        $hasComment = $db->fetchRow($db->select()->from('table.comments')
+                            ->where('cid = ?', isset($widget->cid) ? $widget->cid : 0)
+                            ->where('status = ?', 'approved')
+                            ->where('ip = ?', $ip)
+                        );
+                        if ($hasComment) $show = true;
+                    }
+                }
+                if ($show) {
+                    return '<div class="reply-visible">' . $matches[1] . '</div>';
+                } else {
+                    return "<div class='alert alert-primary alert-outline'><span class='c-sub fs14'><i class='fa-regular fa-eye'></i>&nbsp; 此处含有隐藏内容，请提交评论并审核通过刷新后即可查看！</span></div>";
+                }
+            },
+            $content
+        );
+
+        foreach ($codeBlocks as $placeholder => $code) {
+            $content = str_replace($placeholder, $code, $content);
+        }
+
+        return $content;
+    }
 }
 
-// 注册钩子
-Typecho_Plugin::factory('Widget_Abstract_Contents')->content = array('ContentFilter', 'filterContent');
-Typecho_Plugin::factory('Widget_Abstract_Contents')->contentEx = array('ContentFilter', 'filterContent');
+// 为模板提供的短代码解析函数
+function parse_shortcodes($content, $widget = null) {
+    // 直接调用短代码解析,不再进行 Markdown 转换
+    if (class_exists('ContentFilter')) {
+        return ContentFilter::applyShortcodesOnly($content, $widget);
+    }
+    return $content;
+}
+
+
 
 // 编辑器按钮类
 class EditorButton {
@@ -1363,12 +1577,6 @@ $(document).ready(function() {
 EOF;
     }
 }
-// 注册编辑器按钮钩子
-// 避免重复注册，在最后执行
-if (!Typecho_Plugin::exists('Widget_Abstract_Contents', 'editor')) {
-    Typecho_Plugin::factory('admin/write-post.php')->bottom = array('EditorButton', 'render');
-    Typecho_Plugin::factory('admin/write-page.php')->bottom = array('EditorButton', 'render');
-}
 
 /**
  * 获取文章摘要
@@ -1385,7 +1593,17 @@ function get_article_summary($post, $length = 100) {
         return $post->fields->summary;
     }
     // 否则自动截取正文
-    $text = is_array($post) ? $post['text'] : (isset($post->text) ? $post->text : '');
+    $text = '';
+    if (is_array($post)) {
+        $text = isset($post['text']) ? $post['text'] : '';
+    } else {
+        $text = isset($post->text) ? $post->text : '';
+    }
+    
+    if (empty($text)) {
+        return '暂无摘要';
+    }
+    
     $text = strip_tags($text); // 去除HTML标签
     $text = str_replace(["\r", "\n", "\t"], '', $text); // 去除换行和制表
     if (mb_strlen($text, 'UTF-8') > $length) {
@@ -1393,6 +1611,9 @@ function get_article_summary($post, $length = 100) {
     }
     return $text;
 }
+
+Typecho_Plugin::factory('admin/write-post.php')->bottom = array('EditorButton', 'render');
+Typecho_Plugin::factory('admin/write-page.php')->bottom = array('EditorButton', 'render');
 
 /**
  * 获取站点统计信息（包含当前登录用户信息）

@@ -11,10 +11,23 @@
 ### 使用说明
 
 1. 将主题文件夹放入`Typecho`的`usr/themes`目录下。
+
 2. 在后台管理界面启用该主题。
+
 3. 根据需要自定义主题设置。
-4. 主题部分功能需要安装插件`Puock`。项目地址: [Puock Plugin](https://github.com/jkjoy/typecho-plugin-puock)
-5. 友情链接功能需要使用插件`Links`。项目地址: [Links Plugin](https://file.imsun.org/upload/2025-06/Links-1.2.7.zip),首页友情链接需要在`友链分类`中添加分类`home`。
+
+4. 主题部分功能需要安装插件`Puock`。
+
+项目地址: 
+
+[Puock Plugin](https://github.com/jkjoy/typecho-plugin-puock)
+5. 友情链接功能需要使用插件`Links`。
+
+项目地址: 
+
+[Links Plugin](https://file.imsun.org/upload/2025-06/Links-1.2.7.zip)
+
+首页友情链接需要在`友链分类`中添加分类`home`。
 
 ### 更新
 
@@ -76,3 +89,11 @@
     - 修复随机页面重定向问题，使用 JavaScript 跳转避免缓存
     - 修复随机页面 JavaScript 错误，移除不存在的 InstantClick.preload 方法调用
     - 优化随机页面跳转逻辑，确保在 PJAX 模式下也能正常自动跳转
+
+- 2025.10.15
+
+  - 1.2.4
+
+    - 修复文章内嵌短代码解析问题，确保所有短代码均能正确渲染
+    - 优化短代码解析逻辑，提升解析效率和稳定性
+    - 增强与 Typecho 1.3.0 版本的兼容性，确保主题功能正常运行
