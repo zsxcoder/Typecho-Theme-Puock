@@ -263,15 +263,16 @@ function getAllCommenters() {
     $cnavatar = Helper::options()->cnavatar ? Helper::options()->cnavatar : 'https://cravatar.cn/avatar/';
     
     foreach ($rows as $row) {
-        $email_hash = md5(strtolower(trim($row['mail'])));
+        // PHP 8.1+ 兼容：确保 mail 不为 null
+        $mail = $row['mail'] ?? '';
+        $email_hash = md5(strtolower(trim($mail)));
         $avatar_url = rtrim($cnavatar, '/') . '/' . $email_hash . '?s=50&d=mp';
-        
         $commenters[] = array(
-            'nickname' => $row['author'],
-            'email' => $row['mail'],
-            'url' => $row['url'],
+            'nickname' => $row['author'] ?? '匿名用户',
+            'email' => $mail,
+            'url' => $row['url'] ?? '',
             'avatar' => $avatar_url,
-            'comment_count' => $row['comment_count']
+            'comment_count' => $row['comment_count'] ?? 0
         );
     }
     

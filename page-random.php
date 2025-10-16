@@ -41,8 +41,15 @@ function getRandomPost() {
         $result = $db->fetchRow($sql);
 
         if (!empty($result)) {
-            $target = Typecho_Widget::widget('Widget_Abstract_Contents')->filter($result);
-            return $target['permalink'];
+            // 使用 Typecho 路由系统生成正确的永久链接
+            if (class_exists('\\Typecho\\Router')) {
+                // Typecho 1.3.0 新版本
+                $permalink = \Typecho\Router::url('post', $result, Helper::options()->index);
+            } else {
+                // 旧版本 Typecho
+                $permalink = Typecho_Router::url('post', $result, Helper::options()->index);
+            }
+            return $permalink;
         }
     }
     
