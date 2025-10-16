@@ -19,12 +19,8 @@
     <meta name='robots' content='max-image-preview:large' />
     <?php $this->options->addhead(); ?>
     <style id='puock-inline-css' type='text/css'>
-        body {
-            --pk-c-primary: <?php if ($this->options->primaryColor): ?><?php $this->options->primaryColor() ?><?php else: ?>#A7E6F4<?php endif; ?> !important;
-        }
-        :root {
-            --puock-block-not-tran: 80% !important;
-        }
+        body {--pk-c-primary: <?php if ($this->options->primaryColor): ?><?php $this->options->primaryColor() ?><?php else: ?>#A7E6F4<?php endif; ?> !important;}
+        :root {--puock-block-not-tran: 80% !important;}
     </style> 
     <?php if ($this->options->icoUrl): ?>
     <link rel="icon" href="<?php $this->options->icoUrl() ?>" sizes="32x32" />
@@ -85,7 +81,7 @@
                     <?php endwhile; ?>
                     <?php if($this->user->hasLogin()): ?> 
                         <li>
-                            <a data-bs-toggle="tooltip" title="用户中心" href="/admin" target="_blank">
+                            <a data-bs-toggle="tooltip" title="用户中心" href="/admin/" target="_blank">
                             <img alt="用户中心" src="<?php $stats = get_site_statistics();echo $stats['avatar']; ?>" class="min-avatar">
                             </a>
                         </li>
@@ -154,7 +150,7 @@
                             </ul>
                             <?php if($this->user->hasLogin()): ?> 
                         <li>
-                            <a data-bs-toggle="tooltip" title="用户中心" href="/admin" target="_blank">
+                            <a data-bs-toggle="tooltip" title="用户中心" href="/admin/" target="_blank">
                             <img alt="用户中心" src="<?php $stats = get_site_statistics();echo $stats['avatar']; ?>" class="min-avatar">
                             </a>
                         </li>
