@@ -86,3 +86,11 @@
 - 2025.10.17 v1.2.5
 
     - 升级插件兼容Typecho 1.3.0版本并整合友情链接功能 
+
+## 鸣谢
+
+感谢原作者Licoy `puock` 主题的贡献与分享。
+主题地址:
+[Puock Theme](https://github.com/Licoy/wordpress-theme-puock)
+感谢`Typecho`开源社区及所有贡献者。
+ 
