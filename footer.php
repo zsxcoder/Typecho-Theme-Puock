@@ -11,7 +11,7 @@
 </span> 
 </div>
 <div class="mt20 t-md index-links-box"> 
-<?php Links_Plugin::output('
+<?php Puock_Plugin::output('
 <a class="badge links-item" href="{url}" target="_blank" title="{title}" rel="nofollow">{name}</a>
 ',0,'home'); ?>
 </div>

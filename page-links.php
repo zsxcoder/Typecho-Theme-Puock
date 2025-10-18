@@ -21,7 +21,7 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
                 <div class="p-block links-main" id="page-links-217">
                     <h6><?php $this->title() ?></h6>
                     <div class="links-main-box row t-sm"> 
-                        <?php Links_Plugin::output('<a class="link-item a-link col-lg-3 col-md-4 col-sm-6 col-6" href="{url}" target="_blank" rel="me" title="{name}" data-bs-toggle="tooltip"><div class="clearfix puock-bg"><img alt="{name}" src="{image}" class="lazy md-avatar" data-src="{image}" alt="{name}"><div class="info"><p class="ml-1 text-nowrap text-truncate">{name}</p><p class="c-sub ml-1 text-nowrap text-truncate">{title}</p></div></div></a>');?>
+                        <?php Puock_Plugin::output('<a class="link-item a-link col-lg-3 col-md-4 col-sm-6 col-6" href="{url}" target="_blank" rel="me" title="{name}" data-bs-toggle="tooltip"><div class="clearfix puock-bg"><img alt="{name}" src="{image}" class="lazy md-avatar" data-src="{image}" alt="{name}"><div class="info"><p class="ml-1 text-nowrap text-truncate">{name}</p><p class="c-sub ml-1 text-nowrap text-truncate">{title}</p></div></div></a>');?>
                     </div>
                 </div>
             </div>
