@@ -778,6 +778,7 @@ class Puock {
     }
 
     eventCommentPageChangeEvent() {
+        $(document).off('click', '.comment-ajax-load a.page-numbers');
         $(document).on('click', '.comment-ajax-load a.page-numbers', (e) => {
             const postCommentsEl = $("#post-comments");
             const loadBox = $("#comment-ajax-load");
@@ -812,6 +813,7 @@ class Puock {
     }
 
     eventCommentPreSubmit() {
+        $(document).off('submit', '#comment-form');
         $(document).on('submit', '#comment-form', (e) => {
             e.preventDefault();
             if ($("#comment-logged").val() === '0' && ($.trim($("#comment_author").val()) === '' || $.trim($("#comment_email").val()) === '')) {
@@ -870,10 +872,8 @@ class Puock {
             this.lazyLoadInit();
             this.tooltipInit();
             
-            // 重新绑定事件
-            this.eventCommentPageChangeEvent();
-            this.eventOpenCommentBox();
-            this.eventCloseCommentBox();
+            // 重新初始化评论相关事件
+            this.initCommentEvents();
             
             // 滚动到评论区域
             this.gotoArea("#comments");

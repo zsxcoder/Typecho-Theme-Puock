@@ -10,7 +10,7 @@ class Ip2Region
 {
     /**
      * 查询实例对象
-     * @var XdbSearcher
+     * @var XdbSearcherTheme
      */
     private $searcher;
 
@@ -20,8 +20,10 @@ class Ip2Region
      */
     public function __construct()
     {
-        class_exists('XdbSearcher') or include __DIR__ . '/XdbSearcher.php';
-        $this->searcher = XdbSearcher::newWithFileOnly(__DIR__ . '/ip2region.xdb');
+        if (!class_exists('XdbSearcherTheme')) {
+            include_once __DIR__ . '/XdbSearcher.php';
+        }
+        $this->searcher = XdbSearcherTheme::newWithFileOnly(__DIR__ . '/ip2region.xdb');
     }
 
     /**

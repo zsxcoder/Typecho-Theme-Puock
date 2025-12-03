@@ -180,7 +180,9 @@ document.addEventListener('DOMContentLoaded', function() {
             let url = document.getElementById('img-insert-url').value.trim();
             let title = document.getElementById('img-insert-title').value.trim();
             if (!url) {
-                alert('图片地址不能为空！');
+                if (window.Puock) {
+                    window.Puock.toast('图片地址不能为空！', 'warning');
+                }
                 return;
             }
             let tag = `<img src=\"${url}\"` + (title ? ` alt=\"${title}\" title=\"${title}\"` : '') + ` />`;

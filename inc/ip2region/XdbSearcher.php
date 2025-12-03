@@ -6,7 +6,7 @@
 // @Author Lion <chenxin619315@gmail.com>
 // @Date   2022/06/21
 
-class XdbSearcher
+class XdbSearcherTheme
 {
     const HeaderInfoLength = 256;
     const VectorIndexRows = 256;
@@ -36,7 +36,7 @@ class XdbSearcher
      */
     public static function newWithFileOnly($dbFile)
     {
-        return new XdbSearcher($dbFile, null, null);
+        return new XdbSearcherTheme($dbFile, null, null);
     }
 
     /**
@@ -44,7 +44,7 @@ class XdbSearcher
      */
     public static function newWithVectorIndex($dbFile, $vIndex)
     {
-        return new XdbSearcher($dbFile, $vIndex);
+        return new XdbSearcherTheme($dbFile, $vIndex);
     }
 
     /**
@@ -52,7 +52,7 @@ class XdbSearcher
      */
     public static function newWithBuffer($cBuff)
     {
-        return new XdbSearcher(null, null, $cBuff);
+        return new XdbSearcherTheme(null, null, $cBuff);
     }
 
     // --- End of static creator
