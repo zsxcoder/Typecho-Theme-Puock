@@ -885,6 +885,9 @@ class Puock {
     this.commentFormLoadStateChange();
     const el = $(target);
     
+    // 获取当前回复的评论ID，用于后续定位
+    const replyId = $("#comment_parent").val();
+    
     $.ajax({
         url: submitUrl,
         data: this.parseFormData(el, args),
@@ -899,11 +902,28 @@ class Puock {
             
             // PJAX修复：强制重新加载整个页面以确保评论状态正确
             if (this.data.params.is_pjax) {
+                // 构建带有评论锚点的URL
+                let targetUrl = window.location.href;
+                if (replyId) {
+                    // 如果是回复评论，定位到被回复的评论
+                    targetUrl += '#comment-' + replyId;
+                } else {
+                    // 如果是新评论，定位到评论区顶部
+                    targetUrl += '#comments';
+                }
+                
                 // 使用PJAX重新加载当前页面
                 InstantClick.go(window.location.href);
+                
                 // 延迟执行后续操作，等待页面加载完成
                 setTimeout(() => {
-                    this.gotoArea("#comments");
+                    if (replyId) {
+                        // 滚动到被回复的评论
+                        this.gotoArea('#comment-' + replyId);
+                    } else {
+                        // 滚动到评论区
+                        this.gotoArea("#comments");
+                    }
                 }, 500);
             } else {
                 // 非PJAX模式下使用传统方式
@@ -927,8 +947,14 @@ class Puock {
                 // 重新初始化评论相关事件
                 this.initCommentEvents();
                 
-                // 滚动到评论区域
-                this.gotoArea("#comments");
+                // 滚动到指定位置
+                if (replyId) {
+                    // 如果是回复评论，定位到被回复的评论
+                    this.gotoArea('#comment-' + replyId);
+                } else {
+                    // 如果是新评论，定位到评论区
+                    this.gotoArea("#comments");
+                }
             }
         },
         error: (res) => {
