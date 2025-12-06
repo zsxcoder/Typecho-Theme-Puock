@@ -104,6 +104,16 @@ class ContentFilter  {
         // Step 1: 保护代码块
         $codeBlocks = [];
         $content = preg_replace_callback(
+            '/<pre><code[^>]*>[\s\S]*?<\/code><\/pre>/i', // 匹配已转换的代码块
+            function ($matches) use (&$codeBlocks) {
+                $placeholder = '<!--CODEBLOCK_' . count($codeBlocks) . '-->';
+                $codeBlocks[$placeholder] = $matches[0];
+                return $placeholder;
+            },
+            $content
+        );
+        // 同时保护原始的markdown代码块
+        $content = preg_replace_callback(
             '/```[\s\S]*?```/m', // 匹配 Markdown 代码块（包括多行）
             function ($matches) use (&$codeBlocks) {
                 $placeholder = '<!--CODEBLOCK_' . count($codeBlocks) . '-->';
@@ -293,10 +303,20 @@ class ContentFilter  {
     {
         $codeBlocks = [];
         $content = preg_replace_callback(
-            '/```[\s\S]*?```/m',
+            '/<pre><code[^>]*>[\s\S]*?<\/code><\/pre>/i', // 匹配已转换的代码块
             function ($matches) use (&$codeBlocks) {
                 $placeholder = '<!--CODEBLOCK_' . count($codeBlocks) . '-->';
                 $codeBlocks[$placeholder] = $matches[0];
+                return $placeholder;
+            },
+            $content
+        );
+        // 同时保护原始的markdown代码块
+        $content = preg_replace_callback(
+            '/```[\s\S]*?```/m', // 匹配 Markdown 代码块（包括多行）
+            function ($matches) use (&$codeBlocks) {
+                $placeholder = '<!--CODEBLOCK_' . count($codeBlocks) . '-->';
+                $codeBlocks[$placeholder] = $matches[0]; // 存储原始代码块内容
                 return $placeholder;
             },
             $content
