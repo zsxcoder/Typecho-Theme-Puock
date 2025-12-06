@@ -108,6 +108,20 @@ class Puock {
             this.loadParams();
             this.pageChangeInit()
         })
+        
+        // 修复PJAX评论问题：确保评论表单重新初始化
+        InstantClick.on('change', (e) => {
+            // 重置提交状态 - 修复第二次评论卡住的问题
+            this.data.comment.submitting = false;
+            setTimeout(() => {
+                this.initCommentEvents();
+                this.loadCommentInfo();
+                // 重新绑定评论表单提交事件
+                this.eventCommentPreSubmit();
+                // 重新初始化评论分页事件
+                this.eventCommentPageChangeEvent();
+            }, 100);
+        })
         // InstantClick.on('receive',(url, body, title)=>{
         //     console.log(body)
         //     this.loadParams($(body))
@@ -497,6 +511,22 @@ class Puock {
        // });
         // 新增：pjax切换后重新初始化评论相关事件
         this.initCommentEvents();
+        
+        // PJAX修复：确保评论功能完全重新初始化
+        if (this.data.params.is_pjax) {
+            // 强制重新加载评论信息
+            this.loadCommentInfo();
+            // 重置提交状态 - 修复第二次评论卡住的问题
+            this.data.comment.submitting = false;
+            // 重新绑定所有评论相关事件
+            setTimeout(() => {
+                this.eventCommentPreSubmit();
+                this.eventCommentPageChangeEvent();
+                this.eventOpenCommentBox();
+                this.eventCloseCommentBox();
+                this.eventSmiley();
+            }, 200);
+        }
     }
 
 
@@ -864,28 +894,42 @@ class Puock {
             $("#comment-vd").val("");
             $("#comment").val("");
             
-            // 获取整个评论区域的新内容
-            const newComments = $(data).find("#comments").html();
+            // 重置提交状态 - 修复第二次评论卡住的问题
+            this.data.comment.submitting = false;
             
-            // 替换当前评论区域
-            $("#comments").html(newComments);
-            
-            // 重置评论表单状态
-            $("#comment-form").trigger("reset");
-            $("#comment-cancel").click();
-            this.commentFormLoadStateChange();
-            this.setCommentInfo();
-            
-            // 重新初始化相关组件
-            this.initCodeHighlight(false);
-            this.lazyLoadInit();
-            this.tooltipInit();
-            
-            // 重新初始化评论相关事件
-            this.initCommentEvents();
-            
-            // 滚动到评论区域
-            this.gotoArea("#comments");
+            // PJAX修复：强制重新加载整个页面以确保评论状态正确
+            if (this.data.params.is_pjax) {
+                // 使用PJAX重新加载当前页面
+                InstantClick.go(window.location.href);
+                // 延迟执行后续操作，等待页面加载完成
+                setTimeout(() => {
+                    this.gotoArea("#comments");
+                }, 500);
+            } else {
+                // 非PJAX模式下使用传统方式
+                // 获取整个评论区域的新内容
+                const newComments = $(data).find("#comments").html();
+                
+                // 替换当前评论区域
+                $("#comments").html(newComments);
+                
+                // 重置评论表单状态
+                $("#comment-form").trigger("reset");
+                $("#comment-cancel").click();
+                this.commentFormLoadStateChange();
+                this.setCommentInfo();
+                
+                // 重新初始化相关组件
+                this.initCodeHighlight(false);
+                this.lazyLoadInit();
+                this.tooltipInit();
+                
+                // 重新初始化评论相关事件
+                this.initCommentEvents();
+                
+                // 滚动到评论区域
+                this.gotoArea("#comments");
+            }
         },
         error: (res) => {
             this.commentFormLoadStateChange();
