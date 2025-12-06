@@ -33,7 +33,8 @@ class Puock {
             loading: false,
             time: 5,
             val: null,
-            replyId: null
+            replyId: null,
+            submitting: false
         },
         instance: {},
         modalStorage: {}
@@ -816,6 +817,13 @@ class Puock {
         $(document).off('submit', '#comment-form');
         $(document).on('submit', '#comment-form', (e) => {
             e.preventDefault();
+            
+            // 防重复提交检查
+            if (this.data.comment.submitting) {
+                this.toast('评论正在提交中，请稍候', TYPE_WARNING);
+                return;
+            }
+            
             if ($("#comment-logged").val() === '0' && ($.trim($("#comment_author").val()) === '' || $.trim($("#comment_email").val()) === '')) {
                 this.toast('评论信息不能为空', TYPE_WARNING);
                 return;
@@ -837,6 +845,7 @@ class Puock {
                     return;
                 }
             }
+            this.data.comment.submitting = true;
             this.commentSubmit(this.ct(e))
         })
     }
@@ -880,9 +889,12 @@ class Puock {
         },
         error: (res) => {
             this.commentFormLoadStateChange();
+            this.data.comment.submitting = false;
             let msg = "评论提交失败";
             if (res.responseJSON && res.responseJSON.msg) {
                 msg = res.responseJSON.msg;
+            } else if (res.statusText) {
+                msg = "网络错误：" + res.statusText;
             }
             this.toast(msg, TYPE_DANGER);
         }
