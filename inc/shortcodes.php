@@ -447,6 +447,7 @@ class ContentFilter  {
 
 // 为模板提供的短代码解析函数
 function parse_shortcodes($content, $widget = null) {
+    $content = VideoParser::parseContent($content);
     // 直接调用短代码解析,不再进行 Markdown 转换
     if (class_exists('ContentFilter')) {
         return ContentFilter::applyShortcodesOnly($content, $widget);

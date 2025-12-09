@@ -1,23 +1,22 @@
 <?php
 if (!defined('__TYPECHO_ROOT_DIR__')) exit;
 function themeConfig($form)
-{
+{   
+    themeAutoUpgradeNotice();
+    echo '<style>.typecho-page-title h2 {font-weight: 600;color: #737373;}.typecho-page-title h2:before {content: "#";margin-right: 6px;color: #ff6d6d; font-size: 20px;font-weight: 600;}.themeConfig h3 {color: #737373;font-size: 20px;}.themeConfig h3:before {content: "[";margin-right: 5px;color: #ff6d6d;font-size: 25px;}.themeConfig h3:after {content: "]";margin-left: 5px;color: #ff6d6d;font-size: 25px;}.themeConfiginfo{border: 1px solid #ffadad;padding: 20px;margin: -15px 10px 25px 0;background: #ffffff;border-radius: 5px;color: #ff6d6d;}</style>';
+    echo '<span class="themeConfig"><h3>博客设置</h3></span>';
     $logoUrl = new Typecho_Widget_Helper_Form_Element_Text('logoUrl', NULL, NULL, _t('站点 LOGO 地址'), _t('建议尺寸 100px * 100px,不填写则使用站点标题'));
     $form->addInput($logoUrl);
     $icoUrl = new Typecho_Widget_Helper_Form_Element_Text('icoUrl', NULL, NULL, _t('站点 Favicon 地址'), _t('建议尺寸 16px * 16px,不填写则使用默认图标'));
     $form->addInput($icoUrl);
     $primaryColor = new Typecho_Widget_Helper_Form_Element_Text('primaryColor', NULL, NULL, _t('主题主色调'), _t('默认浅蓝色 <b style=color:red>#A7E6F4</b> 常见的<a href="https://tool.imsun.org/" target="_blank">颜色选择器</a>'));
     $form->addInput($primaryColor);
-    $sticky = new Typecho_Widget_Helper_Form_Element_Text('sticky', NULL, NULL, _t('置顶文章'), _t('填入文章的cid,多个cid以`|`符号隔开'));
-    $form->addInput($sticky);
-    $ICP = new Typecho_Widget_Helper_Form_Element_Text('ICP', NULL, NULL, _t('ICP 备案号'), _t('展示网站备案ICP号'));
-    $form->addInput($ICP);
-    $bgUrl = new Typecho_Widget_Helper_Form_Element_Text('bgUrl', NULL, NULL, _t('个人信息背景图片地址'), _t('用于个人信息展示的背景图片'));
-    $form->addInput($bgUrl);
     $cnavatar = new Typecho_Widget_Helper_Form_Element_Text('cnavatar', NULL, NULL, _t('Gravatar镜像'), _t('默认使用https://cravatar.cn/avatar/'));
     $form->addInput($cnavatar);
+    $sticky = new Typecho_Widget_Helper_Form_Element_Text('sticky', NULL, NULL, _t('<span class="themeConfig"><h3>文章推荐</h3></span><br>置顶文章'), _t('填入文章的cid,多个cid以`|`符号隔开'));
+    $form->addInput($sticky);
     $listmodel = new Typecho_Widget_Helper_Form_Element_Radio('listmodel',
-    array('0'=> _t('卡片模式'), '1'=> _t('列表模式')),'0', _t('列表模式'));
+    array('0'=> _t('卡片模式'), '1'=> _t('列表模式')),'0', _t('<span class="themeConfig"><h3>个性化设置</h3></span><div class="themeConfiginfo">根据需求设置</div>列表模式'));
     $form->addInput($listmodel);
     $pageprev = new Typecho_Widget_Helper_Form_Element_Radio('pageprev',
     array('0'=> _t('不显示翻页页码'), '1'=> _t('显示页码')),'0', _t('首页文章列表页码'));
@@ -35,7 +34,7 @@ function themeConfig($form)
     $form->addInput($social);
     $gonggao = new Typecho_Widget_Helper_Form_Element_Textarea('gonggao', NULL, NULL, _t('站点公告'), _t('<b style=color:red>使用格式: </b><b>标题|链接|图标</b><br>多条公告回车分隔.链接和图标可以为空.图标使用Font Awesome,如: fa-regular fa-bell'));
     $form->addInput($gonggao);
-    $adlisttop = new Typecho_Widget_Helper_Form_Element_Textarea('adlisttop', NULL, NULL, _t('文章列表上方广告位'), _t('支持HTML'));
+    $adlisttop = new Typecho_Widget_Helper_Form_Element_Textarea('adlisttop', NULL, NULL, _t('<span class="themeConfig"><h3>广告管理</h3></span><div class="themeConfiginfo">广告位设置</div>文章列表上方广告位'), _t('支持HTML'));
     $form->addInput($adlisttop);
     $adlistfoot = new Typecho_Widget_Helper_Form_Element_Textarea('adlistfoot', NULL, NULL, _t('文章列表下方广告位'), _t('支持HTML'));
     $form->addInput($adlistfoot);
@@ -45,9 +44,9 @@ function themeConfig($form)
     $form->addInput($articlemid);
     $articlefoot = new Typecho_Widget_Helper_Form_Element_Textarea('articlefoot', NULL, NULL, _t('文章页底部广告位'), _t('支持HTML'));
     $form->addInput($articlefoot);
-    $addhead = new Typecho_Widget_Helper_Form_Element_Textarea('addhead', NULL, '<style>* {font-family: -apple-system, BlinkMacSystemFont,"LXGW WenKai Screen", sans-serif;}</style>', _t('网站验证代码'), _t('若开启无刷新加载，请在标签上加上data-instant属性'));
+    $addhead = new Typecho_Widget_Helper_Form_Element_Textarea('addhead', NULL, '<style>* {font-family: -apple-system, BlinkMacSystemFont,"LXGW WenKai Screen", sans-serif;}</style>', _t('<span class="themeConfig"><h3>网站验证</h3></span><div class="themeConfiginfo">若开启无刷新加载，请在标签上加上data-instant属性</div>网站验证代码'), _t('支持html代码'));
     $form->addInput($addhead);
-    $tongji = new Typecho_Widget_Helper_Form_Element_Textarea('tongji', NULL, '', _t('网站统计代码'), _t('支持HTML'));
+    $tongji = new Typecho_Widget_Helper_Form_Element_Textarea('tongji', NULL, '', _t('<br><span class="themeConfig"><h3>页脚设置</h3></span><div class="themeConfiginfo">所有页面生效设置</div>网站统计代码'), _t('支持HTML'));
     $form->addInput($tongji);
     $footerinfo = new Typecho_Widget_Helper_Form_Element_Textarea('footerinfo', NULL, '<a href="/feed" target="_blank" title="RSS订阅"><i class="fa-solid fa-rss fa-2x"></i></a>
 <a href="https://jiong.us/@sun" target="_blank" title="Mastodon"><i class="fa-brands fa-mastodon fa-2x"></i></a>
@@ -58,10 +57,14 @@ function themeConfig($form)
     $form->addInput($footerinfo);
     $footercopyright = new Typecho_Widget_Helper_Form_Element_Textarea('footercopyright', NULL, '<b>版权所有 转载请注明出处</b>', _t('底部版权信息'), _t('支持HTML'));
     $form->addInput($footercopyright);
+    $ICP = new Typecho_Widget_Helper_Form_Element_Text('ICP', NULL, NULL, _t('ICP 备案号'), _t('展示网站备案ICP号'));
+    $form->addInput($ICP);
     $showsidebar = new Typecho_Widget_Helper_Form_Element_Radio('showsidebar',
     array('0'=> _t('关闭'), '1'=> _t('显示')),
-    '0', _t('全局侧边栏显示'), _t('<p style=color:red>注意!</p>如果选择关闭侧边栏则下方的侧边栏显示设置将无效'));
+    '0', _t('<br><span class="themeConfig"><h3>侧边栏设置</h3></span><div class="themeConfiginfo">如果选择关闭侧边栏则下方的侧边栏显示设置将无效</div>全局侧边栏显示'), _t('选择关闭则侧边栏在所有页面均不显示'));
     $form->addInput($showsidebar);
+    $bgUrl = new Typecho_Widget_Helper_Form_Element_Text('bgUrl', NULL, NULL, _t('自定义背景图片地址'), _t('用于侧边栏个人信息展示的背景图片'));
+    $form->addInput($bgUrl);
     $sidebarBlock = new \Typecho\Widget\Helper\Form\Element\Checkbox(
         'sidebarBlock',
         [
@@ -77,6 +80,7 @@ function themeConfig($form)
     );
     $form->addInput($sidebarBlock->multiMode());
 }
+
 
 function themeFields($layout) {
     $summary= new Typecho_Widget_Helper_Form_Element_Textarea('summary', NULL, NULL, _t('文章摘要'), _t('自定义摘要'));

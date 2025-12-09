@@ -56,12 +56,12 @@
                            <?php _e('首页'); ?>
                         </a>
                     </li>
-                    <li class='menu-item menu-item-type-post_type menu-item-object-page '>
+                    <li class='menu-item'>
                         <a class='ww' data-color='auto' href='#'>分类<i class="fa fa-chevron-down t-sm ml-1 menu-sub-icon"></i></a>
                         <ul class="sub-menu ">
                             <?php $categories = Typecho_Widget::widget('Widget_Metas_Category_List'); ?>
                             <?php while($categories->next()): ?>
-                            <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-child">
+                            <li class="menu-itemmenu-item-child">
                             <a href="<?php $categories->permalink(); ?>" class='ww' data-color='auto'>
                             <?php $categories->name(); ?>
                             </a>
@@ -71,7 +71,7 @@
                     </li>
                     <?php \Widget\Contents\Page\Rows::alloc()->to($pages); ?>
                     <?php while ($pages->next()): ?>
-                    <li class="menu-item menu-item-type-post_type menu-item-object-page<?php if ($this->is('page', $pages->slug)) echo ' current-menu-item current_page_item menu-current'; ?>">
+                    <li class="menu-item <?php if ($this->is('page', $pages->slug)) echo ' current-menu-item current_page_item menu-current'; ?>">
                         <a class='ww'
                             href="<?php $pages->permalink(); ?>"
                             title="<?php $pages->title(); ?>">
@@ -120,20 +120,20 @@
                     <div class="text-end"><i class="fa fa-close t-xl puock-link mobile-menu-close ta3"></i></div>
                     <nav>
                         <ul class='puock-links t-md'>
-                            <li class='menu-item menu-item-type-custom menu-item-object-custom current-menu-item current_page_item menu-item-home menu-current'>
+                            <li class='menu-item current-menu-item'>
                                 <span>
                                     <a href="<?php $this->options->siteUrl(); ?>">首页</a>
                                 </span>
                             </li>
                             <?php \Widget\Contents\Page\Rows::alloc()->to($pages); ?>
                             <?php while ($pages->next()): ?>
-                            <li class='menu-item menu-item-type-post_type menu-item-object-page'>
+                            <li class='menu-item'>
                                 <span><a class='ww' href="<?php $pages->permalink(); ?>" title="<?php $pages->title(); ?>">
                                     <?php $pages->title(); ?>
                                 </a></span>
                             </li>
                             <?php endwhile; ?>
-                            <li class='menu-item menu-item-type-post_type menu-item-object-page'>
+                            <li class='menu-item'>
                             <span><a href="#">分类</a>
                             <a href="#menu" data-bs-toggle="collapse"><i class="fa fa-chevron-down t-sm ml-1 menu-sub-icon"></i></a></span>
                             <ul id="menu" class="sub-menu collapse">
