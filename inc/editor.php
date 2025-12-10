@@ -575,3 +575,24 @@ class AttachmentHelper {
         <?php
     }
 }
+
+/** * 标签助手：标签列表
+ * @author 泽泽社长
+ * @date 2025-04-25
+ */
+Typecho_Plugin::factory('admin/write-post.php')->bottom = array('tagshelper', 'tagslist');
+class tagshelper{
+    public static function tagslist(){   
+        ?>
+        <style>.tagshelper a{cursor: pointer; padding: 0px 6px; margin: 2px 0;display: inline-block;border-radius: 2px;text-decoration: none;}
+.tagshelper a:hover{background: #ccc;color: #fff;}</style>
+        <script> $(document).ready(function(){
+        $('#tags').after('<div style="margin-top: 35px;" class="tagshelper"><ul style="list-style: none;border: 1px solid #D9D9D6;padding: 6px 12px; max-height: 240px;overflow: auto;background-color: #FFF;border-radius: 2px;"><?php
+        $i=0;
+        Typecho_Widget::widget('Widget_Metas_Tag_Cloud', 'sort=count&desc=1&limit=200')->to($tags);
+            while ($tags->next()) {
+                echo "<a id=".$i." onclick=\"$(\'#tags\').tokenInput(\'add\', {id: \'".$tags->name."\', tags: \'".$tags->name."\'});\">".$tags->name."</a>";
+                    $i++;}?></ul></div>');});</script>
+        <?php
+    }
+}

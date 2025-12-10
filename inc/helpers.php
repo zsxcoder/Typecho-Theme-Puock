@@ -72,3 +72,17 @@ function friendly_date($timestamp) {
         return date('Y-m-d H:i:s', $time);
     }
 }
+
+/**
+ * 关闭评论反垃圾保护
+ * 评论层级突破999
+ * 关闭检查评论来源URL与文章链接是否一致判断
+ * 最新评论显示在前
+ */
+function themeInit($archive)
+{
+    Helper::options()->commentsAntiSpam = false; 
+    Helper::options()->commentsMaxNestingLevels = 999;
+    Helper::options()->commentsOrder = 'DESC';
+    Helper::options()->commentsCheckReferer = false;
+}
