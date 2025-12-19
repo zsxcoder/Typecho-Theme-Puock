@@ -12,3 +12,4 @@ require_once __DIR__ . '/inc/ajax.php';
 require_once __DIR__ . '/inc/helpers.php';
 require_once __DIR__ . '/inc/video.php';
 require_once __DIR__ . '/inc/check-version.php';
+require_once __DIR__ . '/inc/backup.php';

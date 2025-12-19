@@ -98,7 +98,7 @@
     <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/spark-md5.min.js'); ?>?ver=2.8.14" id="puock-spark-md5-js"></script>
     <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/html2canvas.min.js'); ?>?ver=2.8.14" id="puock-html2canvas-js"></script>
     <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/gt4.js'); ?>?ver=2.8.14" id="puock-gt4-js"></script>
-    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/puock.js'); ?>" id="puock-js"></script>
+    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/puock.js'); ?>?t=<?php echo time(); ?>" id="puock-js"></script>
     <?php $this->footer(); ?>
 </body>
 </html>

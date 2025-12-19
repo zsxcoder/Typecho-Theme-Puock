@@ -888,17 +888,16 @@ class Puock {
      // 获取当前回复的评论ID，用于后续定位
      const replyId = $("#comment_parent").val();
      
-     $.ajax({
-         url: submitUrl,
-         data: this.parseFormData(el, args),
-         type: el.attr('method'),
+         $.ajax({
+             url: submitUrl,
+             data: this.parseFormData(el, args),
+             type: el.attr('method'),
          success: (data, _textStatus, jqXHR) => {
-             const responseUrl = (jqXHR && jqXHR.responseURL) ? jqXHR.responseURL : '';
-             const anchorMatch = responseUrl.match(/#(comment-\\d+)/);
-             if (!anchorMatch) {
+             const hasCommentsWrap = $(data).find("#comments").length > 0;
+             if (!hasCommentsWrap) {
                  this.commentFormLoadStateChange(false);
                  this.data.comment.submitting = false;
-                 this.toast('评论提交失败，请刷新页面查看提示后重试', TYPE_DANGER);
+                 this.toast('评论提交结果异常，请刷新页面查看提示后重试', TYPE_DANGER);
                  return;
              }
 
@@ -913,7 +912,7 @@ class Puock {
              // PJAX修复：强制重新加载整个页面以确保评论状态正确
              if (this.data.params.is_pjax) {
                  // 构建带有评论锚点的URL
-                 let targetUrl = window.location.href;
+                 let targetUrl = window.location.href.split('#')[0];
                 if (replyId) {
                     // 如果是回复评论，定位到被回复的评论
                     targetUrl += '#comment-' + replyId;

@@ -4,8 +4,7 @@ function themeConfig($form)
 {   
     themeAutoUpgradeNotice();
     echo '<style>.typecho-page-title h2 {font-weight: 600;color: #737373;}.typecho-page-title h2:before {content: "#";margin-right: 6px;color: #ff6d6d; font-size: 20px;font-weight: 600;}.themeConfig h3 {color: #737373;font-size: 20px;}.themeConfig h3:before {content: "[";margin-right: 5px;color: #ff6d6d;font-size: 25px;}.themeConfig h3:after {content: "]";margin-left: 5px;color: #ff6d6d;font-size: 25px;}.themeConfiginfo{border: 1px solid #ffadad;padding: 20px;margin: -15px 10px 25px 0;background: #ffffff;border-radius: 5px;color: #ff6d6d;}</style>';
-    echo '<span class="themeConfig"><h3>博客设置</h3></span>';
-    $logoUrl = new Typecho_Widget_Helper_Form_Element_Text('logoUrl', NULL, NULL, _t('站点 LOGO 地址'), _t('建议尺寸 100px * 100px,不填写则使用站点标题'));
+    $logoUrl = new Typecho_Widget_Helper_Form_Element_Text('logoUrl', NULL, NULL, _t('<span class="themeConfig"><h3>博客设置</h3></span>站点 LOGO 地址'), _t('建议尺寸 100px * 100px,不填写则使用站点标题'));
     $form->addInput($logoUrl);
     $icoUrl = new Typecho_Widget_Helper_Form_Element_Text('icoUrl', NULL, NULL, _t('站点 Favicon 地址'), _t('建议尺寸 16px * 16px,不填写则使用默认图标'));
     $form->addInput($icoUrl);
@@ -79,6 +78,9 @@ function themeConfig($form)
         _t('侧边栏显示')
     );
     $form->addInput($sidebarBlock->multiMode());
+    if (function_exists('render_theme_backup_section')) {
+        render_theme_backup_section();
+    }
 }
 
 
