@@ -60,6 +60,8 @@
                         </button>
                         <?php endif; ?>
                         <input type="hidden" name="parent" id="comment_parent" value="">
+                        <?php Typecho_Widget::widget('Widget_Security')->to($security); ?>
+                        <input type="hidden" name="_" value="<?php echo $security->getToken($this->request->getRequestUrl()); ?>">
                         <button type="submit" id="comment-submit" class="btn btn-primary btn-ssm">
                             <i class="fa-regular fa-paper-plane"></i>&nbsp;发布评论
                         </button>

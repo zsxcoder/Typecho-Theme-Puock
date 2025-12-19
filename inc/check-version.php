@@ -5,10 +5,20 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit;
  */
 function themeAutoUpgradeNotice()
 {
-    $current_version = '1.3.0';
+    $current_version = null;
+    $index_file = dirname(__DIR__) . '/index.php';
+    if (is_file($index_file) && is_readable($index_file)) {
+        $index_content = @file_get_contents($index_file);
+        if ($index_content !== false && preg_match('/@version\\s+([^\\s\\*]+)/', $index_content, $m)) {
+            $current_version = trim($m[1]);
+        }
+    }
+    if (!$current_version) {
+        return;
+    }
     $api_url = 'https://api.github.com/repos/jkjoy/typecho-theme-puock/releases/latest';
     $cache_dir = __TYPECHO_ROOT_DIR__ . '/usr/cache';
-    $cache_file = $cache_dir . '/version.json';
+    $cache_file = $cache_dir . '/themeversion.json';
     $cache_time = 12 * 3600; // 缓存12小时
     if (!file_exists($cache_dir)) {
         @mkdir($cache_dir, 0755, true);
@@ -52,7 +62,9 @@ function themeAutoUpgradeNotice()
             }
         }
     }
-    if ($latest_version && version_compare($current_version, $latest_version, '<')) {
+    $current_version_cmp = ltrim($current_version, "vV");
+    $latest_version_cmp = $latest_version ? ltrim($latest_version, "vV") : null;
+    if ($latest_version_cmp && version_compare($current_version_cmp, $latest_version_cmp, '<')) {
         $notice_html = '
         <span class="themeConfig"><h3>主题更新</h3>
             <div class="themeConfiginfo">发现新版本 ' . $latest_version . '，您当前使用的是 ' . $current_version . '。建议立即更新以获得最新功能和安全性修复。

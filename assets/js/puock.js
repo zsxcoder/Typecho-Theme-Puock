@@ -881,67 +881,81 @@ class Puock {
     }
 
     commentSubmit(target, args = {}) {
-    let submitUrl = $("#comment-form").attr("action");
-    this.commentFormLoadStateChange();
-    const el = $(target);
-    
-    // 获取当前回复的评论ID，用于后续定位
-    const replyId = $("#comment_parent").val();
-    
-    $.ajax({
-        url: submitUrl,
-        data: this.parseFormData(el, args),
-        type: el.attr('method'),
-        success: (data) => {
-            this.toast('评论已提交成功', TYPE_SUCCESS);
-            $("#comment-vd").val("");
-            $("#comment").val("");
-            
-            // 重置提交状态 - 修复第二次评论卡住的问题
-            this.data.comment.submitting = false;
-            
-            // PJAX修复：强制重新加载整个页面以确保评论状态正确
-            if (this.data.params.is_pjax) {
-                // 构建带有评论锚点的URL
-                let targetUrl = window.location.href;
+     let submitUrl = $("#comment-form").attr("action");
+     this.commentFormLoadStateChange(true);
+     const el = $(target);
+     
+     // 获取当前回复的评论ID，用于后续定位
+     const replyId = $("#comment_parent").val();
+     
+     $.ajax({
+         url: submitUrl,
+         data: this.parseFormData(el, args),
+         type: el.attr('method'),
+         success: (data, _textStatus, jqXHR) => {
+             const responseUrl = (jqXHR && jqXHR.responseURL) ? jqXHR.responseURL : '';
+             const anchorMatch = responseUrl.match(/#(comment-\\d+)/);
+             if (!anchorMatch) {
+                 this.commentFormLoadStateChange(false);
+                 this.data.comment.submitting = false;
+                 this.toast('评论提交失败，请刷新页面查看提示后重试', TYPE_DANGER);
+                 return;
+             }
+
+             this.toast('评论已提交（如开启审核可能稍后显示）', TYPE_SUCCESS);
+             $("#comment-vd").val("");
+             $("#comment").val("");
+             
+             // 重置提交状态 - 修复第二次评论卡住的问题
+             this.data.comment.submitting = false;
+             this.commentFormLoadStateChange(false);
+             
+             // PJAX修复：强制重新加载整个页面以确保评论状态正确
+             if (this.data.params.is_pjax) {
+                 // 构建带有评论锚点的URL
+                 let targetUrl = window.location.href;
                 if (replyId) {
                     // 如果是回复评论，定位到被回复的评论
                     targetUrl += '#comment-' + replyId;
                 } else {
                     // 如果是新评论，定位到评论区顶部
                     targetUrl += '#comments';
-                }
-                
-                // 使用PJAX重新加载当前页面
-                InstantClick.go(window.location.href);
-                
-                // 延迟执行后续操作，等待页面加载完成
-                setTimeout(() => {
-                    if (replyId) {
-                        // 滚动到被回复的评论
+                 }
+                 
+                 // 使用PJAX重新加载当前页面
+                 InstantClick.go(targetUrl);
+                 
+                 // 延迟执行后续操作，等待页面加载完成
+                 setTimeout(() => {
+                     if (replyId) {
+                         // 滚动到被回复的评论
                         this.gotoArea('#comment-' + replyId);
                     } else {
                         // 滚动到评论区
                         this.gotoArea("#comments");
                     }
                 }, 500);
-            } else {
-                // 非PJAX模式下使用传统方式
-                // 获取整个评论区域的新内容
-                const newComments = $(data).find("#comments").html();
-                
-                // 替换当前评论区域
-                $("#comments").html(newComments);
-                
-                // 重置评论表单状态
-                $("#comment-form").trigger("reset");
-                $("#comment-cancel").click();
-                this.commentFormLoadStateChange();
-                this.setCommentInfo();
-                
-                // 重新初始化相关组件
-                this.initCodeHighlight(false);
-                this.lazyLoadInit();
+             } else {
+                 // 非PJAX模式下使用传统方式
+                 // 获取整个评论区域的新内容
+                 const newCommentsEl = $(data).find("#comments");
+                 if (!newCommentsEl.length) {
+                     this.toast('评论提交失败，请刷新页面后重试', TYPE_DANGER);
+                     return;
+                 }
+                 const newComments = newCommentsEl.html();
+                 
+                 // 替换当前评论区域
+                 $("#comments").html(newComments);
+                 
+                 // 重置评论表单状态
+                 $("#comment-form").trigger("reset");
+                 $("#comment-cancel").click();
+                 this.setCommentInfo();
+                 
+                 // 重新初始化相关组件
+                 this.initCodeHighlight(false);
+                 this.lazyLoadInit();
                 this.tooltipInit();
                 
                 // 重新初始化评论相关事件
@@ -956,42 +970,48 @@ class Puock {
                     this.gotoArea("#comments");
                 }
             }
-        },
-        error: (res) => {
-            this.commentFormLoadStateChange();
-            this.data.comment.submitting = false;
-            let msg = "评论提交失败";
-            if (res.responseJSON && res.responseJSON.msg) {
-                msg = res.responseJSON.msg;
-            } else if (res.statusText) {
-                msg = "网络错误：" + res.statusText;
-            }
-            this.toast(msg, TYPE_DANGER);
-        }
-    });
-}
+         },
+         error: (res) => {
+             this.commentFormLoadStateChange(false);
+             this.data.comment.submitting = false;
+             let msg = "评论提交失败";
+             if (res.responseJSON && res.responseJSON.msg) {
+                 msg = res.responseJSON.msg;
+             } else if (res.responseText) {
+                 try {
+                     const doc = new DOMParser().parseFromString(res.responseText, 'text/html');
+                     const text = (doc.querySelector('.container') || doc.body || {}).textContent;
+                     if (text && text.trim()) {
+                         msg = text.trim().replace(/\s+/g, ' ');
+                     }
+                 } catch (e) {
+                     // ignore parse errors
+                 }
+             } else if (res.statusText) {
+                 msg = "网络错误：" + res.statusText;
+             }
+             this.toast(msg, TYPE_DANGER);
+         }
+     });
+ }
 
-    commentFormLoadStateChange() {
-        const commentSubmit = $("#comment-submit");
-        if (this.data.comment.loading) {
-            commentSubmit.html("请等待" + this.data.comment.time + "s");
-            this.data.comment.val = setInterval(() => {
-                if (this.data.comment.time <= 1) {
-                    clearInterval(this.data.comment.val);
-                    commentSubmit.html("提交评论");
-                    commentSubmit.removeAttr("disabled");
-                    this.data.comment.time = 5;
-                } else {
-                    --this.data.comment.time;
-                    commentSubmit.html("请等待" + this.data.comment.time + "s");
-                }
-            }, 1000);
-        } else {
-            commentSubmit.html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>提交中...');
-            commentSubmit.attr("disabled", true)
-        }
-        this.data.comment.loading = !this.data.comment.loading;
-    }
+     commentFormLoadStateChange(forceLoading = null) {
+         const commentSubmit = $("#comment-submit");
+         const isLoading = forceLoading === null ? !this.data.comment.loading : !!forceLoading;
+         this.data.comment.loading = isLoading;
+         if (isLoading) {
+             commentSubmit.html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>提交中...');
+             commentSubmit.attr("disabled", true)
+             return;
+         }
+
+         if (this.data.comment.val) {
+             clearInterval(this.data.comment.val);
+             this.data.comment.val = null;
+         }
+         commentSubmit.html("提交评论");
+         commentSubmit.removeAttr("disabled");
+     }
 
     eventOpenCommentBox() {
         $(document).off("click", ".comment-reply");
