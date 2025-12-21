@@ -109,13 +109,22 @@ var PuockEditor = {
         var header = $('<div class="puock-editor-modal-header">' + config.title + '</div>');
         var body = $('<div class="puock-editor-modal-body"></div>');
         var footer = $('<div class="puock-editor-modal-footer"></div>');
+        var closeModal = function() {
+            $(document).off('keydown.puockEditorModal');
+            modal.remove();
+        };
 
         // 创建表单字段
         config.fields.forEach(function(field) {
             var fieldDiv = $('<div class="puock-editor-modal-field"></div>');
             var label = $('<label class="puock-editor-modal-label">' + field.label + '</label>');
-            var input = $('<input type="text" class="puock-editor-modal-input" placeholder="' + (field.placeholder || '') + '" value="' + (field.defaultValue || '') + '">');
+            var inputType = field.type || 'text';
+            var input = $('<input type="' + inputType + '" class="puock-editor-modal-input" placeholder="' + (field.placeholder || '') + '" value="' + (field.defaultValue || '') + '">');
             input.attr('data-field-name', field.name);
+            if (field.min !== undefined) input.attr('min', field.min);
+            if (field.max !== undefined) input.attr('max', field.max);
+            if (field.step !== undefined) input.attr('step', field.step);
+            if (field.inputmode !== undefined) input.attr('inputmode', field.inputmode);
             if (field.required) {
                 input.attr('required', 'required');
             }
@@ -139,14 +148,14 @@ var PuockEditor = {
 
         // 取消按钮事件
         btnCancel.on('click', function() {
-            modal.remove();
+            closeModal();
             if (config.onCancel) config.onCancel();
         });
 
         // 点击背景关闭
         modal.on('click', function(e) {
             if (e.target === modal[0]) {
-                modal.remove();
+                closeModal();
                 if (config.onCancel) config.onCancel();
             }
         });
@@ -169,8 +178,13 @@ var PuockEditor = {
             });
 
             if (valid) {
-                modal.remove();
-                if (config.onConfirm) config.onConfirm(values);
+                var shouldClose = true;
+                if (config.onConfirm) {
+                    shouldClose = (config.onConfirm(values) !== false);
+                }
+                if (shouldClose) {
+                    closeModal();
+                }
             }
         });
 
@@ -178,6 +192,14 @@ var PuockEditor = {
         body.find('input').on('keypress', function(e) {
             if (e.which === 13) {
                 btnConfirm.click();
+            }
+        });
+
+        // ESC 关闭
+        $(document).on('keydown.puockEditorModal', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+                if (config.onCancel) config.onCancel();
             }
         });
     },
@@ -200,6 +222,29 @@ var PuockEditor = {
         var start = textarea.selectionStart;
         var end = textarea.selectionEnd;
         return textarea.value.substring(start, end);
+    },
+
+    // 生成 Markdown 表格（第一行作为表头）
+    buildMarkdownTable: function(rows, cols) {
+        var safeRows = Math.max(1, rows);
+        var safeCols = Math.max(1, cols);
+        var headerCells = [];
+        var separatorCells = [];
+        for (var c = 0; c < safeCols; c++) {
+            headerCells.push('列' + (c + 1));
+            separatorCells.push('---');
+        }
+
+        var md = '| ' + headerCells.join(' | ') + ' |\\n';
+        md += '| ' + separatorCells.join(' | ') + ' |\\n';
+
+        for (var r = 0; r < safeRows - 1; r++) {
+            var rowCells = [];
+            for (var cc = 0; cc < safeCols; cc++) rowCells.push(' ');
+            md += '| ' + rowCells.join(' | ') + ' |\\n';
+        }
+
+        return md;
     }
 };
 
@@ -207,6 +252,7 @@ $(document).ready(function() {
     // 初始化所有编辑器按钮
     PuockEditor.initArticleButton();
     PuockEditor.initGithubButton();
+    PuockEditor.initTableButton();
     PuockEditor.initAlertButtons();
     PuockEditor.initCollapseButton();
     PuockEditor.initDownloadButton();
@@ -252,6 +298,52 @@ PuockEditor.initGithubButton = function() {
                 if (values.repo) {
                     PuockEditor.insertText('[github=' + values.repo + ']');
                 }
+            }
+        });
+    });
+};
+
+// 初始化表格按钮
+PuockEditor.initTableButton = function() {
+    $('#wmd-button-row').append('<li class="wmd-button" id="wmd-table-button" title="插入表格"><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3 3H21C21.5523 3 22 3.44772 22 4V20C22 20.5523 21.5523 21 21 21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3ZM4 5V9H8V5H4ZM10 5V9H20V5H10ZM4 11V15H8V11H4ZM10 11V15H20V11H10ZM4 17V19H8V17H4ZM10 17V19H20V17H10Z"></path></svg></span></li>');
+
+    $('#wmd-table-button').on('click', function() {
+        PuockEditor.showModal({
+            title: '插入表格',
+            fields: [
+                {
+                    name: 'rows',
+                    label: '行数（含表头）',
+                    placeholder: '例如：3',
+                    defaultValue: '3',
+                    required: true,
+                    type: 'number',
+                    min: 1,
+                    max: 50,
+                    step: 1,
+                    inputmode: 'numeric'
+                },
+                {
+                    name: 'cols',
+                    label: '列数',
+                    placeholder: '例如：3',
+                    defaultValue: '3',
+                    required: true,
+                    type: 'number',
+                    min: 1,
+                    max: 20,
+                    step: 1,
+                    inputmode: 'numeric'
+                }
+            ],
+            onConfirm: function(values) {
+                var rows = parseInt(values.rows, 10);
+                var cols = parseInt(values.cols, 10);
+                if (!rows || rows < 1 || rows > 50 || !cols || cols < 1 || cols > 20) {
+                    alert('请输入正确的行数/列数（行：1-50，列：1-20）');
+                    return false;
+                }
+                PuockEditor.insertText(PuockEditor.buildMarkdownTable(rows, cols));
             }
         });
     });
