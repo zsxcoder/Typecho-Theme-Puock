@@ -92,6 +92,99 @@ function get_article_info($atts)
 
 class ContentFilter  {
     /**
+     * 从短代码内部提取 URL（兼容被 Markdown 自动转为 <a> 的情况）。
+     *
+     * @param string $raw
+     * @return string
+     */
+    private static function extractUrl($raw)
+    {
+        if (!is_string($raw) || $raw === '') {
+            return '';
+        }
+
+        $raw = trim(html_entity_decode($raw, ENT_QUOTES, 'UTF-8'));
+
+        // HTML 链接：<a href="...">...</a>
+        if (preg_match('/<a\\s+[^>]*href=(["\'])(.*?)\\1/i', $raw, $m)) {
+            return trim($m[2]);
+        }
+
+        // Markdown 链接：[text](url)
+        if (preg_match('/\\[[^\\]]*\\]\\(([^)\\s]+)(?:\\s+\"[^\"]*\")?\\)/', $raw, $m)) {
+            return trim($m[1]);
+        }
+
+        $raw = strip_tags($raw);
+        $raw = trim($raw);
+        return trim($raw, " \t\n\r\0\x0B\"'");
+    }
+
+    /**
+     * 临时保护（非 GitHub）短代码，避免在短代码内部误处理 URL（如 GitHub 卡片识别与替换）。
+     *
+     * @param string $content
+     * @param array $protected 输出：占位符 => 原始内容
+     * @return string
+     */
+    private static function protectNonGithubShortcodes($content, &$protected)
+    {
+        $protected = [];
+        $prefix = '<!--PUOCK_SC_' . md5(uniqid('', true)) . '_';
+        $suffix = '-->';
+
+        $store = function ($raw) use (&$protected, $prefix, $suffix) {
+            $key = $prefix . count($protected) . $suffix;
+            $protected[$key] = $raw;
+            return $key;
+        };
+
+        // 先保护成对短代码块：[tag ...]...[/tag]
+        $blockPattern = '/\[(?!\/?github(?:=|\s|\]))([a-zA-Z][\\w-]*)(?:\\s+[^\\]]*)?\\][\\s\\S]*?\\[\\/\\1\\]/i';
+        for ($i = 0; $i < 50; $i++) {
+            $content = preg_replace_callback(
+                $blockPattern,
+                function ($matches) use ($store) {
+                    return $store($matches[0]);
+                },
+                $content,
+                -1,
+                $count
+            );
+            if (empty($count)) {
+                break;
+            }
+        }
+
+        // 再保护剩余的短代码标签：[tag ...] 或 [/tag]
+        $tagPattern = '/\[(?!\/?github(?:=|\s|\]))\\/?[a-zA-Z][\\w-]*(?:\\s+[^\\]]*)?\\]/i';
+        $content = preg_replace_callback(
+            $tagPattern,
+            function ($matches) use ($store) {
+                return $store($matches[0]);
+            },
+            $content
+        );
+
+        return $content;
+    }
+
+    /**
+     * 恢复 protectNonGithubShortcodes 产生的占位符。
+     *
+     * @param string $content
+     * @param array $protected
+     * @return string
+     */
+    private static function restoreProtectedShortcodes($content, $protected)
+    {
+        if (empty($protected)) {
+            return $content;
+        }
+        return str_replace(array_keys($protected), array_values($protected), $content);
+    }
+
+    /**
      * 过滤内容中的短代码
      *
      * @param string $content 内容
@@ -130,14 +223,18 @@ class ContentFilter  {
             return '<div class="github-card text-center" data-repo="' . $repo . '"><div class="spinner-grow text-primary"></div></div>';
         }, $content);
 
-        $content = preg_replace_callback(
+        // GitHub 直链转换需排除其它短代码内部的 URL，避免短代码冲突（例如“新窗口打开链接”等短代码中包含 GitHub URL）
+        $protectedShortcodes = [];
+        $githubScanContent = self::protectNonGithubShortcodes($content, $protectedShortcodes);
+        $githubScanContent = preg_replace_callback(
             '#https://github\.com/([\w\-\.]+/[\w\-\.]+)(?=[\s\.,;:!\?\)\]\}\"\'\n]|$)#i',
             function($matches) {
                 $repo = htmlspecialchars($matches[1]);
                 return '<div class="github-card text-center" data-repo="' . $repo . '"><div class="spinner-grow text-primary"></div></div>';
             },
-            $content
+            $githubScanContent
         );
+        $content = self::restoreProtectedShortcodes($githubScanContent, $protectedShortcodes);
 
         // alert 类短代码
         $alertShortcodes = [
@@ -202,7 +299,7 @@ class ContentFilter  {
             function($matches) {
                 $file = $matches[1] !== '' ? $matches[1] : $matches[2];
                 $size = $matches[3] !== '' ? $matches[3] : $matches[4];
-                $url = $matches[5];
+                $url = self::extractUrl($matches[5]);
                 return '<div class="p-block p-down-box">'
                     . "<div class='mb15'><i class='fa fa-file-zipper'></i>&nbsp;<span> 文件名称：" . htmlspecialchars($file) . "</span></div>"
                     . "<div class='mb15'><i class='fa fa-download'></i>&nbsp;<span> 文件大小：" . htmlspecialchars($size) . "</span></div>"
@@ -329,14 +426,18 @@ class ContentFilter  {
         }, $content);
 
         // 匹配已被 Markdown 转换为 <a> 标签的 GitHub 链接
-        $content = preg_replace_callback(
+        // 需排除其它短代码内部的链接（短代码中包含的 URL 不应被 GitHub 卡片替换）
+        $protectedShortcodes = [];
+        $githubScanContent = self::protectNonGithubShortcodes($content, $protectedShortcodes);
+        $githubScanContent = preg_replace_callback(
             '#<a\s+href="https://github\.com/([\w\-\.]+/[\w\-\.]+)"[^>]*>https://github\.com/[\w\-\.]+/[\w\-\.]+</a>#i',
             function($matches) {
                 $repo = htmlspecialchars($matches[1]);
                 return '<div class="github-card text-center" data-repo="' . $repo . '"><div class="spinner-grow text-primary"></div></div>';
             },
-            $content
+            $githubScanContent
         );
+        $content = self::restoreProtectedShortcodes($githubScanContent, $protectedShortcodes);
 
         // alert 类短代码
         $alertShortcodes = [
@@ -388,7 +489,7 @@ class ContentFilter  {
             function($matches) {
                 $file = $matches[1] !== '' ? $matches[1] : $matches[2];
                 $size = $matches[3] !== '' ? $matches[3] : $matches[4];
-                $url = $matches[5];
+                $url = self::extractUrl($matches[5]);
                 return '<div class="p-block p-down-box">'
                     . "<div class='mb15'><i class='fa fa-file-zipper'></i>&nbsp;<span> 文件名称：" . htmlspecialchars($file) . "</span></div>"
                     . "<div class='mb15'><i class='fa fa-download'></i>&nbsp;<span> 文件大小：" . htmlspecialchars($size) . "</span></div>"
