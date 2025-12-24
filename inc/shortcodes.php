@@ -104,10 +104,16 @@ class ContentFilter  {
         }
 
         $raw = trim(html_entity_decode($raw, ENT_QUOTES, 'UTF-8'));
+        $stripped = trim(strip_tags($raw));
 
         // HTML 链接：<a href="...">...</a>
         if (preg_match('/<a\\s+[^>]*href=(["\'])(.*?)\\1/i', $raw, $m)) {
-            return trim($m[2]);
+            $href = trim($m[2]);
+            // Markdown 自动链接在遇到括号等字符时，可能会把后缀拆到 </a> 外，strip_tags 后能还原成完整 URL
+            if ($stripped !== '' && preg_match('#^https?://\\S+$#i', $stripped)) {
+                return $stripped;
+            }
+            return $href;
         }
 
         // Markdown 链接：[text](url)
@@ -115,9 +121,10 @@ class ContentFilter  {
             return trim($m[1]);
         }
 
-        $raw = strip_tags($raw);
-        $raw = trim($raw);
-        return trim($raw, " \t\n\r\0\x0B\"'");
+        if ($stripped === '') {
+            return '';
+        }
+        return trim($stripped, " \t\n\r\0\x0B\"'");
     }
 
     /**
