@@ -12,6 +12,30 @@ function themeConfig($form)
     $form->addInput($primaryColor);
     $cnavatar = new Typecho_Widget_Helper_Form_Element_Text('cnavatar', NULL, NULL, _t('Gravatar镜像'), _t('默认使用https://cravatar.cn/avatar/'));
     $form->addInput($cnavatar);
+    $avatar = new Typecho_Widget_Helper_Form_Element_Text('avatar', NULL, NULL, _t('<span class="themeConfig"><h3>关于页面设置</h3></span>个人头像'), _t('关于页面显示的头像地址，建议尺寸 200px * 200px'));
+    $form->addInput($avatar);
+    $location = new Typecho_Widget_Helper_Form_Element_Text('location', NULL, NULL, _t('所在位置'), _t('如：北京、上海等'));
+    $form->addInput($location);
+    $github = new Typecho_Widget_Helper_Form_Element_Text('github', NULL, NULL, _t('GitHub 地址'), _t('如：https://github.com/username'));
+    $form->addInput($github);
+    $qq = new Typecho_Widget_Helper_Form_Element_Text('qq', NULL, NULL, _t('QQ 地址'), _t('如：https://wpa.qq.com/msgrd?v=3&uin=123456&site=qq&menu=yes'));
+    $form->addInput($qq);
+    $telegram = new Typecho_Widget_Helper_Form_Element_Text('telegram', NULL, NULL, _t('Telegram 地址'), _t('如：https://t.me/username'));
+    $form->addInput($telegram);
+    $mastodon = new Typecho_Widget_Helper_Form_Element_Text('mastodon', NULL, NULL, _t('Mastodon 地址'), _t('如：https://mastodon.social/@username'));
+    $form->addInput($mastodon);
+    $bilibili = new Typecho_Widget_Helper_Form_Element_Text('bilibili', NULL, NULL, _t('哔哩哔哩地址'), _t('如：https://space.bilibili.com/uid'));
+    $form->addInput($bilibili);
+    $email = new Typecho_Widget_Helper_Form_Element_Text('email', NULL, NULL, _t('Email 地址'), _t('如：example@email.com'));
+    $form->addInput($email);
+    $currentJob = new Typecho_Widget_Helper_Form_Element_Text('currentJob', NULL, NULL, _t('职业'), _t('如：程序员、设计师等'));
+    $form->addInput($currentJob);
+    $birthYear = new Typecho_Widget_Helper_Form_Element_Text('birthYear', NULL, NULL, _t('出生年份'), _t('如：2005'));
+    $form->addInput($birthYear);
+    $education = new Typecho_Widget_Helper_Form_Element_Text('education', NULL, NULL, _t('教育信息'), _t('如：南京工业职业技术大学 自动化技术与应用'));
+    $form->addInput($education);
+    $careersImage = new Typecho_Widget_Helper_Form_Element_Text('careersImage', NULL, 'https://img02.anheyu.com/adminuploads/1/2022/09/25/6330a3b3f3268.jpg', _t('生涯背景图'), _t('生涯卡片的背景图片地址，默认使用安知鱼官方图片'));
+    $form->addInput($careersImage);
     $sticky = new Typecho_Widget_Helper_Form_Element_Text('sticky', NULL, NULL, _t('<span class="themeConfig"><h3>文章推荐</h3></span><br>置顶文章'), _t('填入文章的cid,多个cid以`|`符号隔开'));
     $form->addInput($sticky);
     $listmodel = new Typecho_Widget_Helper_Form_Element_Radio('listmodel',
@@ -89,4 +113,6 @@ function themeFields($layout) {
     $layout->addItem($summary);
     $cover= new Typecho_Widget_Helper_Form_Element_Text('cover', NULL, NULL, _t('文章封面'), _t('自定义文章封面'));
     $layout->addItem($cover);
+    $skills= new Typecho_Widget_Helper_Form_Element_Text('skills', NULL, NULL, _t('技能标签'), _t('用英文逗号分隔，如：HTML,CSS,JavaScript,PHP'));
+    $layout->addItem($skills);
 }
