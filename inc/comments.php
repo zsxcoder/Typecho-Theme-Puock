@@ -18,12 +18,12 @@ function getAllCommenters() {
             ->group('mail')
             ->order('comment_count', Typecho_Db::SORT_DESC);
     } else {
-        // MySQL 用 ANY_VALUE 兼容 ONLY_FULL_GROUP_BY
+        // MySQL 使用 MAX/MIN 兼容 ONLY_FULL_GROUP_BY（兼容旧版本）
         $query = $db->select(
-            'ANY_VALUE(author) as author',
+            'MAX(author) as author',
             'mail',
             'COUNT(*) as comment_count',
-            'ANY_VALUE(url) as url'
+            'MAX(url) as url'
         )
         ->from('table.comments')
         ->where('authorId != ?', 1)
