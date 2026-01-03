@@ -30,6 +30,16 @@
     <script src='<?php $this->options->themeUrl('assets/js/jquery.min.js'); ?>' type="text/javascript"></script>
     <!-- 通过自有函数输出HTML头部信息 -->
     <?php $this->header(); ?>
+    <style id="puock-comment-indent-cap">
+        @media (max-width: 767px) {
+            #post-comments .comment-list .children{padding-left:30px!important}
+            #post-comments .comment-list .children .children{padding-left:30px!important}
+            #post-comments .comment-list .children .children .children{padding-left:0!important}
+            #post-comments ol.comment-list .comment-children ol.comment-list{padding-left:30px!important}
+            #post-comments ol.comment-list .comment-children .comment-children ol.comment-list{padding-left:30px!important}
+            #post-comments ol.comment-list .comment-children .comment-children .comment-children ol.comment-list{padding-left:0!important}
+        }
+    </style>
 </head>
 <body class="puock-auto custom-background">
     <div>
