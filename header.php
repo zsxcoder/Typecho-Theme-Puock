@@ -26,8 +26,8 @@
     <link rel="icon" href="<?php $this->options->icoUrl() ?>" sizes="32x32" />
     <link rel="apple-touch-icon" href="<?php $this->options->icoUrl() ?>" />
     <?php endif; ?>
-    <link rel="stylesheet" href="<?php $this->options->themeUrl('assets/css/style.css'); ?>">
-    <script src='<?php $this->options->themeUrl('assets/js/jquery.min.js'); ?>' type="text/javascript"></script>
+    <link rel="stylesheet" href="<?php $this->options->themeUrl('assets/css/style.css'); ?>?ver=<?php echo get_theme_version(); ?>" type="text/css" media="all" />
+    <script src='<?php $this->options->themeUrl('assets/js/jquery.min.js'); ?>?ver=<?php echo get_theme_version(); ?>' type="text/javascript"></script>
     <!-- 通过自有函数输出HTML头部信息 -->
     <?php $this->header(); ?>
     <style id="puock-comment-indent-cap">
