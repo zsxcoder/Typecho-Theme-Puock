@@ -10,7 +10,7 @@ function get_theme_version()
         return $cached;
     }
 
-    $indexFile = __DIR__ . '/index.php';
+    $indexFile = dirname(__DIR__) . '/index.php';
     if (!is_file($indexFile)) {
         $cached = '';
         return $cached;
