@@ -93,12 +93,12 @@
             "off_code_highlighting": false
         };
     </script>
-    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/libs.min.js'); ?>?ver=<?php echo $get_theme_version; ?>" id="puock-libs-js"></script>
-    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/layer/layer.js'); ?>?ver=<?php echo $get_theme_version; ?>" id="puock-layer-js"></script>
-    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/spark-md5.min.js'); ?>?ver=<?php echo $get_theme_version; ?>" id="puock-spark-md5-js"></script>
-    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/html2canvas.min.js'); ?>?ver=<?php echo $get_theme_version; ?>" id="puock-html2canvas-js"></script>
-    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/gt4.js'); ?>?ver=<?php echo $get_theme_version; ?>" id="puock-gt4-js"></script>
-    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/puock.js'); ?>?t=<?php echo $get_theme_version; ?>" id="puock-js"></script>
+    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/libs.min.js'); ?>?ver=<?php echo get_theme_version(); ?>" id="puock-libs-js"></script>
+    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/layer/layer.js'); ?>?ver=<?php echo get_theme_version(); ?>" id="puock-layer-js"></script>
+    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/spark-md5.min.js'); ?>?ver=<?php echo get_theme_version(); ?>" id="puock-spark-md5-js"></script>
+    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/html2canvas.min.js'); ?>?ver=<?php echo get_theme_version(); ?>" id="puock-html2canvas-js"></script>
+    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/gt4.js'); ?>?ver=<?php echo get_theme_version(); ?>" id="puock-gt4-js"></script>
+    <script type="text/javascript" data-no-instant src="<?php $this->options->themeUrl('assets/js/puock.js'); ?>?t=<?php echo get_theme_version(); ?>" id="puock-js"></script>
     <?php $this->footer(); ?>
 </body>
 </html>
